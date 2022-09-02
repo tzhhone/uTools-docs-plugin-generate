@@ -3,7 +3,7 @@
   <a href="https://blog.tzhhone.cn">
     <img src="https://img.shields.io/badge/author-tzhhone-blue" alt="tzhhone">
   </a>
-  <img src="https://img.shields.io/badge/python3.7%2B-brightgreen" alt="python">
+  <img src="https://img.shields.io/badge/python-3.7%2B-brightgreen" alt="python">
   <a href="https://github.com/tzhhone/uTools-docs-plugin-generate/blob/master/LICENSE">
     <img src="https://img.shields.io/github/license/tzhhone/uTools-docs-plugin-generate" alt="license">
   </a>
