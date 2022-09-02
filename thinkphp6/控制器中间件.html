@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>控制器中间件</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s-1998530727"><h2><a id="_0"></a>控制器中间件</h2>
+<p>支持为控制器定义中间件，你只需要在你的控制器中定义<code>middleware</code>属性，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\controller<span class="token punctuation">;</span>
+
+use app\middleware\Auth<span class="token punctuation">;</span>
+
+class <span class="token class-name">Index</span> 
+<span class="token punctuation">{</span>
+    protected $middleware <span class="token operator">=</span> <span class="token punctuation">[</span>Auth<span class="token punctuation">:</span><span class="token punctuation">:</span>class<span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+    public <span class="token keyword">function</span> <span class="token function">index</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token string">'index'</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    public <span class="token keyword">function</span> <span class="token function">hello</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token string">'hello'</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>当执行<code>index</code>控制器的时候就会调用<code>Auth</code>中间件，一样支持使用完整的命名空间定义。</p>
+<p>如果需要设置控制器中间的生效操作，可以如下定义：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\index\controller<span class="token punctuation">;</span>
+
+class <span class="token class-name">Index</span> 
+<span class="token punctuation">{</span>
+    protected $middleware <span class="token operator">=</span> <span class="token punctuation">[</span> 
+    	Auth<span class="token punctuation">:</span><span class="token punctuation">:</span>class <span class="token class-name"><span class="token punctuation">.</span></span> <span class="token string">':admin'</span> 	<span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token punctuation">[</span><span class="token string">'except'</span> 	<span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token punctuation">[</span><span class="token string">'hello'</span><span class="token punctuation">]</span> <span class="token punctuation">]</span><span class="token punctuation">,</span>
+        <span class="token string">'Hello'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token punctuation">[</span><span class="token string">'only'</span> 		<span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token punctuation">[</span><span class="token string">'hello'</span><span class="token punctuation">]</span> <span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+    public <span class="token keyword">function</span> <span class="token function">index</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token string">'index'</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    public <span class="token keyword">function</span> <span class="token function">hello</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token string">'hello'</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<h2><a id="_53"></a>中间件传参</h2>
+<p>如果需要给中间件传参，可以的定义的时候使用</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\controller<span class="token punctuation">;</span>
+
+class <span class="token class-name">Index</span> 
+<span class="token punctuation">{</span>
+    protected $middleware <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token string">'Auth'</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+    public <span class="token keyword">function</span> <span class="token function">index</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token string">'index'</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    public <span class="token keyword">function</span> <span class="token function">hello</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token string">'hello'</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<h2><a id="_77"></a>控制器传参</h2>
+<p>可以通过给请求对象赋值的方式传参给控制器（或者其它地方），例如</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+
+namespace app\http\middleware<span class="token punctuation">;</span>
+
+class <span class="token class-name">Hello</span>
+<span class="token punctuation">{</span>
+    public <span class="token keyword">function</span> <span class="token function">handle</span><span class="token punctuation">(</span>$request<span class="token punctuation">,</span> \Closure $next<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        $request<span class="token operator">-</span><span class="token operator">&gt;</span>hello <span class="token operator">=</span> <span class="token string">'ThinkPHP'</span><span class="token punctuation">;</span>
+        
+        <span class="token keyword">return</span> $<span class="token function">next</span><span class="token punctuation">(</span>$request<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>然后在控制器的方法里面可以直接使用</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">public <span class="token keyword">function</span> <span class="token function">index</span><span class="token punctuation">(</span>Request $request<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	<span class="token keyword">return</span> $request<span class="token operator">-</span><span class="token operator">&gt;</span>hello<span class="token punctuation">;</span> <span class="token comment">// ThinkPHP</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

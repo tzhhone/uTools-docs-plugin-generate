@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>容器和依赖注入</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s1293022144"><h2><a id="_0"></a>容器和依赖注入</h2>
+<p>ThinkPHP使用容器来更方便的管理类依赖及运行依赖注入，新版的容器支持<code>PSR-11</code>规范。</p>
+<blockquote class="danger"><p>容器类的工作由<code>think\Container</code>类完成，但大多数情况我们只需要通过<code>app</code>助手函数或者<code>think\App</code>类即可容器操作，如果在服务类中可以直接调用<code>this-&gt;app</code>进行容器操作。</p></blockquote>
+<p>依赖注入其实本质上是指对类的依赖通过构造器完成自动注入，例如在控制器架构方法和操作方法中一旦对参数进行对象类型约束则会自动触发依赖注入，由于访问控制器的参数都来自于URL请求，普通变量就是通过参数绑定自动获取，对象变量则是通过依赖注入生成。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\controller<span class="token punctuation">;</span>
+
+use think\Request<span class="token punctuation">;</span>
+
+class <span class="token class-name">Index</span>
+<span class="token punctuation">{</span>
+    protected $request<span class="token punctuation">;</span>
+
+    public <span class="token keyword">function</span> <span class="token function">__construct</span><span class="token punctuation">(</span>Request $request<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        $this<span class="token operator">-</span><span class="token operator">&gt;</span>request <span class="token operator">=</span> $request<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    public <span class="token keyword">function</span> <span class="token function">hello</span><span class="token punctuation">(</span>$name<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token string">'Hello,'</span> <span class="token punctuation">.</span> $name <span class="token punctuation">.</span> <span class="token string">'！This is '</span><span class="token punctuation">.</span> $this<span class="token operator">-</span><span class="token operator">&gt;</span>request<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">action</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<blockquote class="danger"><p>依赖注入的对象参数支持多个，并且和顺序无关。</p></blockquote>
+<p>支持使用依赖注入的场景包括（但不限于）：</p>
+<ul><li>控制器架构方法；</li><li>控制器操作方法；</li><li>路由的闭包定义；</li><li>事件类的执行方法；</li><li>中间件的执行方法；</li></ul>
+<p>对于自定义的类以及方法，如果需要使用依赖注入，需要使用系统提供的<code>invoke</code>助手函数调用，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">class <span class="token class-name">Foo</span> 
+<span class="token punctuation">{</span>
+    public <span class="token keyword">function</span> <span class="token function">__construct</span><span class="token punctuation">(</span>Bar $bar<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>如果直接<code>new</code>的话，需要手动传入<code>Bar</code>对象实例</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$bar <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Bar</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> 
+$foo <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Foo</span><span class="token punctuation">(</span>$bar<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>如果使用容器来实例化的话，可以自动进行依赖注入。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$foo <span class="token operator">=</span> <span class="token function">invoke</span><span class="token punctuation">(</span><span class="token string">'Foo'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>如果要对某个方法支持依赖注入，可以使用</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">class <span class="token class-name">Foo</span> 
+<span class="token punctuation">{</span>
+    public <span class="token keyword">function</span> <span class="token function">bar</span><span class="token punctuation">(</span>Bar $bar<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token comment">// ...</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$result <span class="token operator">=</span> <span class="token function">invoke</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'Foo'</span><span class="token punctuation">,</span> <span class="token string">'bar'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>也支持对某个函数或者闭包使用依赖注入</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$result <span class="token operator">=</span> <span class="token function">invoke</span><span class="token punctuation">(</span><span class="token keyword">function</span><span class="token punctuation">(</span>Bar $bar<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// ...</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h2><a id="_83"></a>绑定</h2>
+<p>依赖注入的类统一由容器进行管理，<strong>大多数情况下是在自动绑定并且实例化的</strong>。不过你可以随时进行手动绑定类到容器中（通常是在服务类的<code>register</code>方法中进行绑定），支持多种绑定方式。</p>
+<h3><a id="_87"></a>绑定类标识</h3>
+<p>可以对已有的类库绑定一个标识（唯一），便于快速调用。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 绑定类库标识</span>
+$this<span class="token operator">-</span><span class="token operator">&gt;</span>app<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">bind</span><span class="token punctuation">(</span><span class="token string">'think\Cache'</span><span class="token punctuation">,</span> <span class="token string">'app\common\Cache'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>或者使用助手函数</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 绑定类库标识</span>
+<span class="token function">bind</span><span class="token punctuation">(</span><span class="token string">'cache'</span><span class="token punctuation">,</span> <span class="token string">'think\Cache'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<blockquote class="default"><p>绑定的类标识可以自己定义（只要不冲突）。</p></blockquote>
+<h3><a id="_105"></a>绑定闭包</h3>
+<p>可以绑定一个闭包到容器中</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token function">bind</span><span class="token punctuation">(</span><span class="token string">'sayHello'</span><span class="token punctuation">,</span> <span class="token keyword">function</span> <span class="token punctuation">(</span>$name<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token string">'hello,'</span> <span class="token punctuation">.</span> $name<span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h3><a id="_115"></a>绑定实例</h3>
+<p>也可以直接绑定一个类的实例</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$cache <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">think<span class="token punctuation">\</span>Cache</span><span class="token punctuation">;</span>
+<span class="token comment">// 绑定类实例</span>
+<span class="token function">bind</span><span class="token punctuation">(</span><span class="token string">'cache'</span><span class="token punctuation">,</span> $cache<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h3><a id="_125"></a>绑定至接口实现</h3>
+<p>对于依赖注入使用接口类的情况，我们需要告诉系统使用哪个具体的接口实现类来进行注入，这个使用可以把某个类绑定到接口</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 绑定think\LoggerInterface接口实现到think\Log</span>
+<span class="token function">bind</span><span class="token punctuation">(</span><span class="token string">'think\LoggerInterface'</span><span class="token punctuation">,</span><span class="token string">'think\Log'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>使用接口作为依赖注入的类型</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\index\controller<span class="token punctuation">;</span>
+
+use think\LoggerInterface<span class="token punctuation">;</span>
+
+class <span class="token class-name">Index</span>
+<span class="token punctuation">{</span>
+    public <span class="token keyword">function</span> <span class="token function">hello</span><span class="token punctuation">(</span>LoggerInterface $log<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+    	$log<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">record</span><span class="token punctuation">(</span><span class="token string">'hello,world!'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>	
+<span class="token punctuation">}</span>
+</code></pre></div>
+<h3><a id="_151"></a>批量绑定</h3>
+<p>在实际应用开发过程，不需要手动绑定，我们只需要在<code>app</code>目录下面定义<code>provider.php</code>文件（只能在全局定义，不支持应用单独定义），系统会自动批量绑定类库到容器中。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token keyword">return</span> <span class="token punctuation">[</span>
+    <span class="token string">'route'</span>      <span class="token operator">=</span><span class="token operator">&gt;</span> \think\Route<span class="token punctuation">:</span><span class="token punctuation">:</span>class<span class="token punctuation">,</span>
+    <span class="token string">'session'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span> \think\Session<span class="token punctuation">:</span><span class="token punctuation">:</span>class<span class="token punctuation">,</span>
+    <span class="token string">'url'</span>        <span class="token operator">=</span><span class="token operator">&gt;</span> \think\Url<span class="token punctuation">:</span><span class="token punctuation">:</span>class<span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">;</span>
+</code></pre></div>
+<blockquote class="danger"><p>绑定标识调用的时候区分大小写，系统已经内置绑定了核心常用类库，无需重复绑定</p></blockquote>
+<p>系统内置绑定到容器中的类库包括</p>
+<table><thead><tr><th>系统类库</th><th>容器绑定标识</th></tr></thead><tbody><tr><td>think\App</td><td>app</td></tr><tr><td>think\Cache</td><td>cache</td></tr><tr><td>think\Config</td><td>config</td></tr><tr><td>think\Cookie</td><td>cookie</td></tr><tr><td>think\Console</td><td>console</td></tr><tr><td>think\Db</td><td>db</td></tr><tr><td>think\Debug</td><td>debug</td></tr><tr><td>think\Env</td><td>env</td></tr><tr><td>think\Event</td><td>event</td></tr><tr><td>think\Http</td><td>http</td></tr><tr><td>think\Lang</td><td>lang</td></tr><tr><td>think\Log</td><td>log</td></tr><tr><td>think\Middleware</td><td>middleware</td></tr><tr><td>think\Request</td><td>request</td></tr><tr><td>think\Response</td><td>response</td></tr><tr><td>think\Filesystem</td><td>filesystem</td></tr><tr><td>think\Route</td><td>route</td></tr><tr><td>think\Session</td><td>session</td></tr><tr><td>think\Validate</td><td>validate</td></tr><tr><td>think\View</td><td>view</td></tr></tbody></table>
+<h2><a id="_191"></a>解析</h2>
+<p>使用<code>app</code>助手函数进行容器中的类解析调用，对于已经绑定的类标识，会自动快速实例化</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$cache <span class="token operator">=</span> <span class="token function">app</span><span class="token punctuation">(</span><span class="token string">'cache'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>带参数实例化调用</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$cache <span class="token operator">=</span> <span class="token function">app</span><span class="token punctuation">(</span><span class="token string">'cache'</span><span class="token punctuation">,</span><span class="token punctuation">[</span><span class="token string">'file'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>对于没有绑定的类，也可以直接解析</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$arrayItem <span class="token operator">=</span> <span class="token function">app</span><span class="token punctuation">(</span><span class="token string">'org\utils\ArrayItem'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<blockquote class="danger"><p>调用和绑定的标识必须保持一致（包括大小写）</p></blockquote>
+<p>容器中已经调用过的类会自动使用单例，除非你使用下面的方式强制重新实例化。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 每次调用都会重新实例化</span>
+$cache <span class="token operator">=</span> <span class="token function">app</span><span class="token punctuation">(</span><span class="token string">'cache'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h2><a id="_220"></a>对象化调用</h2>
+<p>使用<code>app</code>助手函数获取容器中的对象实例（支持依赖注入）。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$app <span class="token operator">=</span> <span class="token function">app</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// 判断对象实例是否存在</span>
+<span class="token function">isset</span><span class="token punctuation">(</span>$app<span class="token operator">-</span><span class="token operator">&gt;</span>cache<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">// 注册容器对象实例</span>
+$app<span class="token operator">-</span><span class="token operator">&gt;</span>cache <span class="token operator">=</span> think\Cache<span class="token punctuation">:</span><span class="token punctuation">:</span>class<span class="token punctuation">;</span>
+
+<span class="token comment">// 获取容器中的对象实例</span>
+$cache <span class="token operator">=</span> $app<span class="token operator">-</span><span class="token operator">&gt;</span>cache<span class="token punctuation">;</span>
+</code></pre></div>
+<p>也就是说，你可以在任何地方使用<code>app()</code>方法调用容器中的任何类，但大多数情况下面，我们更建议使用依赖注入。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 调用配置类</span>
+<span class="token function">app</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span>config<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'app_name'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// 调用session类</span>
+<span class="token function">app</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span>session<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'user_name'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h2><a id="_245"></a>自动注入</h2>
+<p>容器主要用于依赖注入，依赖注入会首先检查容器中是否注册过该对象实例，如果没有就会自动实例化，然后自动注入，例如：</p>
+<p>我们可以给路由绑定模型对象实例</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'user/:id'</span><span class="token punctuation">,</span><span class="token string">'index/Index/hello'</span><span class="token punctuation">)</span>
+	<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">model</span><span class="token punctuation">(</span><span class="token string">'\app\index\model\User'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>然后在操作方法中自动注入User模型</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\index\controller<span class="token punctuation">;</span>
+
+use app\index\model\User<span class="token punctuation">;</span>
+
+class <span class="token class-name">Index</span>
+<span class="token punctuation">{</span>
+
+    public <span class="token keyword">function</span> <span class="token function">hello</span><span class="token punctuation">(</span>User $user<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token string">'Hello,'</span><span class="token punctuation">.</span>$user<span class="token operator">-</span><span class="token operator">&gt;</span>name<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+<span class="token punctuation">}</span>
+</code></pre></div>
+<h2><a id="_275"></a>自定义实例化</h2>
+<p>容器中的对象实例化支持自定义，可以在你需要依赖注入的对象中增加<code>__make</code>方法定义，例如：</p>
+<p>如果你希望<code>User</code>模型类在依赖注入的时候 使用自定义实例化的方式，可以用下面的方法。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\index\model<span class="token punctuation">;</span>
+
+use think\Model<span class="token punctuation">;</span>
+use think\db\Query<span class="token punctuation">;</span>
+
+class <span class="token class-name">User</span> extends <span class="token class-name">Model</span>
+<span class="token punctuation">{</span>
+	public static <span class="token keyword">function</span> <span class="token function">__make</span><span class="token punctuation">(</span>Query $query<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+    	<span class="token keyword">return</span> <span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">self</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">setQuery</span><span class="token punctuation">(</span>$query<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<h2><a id="_297"></a>容器对象回调机制</h2>
+<p>容器中的对象实例化之后，支持回调机制，利用该机制可以实现诸如注解功能等相关功能。</p>
+<p>你可以通过<code>resolving</code>方法注册一个全局回调</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Container<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">getInstance</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">resolving</span><span class="token punctuation">(</span><span class="token keyword">function</span><span class="token punctuation">(</span>$instance<span class="token punctuation">,</span>$container<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// ...</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>回调方法支持两个参数，第一个参数是容器对象实例，第二个参数是容器实例本身。</p>
+<p>或者单独注册一个某个容器对象的回调</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Container<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">getInstance</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">resolving</span><span class="token punctuation">(</span>\think\Cache<span class="token punctuation">:</span><span class="token punctuation">:</span>class<span class="token punctuation">,</span><span class="token keyword">function</span><span class="token punctuation">(</span>$instance<span class="token punctuation">,</span>$container<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// ...</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

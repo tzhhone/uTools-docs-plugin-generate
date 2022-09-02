@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>新增</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s438360587"><p>模型数据的新增和数据库的新增数据有所区别，数据库的新增只是单纯的写入给定的数据，而模型的数据写入会包含修改器、自动完成以及模型事件等环节，数据库的数据写入参考数据库章节。</p>
+<h2><a id="_2"></a>添加一条数据</h2>
+<p>第一种是实例化模型对象后赋值并保存：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$user           <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">User</span><span class="token punctuation">;</span>
+$user<span class="token operator">-</span><span class="token operator">&gt;</span>name     <span class="token operator">=</span> <span class="token string">'thinkphp'</span><span class="token punctuation">;</span>
+$user<span class="token operator">-</span><span class="token operator">&gt;</span>email    <span class="token operator">=</span> <span class="token string">'thinkphp@qq.com'</span><span class="token punctuation">;</span>
+$user<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">save</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<blockquote class="default"><p><code>save</code>方法成功会返回<code>true</code>，并且只有当<code>before_insert</code>事件返回<code>false</code>的时候返回<code>false</code>，一旦有错误就会抛出异常。所以无需判断返回类型。</p></blockquote>
+<p>也可以直接传入数据到<code>save</code>方法批量赋值：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$user <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">User</span><span class="token punctuation">;</span>
+$user<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">save</span><span class="token punctuation">(</span><span class="token punctuation">[</span>
+    <span class="token string">'name'</span>  <span class="token operator">=</span><span class="token operator">&gt;</span>  <span class="token string">'thinkphp'</span><span class="token punctuation">,</span>
+    <span class="token string">'email'</span> <span class="token operator">=</span><span class="token operator">&gt;</span>  <span class="token string">'thinkphp@qq.com'</span>
+<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>默认只会写入数据表已有的字段，如果你通过外部提交赋值给模型，并且希望指定某些字段写入，可以使用：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$user <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">User</span><span class="token punctuation">;</span>
+<span class="token comment">// post数组中只有name和email字段会写入</span>
+$user<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">allowField</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'name'</span><span class="token punctuation">,</span><span class="token string">'email'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">save</span><span class="token punctuation">(</span>$_POST<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>最佳的建议是模型数据赋值之前就进行数据过滤，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$user <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">User</span><span class="token punctuation">;</span>
+<span class="token comment">// 过滤post数组中的非数据表字段数据</span>
+$data <span class="token operator">=</span> Request<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">only</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'name'</span><span class="token punctuation">,</span><span class="token string">'email'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+$user<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">save</span><span class="token punctuation">(</span>$data<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<blockquote class="danger"><p><code>save</code>方法新增数据返回的是写入的记录数（通常是<code>1</code>），而不是自增主键值。</p></blockquote>
+<h2><a id="Replace_40"></a><code>Replace</code>写入</h2>
+<p><code>save</code>方法可以支持<code>replace</code>写入。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$user           <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">User</span><span class="token punctuation">;</span>
+$user<span class="token operator">-</span><span class="token operator">&gt;</span>name     <span class="token operator">=</span> <span class="token string">'thinkphp'</span><span class="token punctuation">;</span>
+$user<span class="token operator">-</span><span class="token operator">&gt;</span>email    <span class="token operator">=</span> <span class="token string">'thinkphp@qq.com'</span><span class="token punctuation">;</span>
+$user<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">replace</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">save</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h2><a id="ID_51"></a>获取自增ID</h2>
+<p>如果要获取新增数据的自增ID，可以使用下面的方式：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$user           <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">User</span><span class="token punctuation">;</span>
+$user<span class="token operator">-</span><span class="token operator">&gt;</span>name     <span class="token operator">=</span> <span class="token string">'thinkphp'</span><span class="token punctuation">;</span>
+$user<span class="token operator">-</span><span class="token operator">&gt;</span>email    <span class="token operator">=</span> <span class="token string">'thinkphp@qq.com'</span><span class="token punctuation">;</span>
+$user<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">save</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// 获取自增ID</span>
+echo $user<span class="token operator">-</span><span class="token operator">&gt;</span>id<span class="token punctuation">;</span>
+</code></pre></div>
+<p>这里其实是获取模型的主键，如果你的主键不是<code>id</code>，而是<code>user_id</code>的话，其实获取自增ID就变成这样：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$user           <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">User</span><span class="token punctuation">;</span>
+$user<span class="token operator">-</span><span class="token operator">&gt;</span>name     <span class="token operator">=</span> <span class="token string">'thinkphp'</span><span class="token punctuation">;</span>
+$user<span class="token operator">-</span><span class="token operator">&gt;</span>email    <span class="token operator">=</span> <span class="token string">'thinkphp@qq.com'</span><span class="token punctuation">;</span>
+$user<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">save</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// 获取自增ID</span>
+echo $user<span class="token operator">-</span><span class="token operator">&gt;</span>user_id<span class="token punctuation">;</span>
+</code></pre></div>
+<blockquote class="danger"><p>不要在同一个实例里面多次新增数据，如果确实需要多次新增，可以使用后面的静态方法处理。</p></blockquote>
+<h2><a id="_75"></a>批量增加数据</h2>
+<p>支持批量新增，可以使用：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$user <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">User</span><span class="token punctuation">;</span>
+$list <span class="token operator">=</span> <span class="token punctuation">[</span>
+    <span class="token punctuation">[</span><span class="token string">'name'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'thinkphp'</span><span class="token punctuation">,</span><span class="token string">'email'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'thinkphp@qq.com'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token punctuation">[</span><span class="token string">'name'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'onethink'</span><span class="token punctuation">,</span><span class="token string">'email'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'onethink@qq.com'</span><span class="token punctuation">]</span>
+<span class="token punctuation">]</span><span class="token punctuation">;</span>
+$user<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">saveAll</span><span class="token punctuation">(</span>$list<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<blockquote class="default"><p>saveAll方法新增数据返回的是包含新增模型（带自增ID）的数据集对象。</p></blockquote>
+<p><code>saveAll</code>方法新增数据默认会自动识别数据是需要新增还是更新操作，当数据中存在主键的时候会认为是更新操作。</p>
+<h2><a id="_91"></a>静态方法</h2>
+<p>还可以直接静态调用<code>create</code>方法创建并写入：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$user <span class="token operator">=</span> User<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">create</span><span class="token punctuation">(</span><span class="token punctuation">[</span>
+    <span class="token string">'name'</span>  <span class="token operator">=</span><span class="token operator">&gt;</span>  <span class="token string">'thinkphp'</span><span class="token punctuation">,</span>
+    <span class="token string">'email'</span> <span class="token operator">=</span><span class="token operator">&gt;</span>  <span class="token string">'thinkphp@qq.com'</span>
+<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+echo $user<span class="token operator">-</span><span class="token operator">&gt;</span>name<span class="token punctuation">;</span>
+echo $user<span class="token operator">-</span><span class="token operator">&gt;</span>email<span class="token punctuation">;</span>
+echo $user<span class="token operator">-</span><span class="token operator">&gt;</span>id<span class="token punctuation">;</span> <span class="token comment">// 获取自增ID</span>
+</code></pre></div>
+<blockquote class="default"><p>和<code>save</code>方法不同的是，<code>create</code>方法返回的是当前模型的对象实例。</p></blockquote>
+<p><code>create</code>方法默认会过滤不是数据表的字段信息，可以在第二个参数可以传入允许写入的字段列表，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 只允许写入name和email字段的数据</span>
+$user <span class="token operator">=</span> User<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">create</span><span class="token punctuation">(</span><span class="token punctuation">[</span>
+    <span class="token string">'name'</span>  <span class="token operator">=</span><span class="token operator">&gt;</span>  <span class="token string">'thinkphp'</span><span class="token punctuation">,</span>
+    <span class="token string">'email'</span> <span class="token operator">=</span><span class="token operator">&gt;</span>  <span class="token string">'thinkphp@qq.com'</span>
+<span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token string">'name'</span><span class="token punctuation">,</span> <span class="token string">'email'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+echo $user<span class="token operator">-</span><span class="token operator">&gt;</span>name<span class="token punctuation">;</span>
+echo $user<span class="token operator">-</span><span class="token operator">&gt;</span>email<span class="token punctuation">;</span>
+echo $user<span class="token operator">-</span><span class="token operator">&gt;</span>id<span class="token punctuation">;</span> <span class="token comment">// 获取自增ID</span>
+</code></pre></div>
+<p>支持<code>replace</code>操作，使用下面的方法：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$user <span class="token operator">=</span> User<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">create</span><span class="token punctuation">(</span><span class="token punctuation">[</span>
+    <span class="token string">'name'</span>  <span class="token operator">=</span><span class="token operator">&gt;</span>  <span class="token string">'thinkphp'</span><span class="token punctuation">,</span>
+    <span class="token string">'email'</span> <span class="token operator">=</span><span class="token operator">&gt;</span>  <span class="token string">'thinkphp@qq.com'</span>
+<span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token string">'name'</span><span class="token punctuation">,</span><span class="token string">'email'</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h2><a id="_128"></a>最佳实践</h2>
+<blockquote class="info"><p>新增数据的最佳实践原则：使用<code>create</code>方法新增数据，使用<code>saveAll</code>批量新增数据。</p></blockquote>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

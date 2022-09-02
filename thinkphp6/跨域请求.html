@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>跨域请求</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s1183072600"><h2><a id="_0"></a>跨域请求</h2>
+<p>如果某个路由或者分组需要支持跨域请求，可以使用</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'new/:id'</span><span class="token punctuation">,</span> <span class="token string">'News/read'</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">ext</span><span class="token punctuation">(</span><span class="token string">'html'</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">allowCrossDomain</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<blockquote class="danger"><p>跨域请求一般会发送一条<code>OPTIONS</code>的请求，一旦设置了跨域请求的话，不需要自己定义<code>OPTIONS</code>请求的路由，系统会自动加上。</p></blockquote>
+<p>跨域请求系统会默认带上一些Header，包括：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Access<span class="token operator">-</span>Control<span class="token operator">-</span>Allow<span class="token operator">-</span>Origin<span class="token punctuation">:</span><span class="token operator">*</span>
+Access<span class="token operator">-</span>Control<span class="token operator">-</span>Allow<span class="token operator">-</span>Methods<span class="token punctuation">:</span>GET<span class="token punctuation">,</span> POST<span class="token punctuation">,</span> PATCH<span class="token punctuation">,</span> PUT<span class="token punctuation">,</span> DELETE
+Access<span class="token operator">-</span>Control<span class="token operator">-</span>Allow<span class="token operator">-</span>Headers<span class="token punctuation">:</span>Authorization<span class="token punctuation">,</span> Content<span class="token operator">-</span>Type<span class="token punctuation">,</span> If<span class="token operator">-</span>Match<span class="token punctuation">,</span> If<span class="token operator">-</span>Modified<span class="token operator">-</span>Since<span class="token punctuation">,</span> If<span class="token operator">-</span>None<span class="token operator">-</span>Match<span class="token punctuation">,</span> If<span class="token operator">-</span>Unmodified<span class="token operator">-</span>Since<span class="token punctuation">,</span> X<span class="token operator">-</span>Requested<span class="token operator">-</span>With
+</code></pre></div>
+<p>你可以添加或者更改Header信息，使用</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'new/:id'</span><span class="token punctuation">,</span> <span class="token string">'News/read'</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">ext</span><span class="token punctuation">(</span><span class="token string">'html'</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">allowCrossDomain</span><span class="token punctuation">(</span><span class="token punctuation">[</span>
+        <span class="token string">'Access-Control-Allow-Origin'</span>        <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'thinkphp.cn'</span><span class="token punctuation">,</span>
+        <span class="token string">'Access-Control-Allow-Credentials'</span>   <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'true'</span>
+    <span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p><code>V6.0.3+</code>版本开始增加了默认的预检缓存有效期（默认为30分钟），你可以自定义有效期，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'new/:id'</span><span class="token punctuation">,</span> <span class="token string">'News/read'</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">ext</span><span class="token punctuation">(</span><span class="token string">'html'</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">allowCrossDomain</span><span class="token punctuation">(</span><span class="token punctuation">[</span>
+        <span class="token string">'Access-Control-Allow-Origin'</span>        <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'thinkphp.cn'</span><span class="token punctuation">,</span>
+        <span class="token string">'Access-Control-Allow-Credentials'</span>   <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'true'</span><span class="token punctuation">,</span>
+        <span class="token string">'Access-Control-Max-Age'</span>             <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token number">600</span><span class="token punctuation">,</span>
+    <span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

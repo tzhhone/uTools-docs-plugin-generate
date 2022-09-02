@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>缓存</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s-1630515059"><h2><a id="_0"></a>概述</h2>
+<p>ThinkPHP采用<code>think\Cache</code>类（实际使用<code>think\facade\Cache</code>类即可）提供缓存功能支持。</p>
+<p>内置支持的缓存类型包括file、memcache、wincache、sqlite、redis。</p>
+<blockquote class="default"><p>ThinkPHP的缓存类遵循<code>PSR-16</code>规范。</p></blockquote>
+<h2><a id="_8"></a>设置</h2>
+<p>全局的缓存配置直接修改配置目录下面的<code>cache.php</code>文件。</p>
+<p>新版的缓存支持多通道，你可以事先定义好所有的缓存类型及配置参数，然后在使用的时候可以随时切换。默认使用的是文件缓存类型，你可以添加<code>redis</code>缓存支持，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token keyword">return</span> <span class="token punctuation">[</span>
+    <span class="token string">'default'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span>    <span class="token string">'file'</span><span class="token punctuation">,</span>
+    <span class="token string">'stores'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span>    <span class="token punctuation">[</span>
+        <span class="token comment">// 文件缓存</span>
+        <span class="token string">'file'</span>   <span class="token operator">=</span><span class="token operator">&gt;</span>  <span class="token punctuation">[</span>
+            <span class="token comment">// 驱动方式</span>
+            <span class="token string">'type'</span>   <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'file'</span><span class="token punctuation">,</span>
+            <span class="token comment">// 设置不同的缓存保存目录</span>
+            <span class="token string">'path'</span>   <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'../runtime/file/'</span><span class="token punctuation">,</span>
+        <span class="token punctuation">]</span><span class="token punctuation">,</span>  
+        <span class="token comment">// redis缓存</span>
+        <span class="token string">'redis'</span>   <span class="token operator">=</span><span class="token operator">&gt;</span>  <span class="token punctuation">[</span>
+            <span class="token comment">// 驱动方式</span>
+            <span class="token string">'type'</span>   <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'redis'</span><span class="token punctuation">,</span>
+            <span class="token comment">// 服务器地址</span>
+            <span class="token string">'host'</span>       <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'127.0.0.1'</span><span class="token punctuation">,</span>
+        <span class="token punctuation">]</span><span class="token punctuation">,</span>  
+    <span class="token punctuation">]</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>缓存参数根据不同的缓存方式会有所区别，通用的缓存参数如下：</p>
+<table><thead><tr><th>参数</th><th>描述</th></tr></thead><tbody><tr><td>type</td><td>缓存类型</td></tr><tr><td>expire</td><td>缓存有效期 （默认为0 表示永久缓存）</td></tr><tr><td>prefix</td><td>缓存前缀（默认为空）</td></tr><tr><td>serialize</td><td>缓存序列化和反序列化方法</td></tr></tbody></table>
+<blockquote class="danger"><p>如果是自定义驱动，<code>type</code>的值则为自定义驱动的类名（包含命名空间）</p></blockquote>
+<h2><a id="_48"></a>使用</h2>
+<h3><a id="_50"></a>设置缓存</h3>
+<p>设置缓存有效期</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 缓存在3600秒之后过期</span>
+Cache<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">set</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">,</span> $value<span class="token punctuation">,</span> <span class="token number">3600</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>可以使用<code>DateTime</code>对象设置过期时间</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Cache<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">set</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">,</span> $value<span class="token punctuation">,</span> <span class="token keyword">new</span> <span class="token class-name">DateTime</span><span class="token punctuation">(</span><span class="token string">'2019-10-01 12:00:00'</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>如果设置成功返回true，否则返回false。</p>
+<h3><a id="_65"></a>缓存自增</h3>
+<p>针对数值类型的缓存数据，可以使用自增操作，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Cache<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">set</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// name自增（步进值为1）</span>
+Cache<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">inc</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// name自增（步进值为3）</span>
+Cache<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">inc</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">,</span><span class="token number">3</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<blockquote class="default"><p>只能对数字或者浮点型数据进行自增和自减操作。</p></blockquote>
+<h3><a id="_78"></a>缓存自减</h3>
+<p>针对数值类型的缓存数据，可以使用自减操作，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// name自减（步进值为1）</span>
+Cache<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">dec</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// name自减（步进值为3）</span>
+Cache<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">dec</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">,</span><span class="token number">3</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h3><a id="_88"></a>获取缓存</h3>
+<p>获取缓存数据可以使用：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Cache<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">)</span><span class="token punctuation">;</span> 
+</code></pre></div>
+<p>如果<code>name</code>值不存在，则默认返回 <code>null</code>。</p>
+<p>支持指定默认值，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Cache<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">,</span><span class="token string">''</span><span class="token punctuation">)</span><span class="token punctuation">;</span> 
+</code></pre></div>
+<p>表示如果<code>name</code>值不存在，则返回空字符串。</p>
+<h3><a id="_103"></a>追加一个缓存数据</h3>
+<p>如果缓存数据是一个数组，可以通过<code>push</code>方法追加一个数据。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Cache<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">set</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">,</span><span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+Cache<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">push</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+Cache<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// [1,2,3,4]</span>
+</code></pre></div>
+<h3><a id="_113"></a>删除缓存</h3>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Cache<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">delete</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">)</span><span class="token punctuation">;</span> 
+</code></pre></div>
+<h3><a id="_118"></a>获取并删除缓存</h3>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Cache<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">pull</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">)</span><span class="token punctuation">;</span> 
+</code></pre></div>
+<p>如果<code>name</code>值不存在，则返回<code>null</code>。</p>
+<h3><a id="_126"></a>清空缓存</h3>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Cache<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">clear</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> 
+</code></pre></div>
+<h3><a id="_131"></a>不存在则写入缓存数据后返回</h3>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Cache<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">remember</span><span class="token punctuation">(</span><span class="token string">'start_time'</span><span class="token punctuation">,</span> <span class="token function">time</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>如果start_time缓存数据不存在，则会设置缓存数据为当前时间。</p>
+<p>第二个参数可以使用闭包方法获取缓存数据，并支持依赖注入。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Cache<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">remember</span><span class="token punctuation">(</span><span class="token string">'start_time'</span><span class="token punctuation">,</span> <span class="token keyword">function</span><span class="token punctuation">(</span>Request $request<span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token keyword">return</span> $request<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">time</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>remember方法的第三个参数可以设置缓存的有效期。</p>
+<h3><a id="_146"></a>缓存标签</h3>
+<p>支持给缓存数据打标签，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Cache<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">tag</span><span class="token punctuation">(</span><span class="token string">'tag'</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">set</span><span class="token punctuation">(</span><span class="token string">'name1'</span><span class="token punctuation">,</span><span class="token string">'value1'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+Cache<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">tag</span><span class="token punctuation">(</span><span class="token string">'tag'</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">set</span><span class="token punctuation">(</span><span class="token string">'name2'</span><span class="token punctuation">,</span><span class="token string">'value2'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">// 清除tag标签的缓存数据</span>
+Cache<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">tag</span><span class="token punctuation">(</span><span class="token string">'tag'</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">clear</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>缓存标签不会改变缓存的读取操作，所以获取方式依然是：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Cache<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'name1'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>并支持同时指定多个缓存标签操作</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Cache<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">tag</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'tag1'</span><span class="token punctuation">,</span> <span class="token string">'tag2'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">set</span><span class="token punctuation">(</span><span class="token string">'name1'</span><span class="token punctuation">,</span> <span class="token string">'value1'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+Cache<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">tag</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'tag1'</span><span class="token punctuation">,</span> <span class="token string">'tag2'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">set</span><span class="token punctuation">(</span><span class="token string">'name2'</span><span class="token punctuation">,</span> <span class="token string">'value2'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">// 清除多个标签的缓存数据</span>
+Cache<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">tag</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'tag1'</span><span class="token punctuation">,</span><span class="token string">'tag2'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">clear</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>可以追加某个缓存标识到标签</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Cache<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">tag</span><span class="token punctuation">(</span><span class="token string">'tag'</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">append</span><span class="token punctuation">(</span><span class="token string">'name3'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>获取标签的缓存标识列表</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Cache<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">getTagItems</span><span class="token punctuation">(</span><span class="token string">'tag'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h3><a id="_182"></a>获取缓存对象</h3>
+<p>可以获取缓存对象，并且调用驱动类的高级方法，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 获取缓存对象句柄</span>
+$handler <span class="token operator">=</span> Cache<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">handler</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h3><a id="_191"></a>助手函数</h3>
+<p>系统对缓存操作提供了助手函数<code>cache</code>，用法如下：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 设置缓存数据</span>
+<span class="token function">cache</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">,</span> $value<span class="token punctuation">,</span> <span class="token number">3600</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// 获取缓存数据</span>
+<span class="token function">var_dump</span><span class="token punctuation">(</span><span class="token function">cache</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// 删除缓存数据</span>
+<span class="token function">cache</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">,</span> NULL<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// 返回缓存对象实例</span>
+$cache <span class="token operator">=</span> <span class="token function">cache</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h2><a id="_205"></a>跨应用缓存</h2>
+<p>在多应用模式下，默认文件缓存数据是区分不同应用的，如果你希望缓存跨应用，可以设置一个统一的数据缓存<code>path</code>目录。</p>
+<h2><a id="_209"></a>切换缓存类型</h2>
+<p>没有指定缓存类型的话，默认读取的是<code>default</code>缓存配置，可以动态切换</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 使用文件缓存</span>
+Cache<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">set</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">,</span><span class="token string">'value'</span><span class="token punctuation">,</span><span class="token number">3600</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+Cache<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">// 使用Redis缓存</span>
+Cache<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">store</span><span class="token punctuation">(</span><span class="token string">'redis'</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">set</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">,</span><span class="token string">'value'</span><span class="token punctuation">,</span><span class="token number">3600</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+Cache<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">store</span><span class="token punctuation">(</span><span class="token string">'redis'</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">// 切换到文件缓存</span>
+Cache<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">store</span><span class="token punctuation">(</span><span class="token string">'default'</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">set</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">,</span><span class="token string">'value'</span><span class="token punctuation">,</span><span class="token number">3600</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+Cache<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">store</span><span class="token punctuation">(</span><span class="token string">'default'</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>如果要返回当前缓存类型对象的句柄，可以使用</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 获取Redis对象 进行额外方法调用</span>
+Cache<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">store</span><span class="token punctuation">(</span><span class="token string">'redis'</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">handler</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h2><a id="_233"></a>自定义驱动</h2>
+<p>如果需要自定义缓存驱动，需要继承<code>think\cache\Driver</code>类，并且实现<code>think\contract\CacheHandlerInterface</code>接口。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">interface <span class="token class-name">CacheHandlerInterface</span>
+<span class="token punctuation">{</span>
+    <span class="token comment">/**
+     * 判断缓存
+     * @access public
+     * @param  string $name 缓存变量名
+     * @return bool
+     */</span>
+    public <span class="token keyword">function</span> <span class="token function">has</span><span class="token punctuation">(</span>$name<span class="token punctuation">)</span><span class="token punctuation">:</span> bool<span class="token punctuation">;</span>
+
+    <span class="token comment">/**
+     * 读取缓存
+     * @access public
+     * @param  string $name 缓存变量名
+     * @param  mixed  $default 默认值
+     * @return mixed
+     */</span>
+    public <span class="token keyword">function</span> <span class="token function">get</span><span class="token punctuation">(</span>$name<span class="token punctuation">,</span> $default <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment">/**
+     * 写入缓存
+     * @access public
+     * @param  string            $name 缓存变量名
+     * @param  mixed             $value  存储数据
+     * @param  integer|\DateTime $expire  有效时间（秒）
+     * @return bool
+     */</span>
+    public <span class="token keyword">function</span> <span class="token function">set</span><span class="token punctuation">(</span>$name<span class="token punctuation">,</span> $value<span class="token punctuation">,</span> $expire <span class="token operator">=</span> <span class="token keyword">null</span><span class="token punctuation">)</span><span class="token punctuation">:</span> bool<span class="token punctuation">;</span>
+
+    <span class="token comment">/**
+     * 自增缓存（针对数值缓存）
+     * @access public
+     * @param  string    $name 缓存变量名
+     * @param  int       $step 步长
+     * @return false|int
+     */</span>
+    public <span class="token keyword">function</span> <span class="token function">inc</span><span class="token punctuation">(</span>string $name<span class="token punctuation">,</span> int $step <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment">/**
+     * 自减缓存（针对数值缓存）
+     * @access public
+     * @param  string    $name 缓存变量名
+     * @param  int       $step 步长
+     * @return false|int
+     */</span>
+    public <span class="token keyword">function</span> <span class="token function">dec</span><span class="token punctuation">(</span>string $name<span class="token punctuation">,</span> int $step <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment">/**
+     * 删除缓存
+     * @access public
+     * @param  string $name 缓存变量名
+     * @return bool
+     */</span>
+    public <span class="token keyword">function</span> <span class="token function">delete</span><span class="token punctuation">(</span>$name<span class="token punctuation">)</span><span class="token punctuation">:</span> bool<span class="token punctuation">;</span>
+
+    <span class="token comment">/**
+     * 清除缓存
+     * @access public
+     * @return bool
+     */</span>
+    public <span class="token keyword">function</span> <span class="token function">clear</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span> bool<span class="token punctuation">;</span>
+
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>使用自定义驱动后，只需要配置缓存<code>type</code>的值为该驱动类名（包含命名空间）即可。</p>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

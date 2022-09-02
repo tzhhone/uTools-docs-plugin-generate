@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>路由地址</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s-566865811"><h2><a id="_0"></a>路由地址</h2>
+<p>路由地址表示定义的路由表达式最终需要路由到的实际地址（或者响应对象）以及一些需要的额外参数，支持下面几种方式定义：</p>
+<h2><a id="_4"></a>路由到控制器/操作</h2>
+<p>这是最常用的一种路由方式，把满足条件的路由规则路由到相关的控制器和操作，然后由系统调度执行相关的操作，格式为：</p>
+<blockquote class="info"><h3><a id="_8"></a>控制器/操作</h3></blockquote>
+<p>解析规则是从操作开始解析，然后解析控制器，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 路由到blog控制器</span>
+Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'blog/:id'</span><span class="token punctuation">,</span><span class="token string">'Blog/read'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>Blog类定义如下：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\index\controller<span class="token punctuation">;</span>
+
+class <span class="token class-name">Blog</span>
+<span class="token punctuation">{</span>
+    public <span class="token keyword">function</span> <span class="token function">read</span><span class="token punctuation">(</span>$id<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token string">'read:'</span> <span class="token punctuation">.</span> $id<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>路由地址中支持多级控制器，使用下面的方式进行设置：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'blog/:id'</span><span class="token punctuation">,</span><span class="token string">'group.Blog/read'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>表示路由到下面的控制器类，</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">index<span class="token operator">/</span>controller<span class="token operator">/</span>group<span class="token operator">/</span>Blog
+</code></pre></div>
+<p>还可以支持路由到动态的应用、控制器或者操作，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// action变量的值作为操作方法传入</span>
+Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">':action/blog/:id'</span><span class="token punctuation">,</span> <span class="token string">'Blog/:action'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h2><a id="_51"></a>路由到类的方法</h2>
+<p>这种方式的路由可以支持执行任何类的方法，而不局限于执行控制器的操作方法。</p>
+<p>路由地址的格式为（动态方法）：</p>
+<blockquote class="info"><h3><a id="_57"></a>\完整类名@方法名</h3></blockquote>
+<p>或者（静态方法）</p>
+<blockquote class="info"><h3><a id="_61"></a>\完整类名::方法名</h3></blockquote>
+<p>例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'blog/:id'</span><span class="token punctuation">,</span><span class="token string">'\app\index\service\Blog@read'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>执行的是 <code>\app\index\service\Blog</code>类的<code>read</code>方法。<br>
+也支持执行某个静态方法，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'blog/:id'</span><span class="token punctuation">,</span><span class="token string">'\app\index\service\Blog::read'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h2><a id="_76"></a>重定向路由</h2>
+<p>可以直接使用<code>redirect</code>方法注册一个重定向路由</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">redirect</span><span class="token punctuation">(</span><span class="token string">'blog/:id'</span><span class="token punctuation">,</span> <span class="token string">'http://blog.thinkphp.cn/read/:id'</span><span class="token punctuation">,</span> <span class="token number">302</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h2><a id="_84"></a>路由到模板</h2>
+<p>支持路由直接渲染模板输出。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 路由到模板文件</span>
+Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">view</span><span class="token punctuation">(</span><span class="token string">'hello/:name'</span><span class="token punctuation">,</span> <span class="token string">'index/hello'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>表示该路由会渲染当前应用下面的<code>view/index/hello.html</code>模板文件输出。</p>
+<p>模板文件中可以直接输出当前请求的<code>param</code>变量，如果需要增加额外的模板变量，可以使用：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">view</span><span class="token punctuation">(</span><span class="token string">'hello/:name'</span><span class="token punctuation">,</span> <span class="token string">'index/hello'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token string">'city'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'shanghai'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>在模板中可以输出<code>name</code>和<code>city</code>两个变量。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Hello<span class="token punctuation">,</span><span class="token punctuation">{</span>$name<span class="token punctuation">}</span><span class="token operator">--</span><span class="token punctuation">{</span>$city<span class="token punctuation">}</span>！
+</code></pre></div>
+<h2><a id="_107"></a>路由到闭包</h2>
+<p>我们可以使用闭包的方式定义一些特殊需求的路由，而不需要执行控制器的操作方法了，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'hello'</span><span class="token punctuation">,</span> <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token string">'hello,world!'</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>可以通过闭包的方式支持路由自定义响应输出，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'hello/:name'</span><span class="token punctuation">,</span> <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token function">response</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">data</span><span class="token punctuation">(</span><span class="token string">'Hello,ThinkPHP'</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">code</span><span class="token punctuation">(</span><span class="token number">200</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">contentType</span><span class="token punctuation">(</span><span class="token string">'text/plain'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h3><a id="_127"></a>参数传递</h3>
+<p>闭包定义的时候支持参数传递，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'hello/:name'</span><span class="token punctuation">,</span> <span class="token keyword">function</span> <span class="token punctuation">(</span>$name<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token string">'Hello,'</span> <span class="token punctuation">.</span> $name<span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>规则路由中定义的动态变量的名称 就是闭包函数中的参数名称，不分次序。</p>
+<p>因此，如果我们访问的URL地址是：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">http<span class="token punctuation">:</span><span class="token operator">/</span><span class="token operator">/</span>serverName<span class="token operator">/</span>hello<span class="token operator">/</span>thinkphp
+</code></pre></div>
+<p>则浏览器输出的结果是：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Hello<span class="token punctuation">,</span>thinkphp
+</code></pre></div>
+<h3><a id="_151"></a>依赖注入</h3>
+<p>可以在闭包中使用依赖注入，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">rule</span><span class="token punctuation">(</span><span class="token string">'hello/:name'</span><span class="token punctuation">,</span> <span class="token keyword">function</span> <span class="token punctuation">(</span>Request $request<span class="token punctuation">,</span> $name<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    $method <span class="token operator">=</span> $request<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">method</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">return</span> <span class="token string">'['</span> <span class="token punctuation">.</span> $method <span class="token punctuation">.</span> <span class="token string">'] Hello,'</span> <span class="token punctuation">.</span> $name<span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h2><a id="V603_162"></a>路由到调度对象（<code>V6.0.3+</code>）</h2>
+<p><code>V6.0.3+</code>版本开始，可以支持路由到一个自定义的路由调度对象。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 路由到自定义调度对象</span>
+Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'blog/:id'</span><span class="token punctuation">,</span>\app\route\BlogDispatch<span class="token punctuation">:</span><span class="token punctuation">:</span>class<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">namespace app\route<span class="token punctuation">;</span>
+
+use think\route\Dispatch<span class="token punctuation">;</span>
+use think\route\Rule<span class="token punctuation">;</span>
+use think\Request<span class="token punctuation">;</span>
+
+class <span class="token class-name">BlogDispatch</span> extends <span class="token class-name">Dispatch</span>
+<span class="token punctuation">{</span>
+    public <span class="token keyword">function</span> <span class="token function">exec</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token comment">// 自定义路由调度</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>具体调度类的实现可以参考内置的几个调度类的实现。</p>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

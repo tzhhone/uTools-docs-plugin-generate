@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>注解路由</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s1853559483"><h2><a id="_0"></a>注解路由</h2>
+<p>ThinkPHP支持使用注解方式定义路由（也称为注解路由），如果需要使用注解路由需要安装额外的扩展：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">composer require topthink<span class="token operator">/</span>think<span class="token operator">-</span>annotation
+</code></pre></div>
+<p>然后只需要直接在控制器类的方法注释中定义，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\controller<span class="token punctuation">;</span>
+
+use think\annotation\Route<span class="token punctuation">;</span>
+
+class <span class="token class-name">Index</span>
+<span class="token punctuation">{</span>
+    <span class="token comment">/**
+     * @param  string $name 数据名称
+     * @return mixed
+     * @Route("hello/:name")
+     */</span>
+	public <span class="token keyword">function</span> <span class="token function">hello</span><span class="token punctuation">(</span>$name<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+    	<span class="token keyword">return</span> <span class="token string">'hello,'</span><span class="token punctuation">.</span>$name<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p><code>@Route("hello/:name")</code> 就是注解路由的内容，请务必注意注释的规范，不能在注解路由里面使用单引号，否则可能导致注解路由解析失败，可以利用IDE生成规范的注释。如果你使用<code>PHPStorm</code>的话，建议安装<code>PHP Annotations</code>插件：<a href="https://plugins.jetbrains.com/plugin/7320-php-annotations" target="_blank">https://plugins.jetbrains.com/plugin/7320-php-annotations</a> ，可以支持注解的自动完成。</p>
+<blockquote class="danger"><p>该方式定义的路由在调试模式下面实时生效，部署模式则在第一次访问的时候生成注解缓存。</p></blockquote>
+<p>然后就使用下面的URL地址访问：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">http<span class="token punctuation">:</span><span class="token operator">/</span><span class="token operator">/</span>tp5<span class="token punctuation">.</span>com<span class="token operator">/</span>hello<span class="token operator">/</span>thinkphp
+</code></pre></div>
+<p>页面输出</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">hello<span class="token punctuation">,</span>thinkphp
+</code></pre></div>
+<p>默认注册的路由规则是支持所有的请求，如果需要指定请求类型，可以在第二个参数中指定请求类型：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\controller<span class="token punctuation">;</span>
+
+use think\annotation\Route<span class="token punctuation">;</span>
+
+class <span class="token class-name">Index</span>
+<span class="token punctuation">{</span>
+    <span class="token comment">/**
+     * @param  string $name 数据名称
+     * @return mixed
+     * @Route("hello/:name", method="GET")
+     */</span>
+	public <span class="token keyword">function</span> <span class="token function">hello</span><span class="token punctuation">(</span>$name<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+    	<span class="token keyword">return</span> <span class="token string">'hello,'</span><span class="token punctuation">.</span>$name<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>如果有路由参数需要定义，可以直接在后面添加方法，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\controller<span class="token punctuation">;</span>
+
+use think\annotation\Route<span class="token punctuation">;</span>
+
+class <span class="token class-name">Index</span>
+<span class="token punctuation">{</span>
+    <span class="token comment">/**
+     * @param string $name 数据名称
+     * @Route("hello/:name", method="GET", https=1, ext="html")
+     * @return mixed
+     */</span>
+	public <span class="token keyword">function</span> <span class="token function">hello</span><span class="token punctuation">(</span>$name<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+    	<span class="token keyword">return</span> <span class="token string">'hello,'</span><span class="token punctuation">.</span>$name<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>支持在类的注释里面定义资源路由，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\controller<span class="token punctuation">;</span>
+
+use think\annotation\route\Resource<span class="token punctuation">;</span>
+
+<span class="token comment">/**
+ * @Resource("blog")
+ */</span>
+class <span class="token class-name">Blog</span>
+<span class="token punctuation">{</span>
+    public <span class="token keyword">function</span> <span class="token function">index</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+    <span class="token punctuation">}</span>
+
+    public <span class="token keyword">function</span> <span class="token function">read</span><span class="token punctuation">(</span>$id<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+    <span class="token punctuation">}</span>
+
+    public <span class="token keyword">function</span> <span class="token function">edit</span><span class="token punctuation">(</span>$id<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>如果需要定义路由分组，可以使用</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\controller<span class="token punctuation">;</span>
+
+use think\annotation\route\Group<span class="token punctuation">;</span>
+use think\annotation\route\Route<span class="token punctuation">;</span>
+
+<span class="token comment">/**
+ * @Group("blog")
+ */</span>
+class <span class="token class-name">Blog</span>
+<span class="token punctuation">{</span>
+    <span class="token comment">/**
+     * @param  string $name 数据名称
+     * @return mixed
+     * @Route("hello/:name", method="GET")
+     */</span>
+	public <span class="token keyword">function</span> <span class="token function">hello</span><span class="token punctuation">(</span>$name<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+    	<span class="token keyword">return</span> <span class="token string">'hello,'</span><span class="token punctuation">.</span>$name<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>当前控制器中的注解路由会自动加入<code>blog</code>分组下面，最终，会注册一个<code>blog/hello/:name</code>的路由规则。你一样可以对该路由分组设置公共的参数，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\controller<span class="token punctuation">;</span>
+
+use think\annotation\route\Middleware<span class="token punctuation">;</span>
+use think\annotation\route\Group<span class="token punctuation">;</span>
+use think\annotation\route\Route<span class="token punctuation">;</span>
+use think\middleware\SessionInit<span class="token punctuation">;</span>
+
+<span class="token comment">/**
+ * @Group("blog",ext="html")
+ * @Middleware({SessionInit::class})
+ */</span>
+class <span class="token class-name">Blog</span>
+<span class="token punctuation">{</span>
+    <span class="token comment">/**
+     * @param  string $name 数据名称
+     * @return mixed
+     * @Route("hello/:name",method="GET")
+     */</span>
+	public <span class="token keyword">function</span> <span class="token function">hello</span><span class="token punctuation">(</span>$name<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+    	<span class="token keyword">return</span> <span class="token string">'hello,'</span><span class="token punctuation">.</span>$name<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

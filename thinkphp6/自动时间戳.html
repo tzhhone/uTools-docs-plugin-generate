@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>自动时间戳</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s1124158104"><p>系统支持自动写入创建和更新的时间戳字段（默认关闭），有两种方式配置支持。</p>
+<p>第一种方式是全局开启，在数据库配置文件中进行设置：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 开启自动写入时间戳字段</span>
+<span class="token string">'auto_timestamp'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+</code></pre></div>
+<p>第二种是在需要的模型类里面单独开启：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\model<span class="token punctuation">;</span>
+
+use think\Model<span class="token punctuation">;</span>
+
+class <span class="token class-name">User</span> extends <span class="token class-name">Model</span>
+<span class="token punctuation">{</span>
+    protected $autoWriteTimestamp <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>又或者首先在数据库配置文件中全局开启，然后在个别不需要使用自动时间戳写入的模型类中单独关闭：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\model<span class="token punctuation">;</span>
+
+use think\Model<span class="token punctuation">;</span>
+
+class <span class="token class-name">User</span> extends <span class="token class-name">Model</span>
+<span class="token punctuation">{</span>
+    protected $autoWriteTimestamp <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>一旦配置开启的话，会自动写入<code>create_time</code>和<code>update_time</code>两个字段的值，默认为整型（<code>int</code>），如果你的时间字段不是<code>int</code>类型的话，可以直接使用：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 开启自动写入时间戳字段</span>
+<span class="token string">'auto_timestamp'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'datetime'</span><span class="token punctuation">,</span>
+</code></pre></div>
+<p>或者</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\model<span class="token punctuation">;</span>
+
+use think\Model<span class="token punctuation">;</span>
+
+class <span class="token class-name">User</span> extends <span class="token class-name">Model</span>
+<span class="token punctuation">{</span>
+    protected $autoWriteTimestamp <span class="token operator">=</span> <span class="token string">'datetime'</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>默认的创建时间字段为<code>create_time</code>，更新时间字段为<code>update_time</code>，支持的字段类型包括<code>timestamp/datetime/int</code>。</p>
+<p>写入数据的时候，系统会自动写入<code>create_time</code>和<code>update_time</code>字段，而不需要定义修改器，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$user <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">User</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+$user<span class="token operator">-</span><span class="token operator">&gt;</span>name <span class="token operator">=</span> <span class="token string">'thinkphp'</span><span class="token punctuation">;</span>
+$user<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">save</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+echo $user<span class="token operator">-</span><span class="token operator">&gt;</span>create_time<span class="token punctuation">;</span> <span class="token comment">// 输出类似 2016-10-12 14:20:10</span>
+echo $user<span class="token operator">-</span><span class="token operator">&gt;</span>update_time<span class="token punctuation">;</span> <span class="token comment">// 输出类似 2016-10-12 14:20:10</span>
+</code></pre></div>
+<blockquote class="danger"><p>时间字段的自动写入仅针对模型的写入方法，如果使用数据库的更新或者写入方法则无效。</p></blockquote>
+<blockquote class="danger"><p>时间字段输出的时候会自动进行格式转换，如果不希望自动格式化输出，可以把数据库配置文件的 <code>datetime_format</code> 参数值改为<code>false</code></p></blockquote>
+<p><code>datetime_format</code>参数支持设置为一个时间类名，这样便于你进行更多的时间处理，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 设置时间字段的格式化类</span>
+<span class="token string">'datetime_format'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'\org\util\DateTime'</span><span class="token punctuation">,</span>
+</code></pre></div>
+<p>该类应该包含一个<code>__toString</code>方法定义以确保能正常写入数据库。</p>
+<p>如果你的数据表字段不是默认值的话，可以按照下面的方式定义：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\model<span class="token punctuation">;</span>
+
+use think\Model<span class="token punctuation">;</span>
+
+class <span class="token class-name">User</span> extends <span class="token class-name">Model</span> 
+<span class="token punctuation">{</span>
+    <span class="token comment">// 定义时间戳字段名</span>
+    protected $createTime <span class="token operator">=</span> <span class="token string">'create_at'</span><span class="token punctuation">;</span>
+    protected $updateTime <span class="token operator">=</span> <span class="token string">'update_at'</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>或者在数据库配置文件中统一定义时间字段</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'datetime_field'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span>    <span class="token string">'create_at,update_at'</span><span class="token punctuation">,</span>
+</code></pre></div>
+<p>下面是修改字段后的输出代码：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$user <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">User</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+$user<span class="token operator">-</span><span class="token operator">&gt;</span>name <span class="token operator">=</span> <span class="token string">'thinkphp'</span><span class="token punctuation">;</span>
+$user<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">save</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+echo $user<span class="token operator">-</span><span class="token operator">&gt;</span>create_at<span class="token punctuation">;</span> <span class="token comment">// 输出类似 2016-10-12 14:20:10</span>
+echo $user<span class="token operator">-</span><span class="token operator">&gt;</span>update_at<span class="token punctuation">;</span> <span class="token comment">// 输出类似 2016-10-12 14:20:10</span>
+</code></pre></div>
+<p>如果你只需要使用<code>create_time</code>字段而不需要自动写入<code>update_time</code>，则可以单独关闭某个字段，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">namespace app\model<span class="token punctuation">;</span>
+
+use think\Model<span class="token punctuation">;</span>
+
+class <span class="token class-name">User</span> extends <span class="token class-name">Model</span> 
+<span class="token punctuation">{</span>
+    <span class="token comment">// 关闭自动写入update_time字段</span>
+    protected $updateTime <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>支持动态关闭时间戳写入功能，例如你希望更新阅读数的时候不修改更新时间，可以使用<code>isAutoWriteTimestamp</code>方法：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$user <span class="token operator">=</span> User<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+$user<span class="token operator">-</span><span class="token operator">&gt;</span>read <span class="token operator">+</span><span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">;</span>
+$user<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">isAutoWriteTimestamp</span><span class="token punctuation">(</span><span class="token boolean">false</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">save</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

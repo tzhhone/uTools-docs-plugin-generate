@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>日志处理</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s1415641294"><p>日志记录和写入由<code>\think\Log</code>类完成，通常我们使用<code>think\facade\Log</code>类进行静态调用。</p>
+<p>由于日志记录了所有的运行错误，因此养成经常查看日志文件的习惯，可以避免和及早发现很多的错误隐患。</p>
+<blockquote class="info"><p>日志遵循<code>PSR-3</code>规范,除非是实时写入的日志,其它日志都是在当前请求结束的时候统一写入的 所以不要在日志写入之后使用<code>exit</code>等中断操作会导致日志写入失败。</p></blockquote>
+<div class="markdown-toc"><ul><li><a href="#_8">日志配置</a></li><li><a href="#_71">日志写入</a></li><ul><li><a href="#_73">手动记录</a></li><li><a href="#_123">关闭日志</a></li><li><a href="#_132">日志级别</a></li><li><a href="#_168">上下文信息</a></li><li><a href="#_178">独立日志</a></li><li><a href="#_199">单文件日志</a></li><li><a href="#_234">写入处理</a></li><li><a href="#_246">格式化日志信息</a></li><li><a href="#_265">清空日志</a></li><li><a href="#_282">日志自动清理</a></li><li><a href="#JSON_304">JSON格式日志</a></li></ul><li><a href="#_326">日志通道</a></li><li><a href="#_377">自定义驱动</a></li></ul></div><h2><a id="_8"></a>日志配置</h2>
+<p>日志的配置文件是配置文件目录下的<code>log.php</code>文件，系统在进行日志写入之前会读取该配置文件进行初始化。</p>
+<p>新版的日志配置支持多通道，默认配置如下：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token keyword">return</span> <span class="token punctuation">[</span>
+    <span class="token comment">// 默认日志记录通道</span>
+    <span class="token string">'default'</span>      <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'file'</span><span class="token punctuation">,</span>
+    <span class="token comment">// 日志记录级别</span>
+    <span class="token string">'level'</span>        <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token comment">// 日志类型记录的通道 ['error'=&gt;'email',...]</span>
+    <span class="token string">'type_channel'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+
+    <span class="token comment">// 日志通道列表</span>
+    <span class="token string">'channels'</span>     <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token punctuation">[</span>
+        <span class="token string">'file'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token punctuation">[</span>
+            <span class="token comment">// 日志记录方式</span>
+            <span class="token string">'type'</span>        <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'File'</span><span class="token punctuation">,</span>
+            <span class="token comment">// 日志保存目录</span>
+            <span class="token string">'path'</span>        <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">''</span><span class="token punctuation">,</span>
+            <span class="token comment">// 单文件日志写入</span>
+            <span class="token string">'single'</span>      <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+            <span class="token comment">// 独立日志级别</span>
+            <span class="token string">'apart_level'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+            <span class="token comment">// 最大日志文件数量</span>
+            <span class="token string">'max_files'</span>   <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token number">0</span><span class="token punctuation">,</span>
+        <span class="token punctuation">]</span><span class="token punctuation">,</span>
+        <span class="token comment">// 其它日志通道配置</span>
+    <span class="token punctuation">]</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>可以添加多个日志通道，每个通道可以设置不同的日志类型。日志配置参数根据不同的日志类型有所区别，内置的日志类型包括：<code>file</code>，日志类型使用<code>type</code>参数配置即可。</p>
+<blockquote class="danger"><p>如果是自定义驱动，<code>type</code>的值则为自定义驱动的类名（包含命名空间）</p></blockquote>
+<p>日志的全局配置参数包含：</p>
+<table><thead><tr><th>参数</th><th>描述</th></tr></thead><tbody><tr><td>default</td><td>默认的日志通道</td></tr><tr><td>level</td><td>允许记录的日志级别</td></tr><tr><td>type_channel</td><td>日志类型记录的通道</td></tr></tbody></table>
+<blockquote class="danger"><p>默认的日志类型是<code>File</code>方式，可以通过驱动的方式来扩展支持更多的记录方式。</p></blockquote>
+<p>文件类型日志的话，还支持下列配置参数：</p>
+<table><thead><tr><th>参数</th><th>描述</th></tr></thead><tbody><tr><td>path</td><td>日志存储路径</td></tr><tr><td>file_size</td><td>日志文件大小限制（超出会生成多个文件）</td></tr><tr><td>apart_level</td><td>独立记录的日志级别</td></tr><tr><td>time_format</td><td>时间记录格式</td></tr><tr><td>single</td><td>是否单一文件日志</td></tr><tr><td>max_files</td><td>最大日志文件数（超过自动清理 ）</td></tr><tr><td>format</td><td>日志输出格式</td></tr><tr><td>realtime_write</td><td>是否实时写入</td></tr></tbody></table>
+<blockquote class="danger"><p>为了避免同一个目录下面的日志文件过多的性能问题，日志文件会自动生成日期子目录。</p></blockquote>
+<h2><a id="_71"></a>日志写入</h2>
+<h3><a id="_73"></a>手动记录</h3>
+<p>一般情况下，系统的错误日志记录是自动的，如果需要记录应用的业务日志或者额外的日志信息，就需要手动记录日志信息，Log类主要提供了2个方法用于记录日志。</p>
+<table><thead><tr><th>方法</th><th>描述</th></tr></thead><tbody><tr><td>record()</td><td>记录日志信息到内存</td></tr><tr><td>write()</td><td>实时写入一条日志信息</td></tr></tbody></table>
+<p>系统在请求结束后会自动调用<code>Log::save</code>方法统一进行日志信息写入。</p>
+<p><code>record</code>方法用法如下：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Log<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">record</span><span class="token punctuation">(</span><span class="token string">'测试日志信息'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>默认记录的日志级别是<code>info</code>，也可以指定日志级别：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Log<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">record</span><span class="token punctuation">(</span><span class="token string">'测试日志信息，这是警告级别'</span><span class="token punctuation">,</span><span class="token string">'notice'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>采用<code>record</code>方法记录的日志信息不是实时保存的，如果需要实时记录的话，可以采用<code>write</code>方法，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Log<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">write</span><span class="token punctuation">(</span><span class="token string">'测试日志信息，这是警告级别，并且实时写入'</span><span class="token punctuation">,</span><span class="token string">'notice'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>你可以在日志通道配置开启实时写入，每次记录日志信息的时候就会实时写入。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'file'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token punctuation">[</span>
+    <span class="token comment">// 日志记录方式</span>
+    <span class="token string">'type'</span>        <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'File'</span><span class="token punctuation">,</span>
+    <span class="token comment">// 日志保存目录</span>
+    <span class="token string">'path'</span>        <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">''</span><span class="token punctuation">,</span>
+    <span class="token comment">// 单文件日志写入</span>
+    <span class="token string">'single'</span>      <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+    <span class="token comment">// 独立日志级别</span>
+    <span class="token string">'apart_level'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token comment">// 最大日志文件数量</span>
+    <span class="token string">'max_files'</span>   <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token number">0</span><span class="token punctuation">,</span>
+    <span class="token comment">// 日志处理</span>
+    <span class="token string">'processor'</span>   <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token keyword">null</span><span class="token punctuation">,</span>
+    <span class="token comment">// 实时写入</span>
+    <span class="token string">'realtime_write'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span>    <span class="token boolean">true</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">,</span>
+</code></pre></div>
+<blockquote class="danger"><p>为避免内存溢出，在命令行下面执行的话日志信息会自动实时写入。</p></blockquote>
+<h3><a id="_123"></a>关闭日志</h3>
+<p>要关闭日志功能，可以调用<code>Log::close()</code>方法关闭本次请求的日志写入。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 关闭当前日志写入</span>
+Log<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">close</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h3><a id="_132"></a>日志级别</h3>
+<p>ThinkPHP对系统的日志按照级别来分类记录，按照<code>PSR-3</code>日志规范，日志的级别从低到高依次为： <code>debug</code>, <code>info</code>, <code>notice</code>, <code>warning</code>, <code>error</code>, <code>critical</code>, <code>alert</code>, <code>emergency</code>，ThinkPHP额外增加了一个<code>sql</code>日志级别仅用于记录<code>SQL</code>日志（并且仅当开启数据库调试模式有效）。</p>
+<blockquote class="danger"><p>系统发生异常后记录的日志级别是<code>error</code></p></blockquote>
+<p>系统提供了不同日志级别的快速记录方法，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Log<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">error</span><span class="token punctuation">(</span><span class="token string">'错误信息'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+Log<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">info</span><span class="token punctuation">(</span><span class="token string">'日志信息'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>还封装了一个助手函数用于日志记录，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token function">trace</span><span class="token punctuation">(</span><span class="token string">'错误信息'</span><span class="token punctuation">,</span> <span class="token string">'error'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">trace</span><span class="token punctuation">(</span><span class="token string">'日志信息'</span><span class="token punctuation">,</span> <span class="token string">'info'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>事实上，你可以增加自定义的日志类型，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Log<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">diy</span><span class="token punctuation">(</span><span class="token string">'这是一个自定义日志类型'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>也支持指定级别日志的写入，需要配置信息：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token keyword">return</span> <span class="token punctuation">[</span>
+    <span class="token comment">// 日志记录级别，使用数组表示</span>
+    <span class="token string">'level'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token punctuation">[</span><span class="token string">'error'</span><span class="token punctuation">,</span> <span class="token string">'alert'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>上面的配置表示只记录<code>error</code>和<code>alert</code>级别的日志信息。</p>
+<blockquote class="danger"><p>默认情况下是不会记录HTTP异常日志（避免受一些攻击的影响写入大量日志），除非你接管了系统的异常处理，重写了<code>report</code>方法。</p></blockquote>
+<h3><a id="_168"></a>上下文信息</h3>
+<p>日志可以传入上下文信息（数组），并且被替换到日志内容中，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Log<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">info</span><span class="token punctuation">(</span><span class="token string">'日志信息{user}'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token string">'user'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'流年'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>实际写入日志的时候，<code>{user}</code>会被替换为流年。</p>
+<h3><a id="_178"></a>独立日志</h3>
+<p>为了便于分析，<code>File</code>类型的日志还支持设置某些级别的日志信息单独文件记录，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token keyword">return</span> <span class="token punctuation">[</span>
+    <span class="token string">'default'</span>      <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'file'</span><span class="token punctuation">,</span>
+    <span class="token string">'channels'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span>    <span class="token punctuation">[</span>
+        <span class="token string">'file'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span>    <span class="token punctuation">[</span>
+            <span class="token string">'type'</span>          <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'file'</span><span class="token punctuation">,</span> 
+            <span class="token comment">// error和sql日志单独记录</span>
+            <span class="token string">'apart_level'</span>   <span class="token operator">=</span><span class="token operator">&gt;</span>  <span class="token punctuation">[</span><span class="token string">'error'</span><span class="token punctuation">,</span><span class="token string">'sql'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+        <span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token punctuation">]</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>设置后，就会单独生成<code>error</code> 和 <code>sql</code>两个类型的日志文件，主日志文件中将不再包含这两个级别的日志信息。</p>
+<blockquote class="default"><p>如果<code>apart_level</code>设置为<code>true</code>，则表示所有的日志类型都会独立记录。</p></blockquote>
+<h3><a id="_199"></a>单文件日志</h3>
+<p>默认情况下，日志是按照日期为目录，按天为文件生成的，但如果希望仅生成单个文件（方便其它的工具或者服务读取以及分析日志）。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token keyword">return</span> <span class="token punctuation">[</span>
+    <span class="token string">'default'</span>      <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'file'</span><span class="token punctuation">,</span>
+    <span class="token string">'channels'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span>    <span class="token punctuation">[</span>
+        <span class="token string">'file'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span>    <span class="token punctuation">[</span>
+            <span class="token string">'type'</span>          <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'file'</span><span class="token punctuation">,</span> 
+        	<span class="token string">'single'</span>		<span class="token operator">=</span><span class="token operator">&gt;</span>	<span class="token boolean">true</span><span class="token punctuation">,</span>
+            <span class="token string">'file_size'</span>   	<span class="token operator">=</span><span class="token operator">&gt;</span> 	<span class="token number">1024</span><span class="token operator">*</span><span class="token number">1024</span><span class="token operator">*</span><span class="token number">10</span><span class="token punctuation">,</span>    
+        <span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token punctuation">]</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>开启生成单个文件后，<code>file_size</code>和<code>apart_level</code>参数依然有效，超过文件大小限制后，系统会自动生成备份日志文件。</p>
+<p>默认的单文件日志名是<code>single.log</code>，如果需要更改日志文件名，可以设置</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token keyword">return</span> <span class="token punctuation">[</span>
+    <span class="token string">'default'</span>      <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'file'</span><span class="token punctuation">,</span>
+    <span class="token string">'channels'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span>    <span class="token punctuation">[</span>
+        <span class="token string">'file'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span>    <span class="token punctuation">[</span>
+            <span class="token string">'type'</span>          <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'file'</span><span class="token punctuation">,</span> 
+            <span class="token string">'single'</span>		<span class="token operator">=</span><span class="token operator">&gt;</span>	<span class="token string">'single_file'</span><span class="token punctuation">,</span>
+            <span class="token string">'file_size'</span>   	<span class="token operator">=</span><span class="token operator">&gt;</span> 	<span class="token number">1024</span><span class="token operator">*</span><span class="token number">1024</span><span class="token operator">*</span><span class="token number">10</span><span class="token punctuation">,</span>    
+        <span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token punctuation">]</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>那么实际生成的日志文件名是 <code>single_file.log</code>，如果设置了<code>apart_level</code>的话，可能还会生成 <code>single_file_error.log</code>之类的日志。</p>
+<blockquote class="info"><p>单文件日志也支持<code>max_files</code>参数设置，因为单文件日志同样会生成多个日志备份文件而导致日志文件数据过大。</p></blockquote>
+<h3><a id="_234"></a>写入处理</h3>
+<p>日志支持写入回调处理，通过事件的方式处理。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Event<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">listen</span><span class="token punctuation">(</span><span class="token string">'think\event\LogWrite'</span><span class="token punctuation">,</span> <span class="token keyword">function</span><span class="token punctuation">(</span>$event<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token string">'file'</span> <span class="token operator">==</span> $event<span class="token operator">-</span><span class="token operator">&gt;</span>channel<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        $event<span class="token operator">-</span><span class="token operator">&gt;</span>log<span class="token punctuation">[</span><span class="token string">'info'</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token string">'test info'</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h3><a id="_246"></a>格式化日志信息</h3>
+<p>系统提供了两个参数用于日志信息的格式化，第一个是用于自定义时间显示格式的<code>time_format</code>，第二个是调整日志输出格式的<code>format</code>参数。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token keyword">return</span>  <span class="token punctuation">[</span>
+    <span class="token string">'default'</span>      <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'file'</span><span class="token punctuation">,</span>
+    <span class="token string">'channels'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span>    <span class="token punctuation">[</span>
+        <span class="token string">'file'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span>    <span class="token punctuation">[</span>
+            <span class="token string">'type'</span>          <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'file'</span><span class="token punctuation">,</span> 
+            <span class="token string">'json'</span>	        <span class="token operator">=</span><span class="token operator">&gt;</span>	<span class="token boolean">true</span>
+            <span class="token string">'file_size'</span>   	<span class="token operator">=</span><span class="token operator">&gt;</span> 	<span class="token number">1024</span><span class="token operator">*</span><span class="token number">1024</span><span class="token operator">*</span><span class="token number">10</span><span class="token punctuation">,</span>    
+            <span class="token string">'time_format'</span>   <span class="token operator">=</span><span class="token operator">&gt;</span>    <span class="token string">'Y-m-d H:i:s'</span><span class="token punctuation">,</span>
+            <span class="token string">'format'</span>        <span class="token operator">=</span><span class="token operator">&gt;</span>    <span class="token string">'[%s][%s]:%s'</span><span class="token punctuation">,</span>
+        <span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token punctuation">]</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h3><a id="_265"></a>清空日志</h3>
+<p>一旦执行<code>save</code>方法后，内存中的日志信息就会被自动清空，如果需要手动清空可以使用：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Log<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">clear</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>在清空日志方法之前，你可以使用<code>getLog</code>方法获取内存中的日志。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 获取全部日志</span>
+$logs <span class="token operator">=</span> Log<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">getLog</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<blockquote class="danger"><p>日志清空仅仅是清空内存中的日志。</p></blockquote>
+<h3><a id="_282"></a>日志自动清理</h3>
+<p>文件类型的日志支持自动清理。可以设置<code>max_files</code>参数，超过数量的最早日志将会自动删除。</p>
+<p>例如，下面设置日志最多保存数量为30个</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token keyword">return</span> <span class="token punctuation">[</span>
+    <span class="token string">'default'</span>      <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'file'</span><span class="token punctuation">,</span>
+    <span class="token string">'channels'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span>    <span class="token punctuation">[</span>
+        <span class="token string">'file'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span>    <span class="token punctuation">[</span>
+            <span class="token string">'type'</span>          <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'file'</span><span class="token punctuation">,</span> 
+            <span class="token string">'max_files'</span>	<span class="token operator">=</span><span class="token operator">&gt;</span>	<span class="token number">30</span><span class="token punctuation">,</span>
+            <span class="token string">'file_size'</span>   	<span class="token operator">=</span><span class="token operator">&gt;</span> 	<span class="token number">1024</span><span class="token operator">*</span><span class="token number">1024</span><span class="token operator">*</span><span class="token number">10</span><span class="token punctuation">,</span>    
+        <span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token punctuation">]</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">;</span>
+</code></pre></div>
+<blockquote class="info"><p>设置<code>max_files</code>参数后，日志文件将不会分日期子目录存放。</p></blockquote>
+<h3><a id="JSON_304"></a>JSON格式日志</h3>
+<p>可以支持<code>JSON</code>格式记录文件日志，更加方便一些第三方日志分析工具进行日志分析。</p>
+<p>在日志配置文件中，添加</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token keyword">return</span> <span class="token punctuation">[</span>
+    <span class="token string">'default'</span>      <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'file'</span><span class="token punctuation">,</span>
+    <span class="token string">'channels'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span>    <span class="token punctuation">[</span>
+        <span class="token string">'file'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span>    <span class="token punctuation">[</span>
+            <span class="token string">'type'</span>          <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'file'</span><span class="token punctuation">,</span> 
+            <span class="token string">'json'</span>	        <span class="token operator">=</span><span class="token operator">&gt;</span>	<span class="token boolean">true</span>
+            <span class="token string">'file_size'</span>   	<span class="token operator">=</span><span class="token operator">&gt;</span> 	<span class="token number">1024</span><span class="token operator">*</span><span class="token number">1024</span><span class="token operator">*</span><span class="token number">10</span><span class="token punctuation">,</span>    
+        <span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token punctuation">]</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>即可开启<code>JSON</code>格式记录，CLI命令行的日志记录同样有效。</p>
+<p>使用JSON格式记录后，每次请求是一行JSON数据，但如果使用<code>Log::write</code>记录的日志是例外的单独一行JSON数据。</p>
+<h2><a id="_326"></a>日志通道</h2>
+<p>你可以配置不同的日志通道，并且把不同的日志记录到不同的通道。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Log<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">channel</span><span class="token punctuation">(</span><span class="token string">'email'</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">info</span><span class="token punctuation">(</span><span class="token string">'一条测试日志'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+Log<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">channel</span><span class="token punctuation">(</span><span class="token string">'socket'</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">error</span><span class="token punctuation">(</span><span class="token string">'记录错误日志'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>你可以配置不同的日志类型，记录到不同的日志通道，这样在记录日志的时候会自动选择对应的通道写入。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token keyword">return</span> <span class="token punctuation">[</span>
+    <span class="token string">'default'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span>    <span class="token string">'file'</span><span class="token punctuation">,</span>
+    <span class="token string">'type_channel'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span>    <span class="token punctuation">[</span>
+        <span class="token string">'error'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span>    <span class="token string">'email'</span><span class="token punctuation">,</span>
+        <span class="token string">'sql'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span>    <span class="token string">'sql'</span><span class="token punctuation">,</span>
+    <span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token string">'channels'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span>    <span class="token punctuation">[</span>
+        <span class="token string">'file'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span>    <span class="token punctuation">[</span>
+            <span class="token string">'type'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span>    <span class="token string">'file'</span><span class="token punctuation">,</span>
+        <span class="token punctuation">]</span><span class="token punctuation">,</span>
+        <span class="token string">'email'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span>    <span class="token punctuation">[</span>
+            <span class="token string">'type'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span>    <span class="token string">'email'</span><span class="token punctuation">,</span>
+        <span class="token punctuation">]</span><span class="token punctuation">,</span>
+        <span class="token string">'sql'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span>    <span class="token punctuation">[</span>
+            <span class="token string">'type'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span>    <span class="token string">'sql'</span><span class="token punctuation">,</span>
+        <span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token punctuation">]</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>表示如果是<code>error</code>日志和<code>sql</code>日志，会分别记录到指定的通道。同时你还需要在日志配置文件中，添加<code>email</code>和<code>sql</code>日志通道的配置。核心只有<code>file</code>日志类型，其它的可能需要自己扩展或者安装扩展。</p>
+<p>如果需要获取内存中的通道日志信息，可以使用</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 获取某个日志通道的日志</span>
+$error <span class="token operator">=</span> Log<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">getLog</span><span class="token punctuation">(</span><span class="token string">'file'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>可以单独关闭某个通道的日志写入，只需要把日志通道的<code>close</code>配置参数设置为<code>true</code>，或者使用方法关闭。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Log<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">close</span><span class="token punctuation">(</span><span class="token string">'file'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>可以单独清空某个通道的日志（如果没有开启实时写入的话）</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Log<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">clear</span><span class="token punctuation">(</span><span class="token string">'file'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h2><a id="_377"></a>自定义驱动</h2>
+<p>如果需要自定义日志驱动，你需要实现<code>think\contract\LogHandlerInterface</code>接口。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">interface <span class="token class-name">LogHandlerInterface</span>
+<span class="token punctuation">{</span>
+    <span class="token comment">/**
+     * 日志写入接口
+     * @access public
+     * @param  array $log 日志信息
+     * @return bool
+     */</span>
+    public <span class="token keyword">function</span> <span class="token function">save</span><span class="token punctuation">(</span>array $log<span class="token punctuation">)</span><span class="token punctuation">:</span> bool<span class="token punctuation">;</span>
+
+<span class="token punctuation">}</span>
+</code></pre></div>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

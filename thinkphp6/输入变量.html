@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>输入变量</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s-1093630323"><p>可以通过<code>Request</code>对象完成全局输入变量的检测、获取和安全过滤，支持包括<code>$_GET</code>、<code>$_POST</code>、<code>$_REQUEST</code>、<code>$_SERVER</code>、<code>$_SESSION</code>、<code>$_COOKIE</code>、<code>$_ENV</code>等系统变量，以及文件上传信息。</p>
+<p>为了方便说明，本篇内容的所有示例代码均使用<code>Facade</code>方式，因此需要首先引入</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">use think\facade\Request<span class="token punctuation">;</span>
+</code></pre></div>
+<p>如果你使用的是依赖注入，请自行调整代码为动态调用即可。</p>
+<p>主要内容包括：</p>
+<div class="markdown-toc"><ul><li><a href="#_14">检测变量是否设置</a></li><li><a href="#_25">变量获取</a></li><li><a href="#_89">默认值</a></li><li><a href="#_101">变量过滤</a></li><li><a href="#_142">获取部分变量</a></li><li><a href="#_191">变量修饰符</a></li><li><a href="#_217">中间件变量</a></li><li><a href="#_239">助手函数</a></li></ul></div><h2><a id="_14"></a>检测变量是否设置</h2>
+<p>可以使用<code>has</code>方法来检测一个变量参数是否设置，如下：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Request<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">has</span><span class="token punctuation">(</span><span class="token string">'id'</span><span class="token punctuation">,</span><span class="token string">'get'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+Request<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">has</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">,</span><span class="token string">'post'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>变量检测可以支持所有支持的系统变量，包括<code>get/post/put/request/cookie/server/session/env/file</code>。</p>
+<h2><a id="_25"></a>变量获取</h2>
+<p>变量获取使用<code>\think\Request</code>类的如下方法及参数：</p>
+<blockquote class="info"><h3><a id="_29"></a>变量类型方法('变量名/变量修饰符','默认值','过滤方法')</h3></blockquote>
+<p>变量类型方法包括：</p>
+<table><thead><tr><th>方法</th><th>描述</th></tr></thead><tbody><tr><td>param</td><td>获取当前请求的变量</td></tr><tr><td>get</td><td>获取 $_GET 变量</td></tr><tr><td>post</td><td>获取 $_POST 变量</td></tr><tr><td>put</td><td>获取 PUT 变量</td></tr><tr><td>delete</td><td>获取 DELETE 变量</td></tr><tr><td>session</td><td>获取 SESSION 变量</td></tr><tr><td>cookie</td><td>获取 $_COOKIE 变量</td></tr><tr><td>request</td><td>获取 $_REQUEST 变量</td></tr><tr><td>server</td><td>获取 $_SERVER 变量</td></tr><tr><td>env</td><td>获取 $_ENV 变量</td></tr><tr><td>route</td><td>获取 路由（包括PATHINFO） 变量</td></tr><tr><td>middleware</td><td>获取 中间件赋值/传递的变量</td></tr><tr><td>file</td><td>获取 $_FILES 变量</td></tr><tr><td>all <code>V6.0.8+</code></td><td>获取包括 $_FILES 变量在内的请求变量，相当于param+file</td></tr></tbody></table>
+<h3><a id="PARAM_50"></a>获取<code>PARAM</code>变量</h3>
+<p><code>PARAM</code>类型变量是框架提供的用于自动识别当前请求的一种变量获取方式，是系统推荐的获取请求参数的方法，用法如下：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 获取当前请求的name变量</span>
+Request<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">param</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// 获取当前请求的所有变量（经过过滤）</span>
+Request<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">param</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// 获取当前请求未经过滤的所有变量</span>
+Request<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">param</span><span class="token punctuation">(</span><span class="token boolean">false</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// 获取部分变量</span>
+Request<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">param</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'name'</span><span class="token punctuation">,</span> <span class="token string">'email'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<blockquote class="danger"><p><code>param</code>方法会把当前请求类型的参数和路由变量以及GET请求合并，并且路由变量是优先的。</p></blockquote>
+<p>其它的输入变量获取方法和<code>param</code>方法用法基本一致。</p>
+<p>你无法使用<strong>get方法获取路由变量</strong>，例如当访问地址是</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">http<span class="token punctuation">:</span><span class="token operator">/</span><span class="token operator">/</span>localhost<span class="token operator">/</span>index<span class="token punctuation">.</span>php<span class="token operator">/</span>index<span class="token operator">/</span>index<span class="token operator">/</span>hello<span class="token operator">/</span>name<span class="token operator">/</span>thinkphp
+</code></pre></div>
+<p>下面的用法是错误的</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">echo Request<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 输出为空</span>
+</code></pre></div>
+<p>正确的用法是</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">echo Request<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">param</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 输出thinkphp</span>
+</code></pre></div>
+<blockquote class="danger"><p>除了<code>server</code>和<code>env</code>方法的变量名不区分大小写（会自动转为大写后获取），其它变量名区分大小写。</p></blockquote>
+<h2><a id="_89"></a>默认值</h2>
+<p>获取输入变量的时候，可以支持默认值，例如当URL中不包含<code>$_GET['name']</code>的时候，使用下面的方式输出的结果比较。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Request<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 返回值为null</span>
+Request<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">,</span><span class="token string">''</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 返回值为空字符串</span>
+Request<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">,</span><span class="token string">'default'</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 返回值为default</span>
+</code></pre></div>
+<p>前面提到的方法都支持在第二个参数中传入默认值的方式。</p>
+<h2><a id="_101"></a>变量过滤</h2>
+<blockquote class="danger"><p>框架默认没有设置任何全局过滤规则，你可以在<code>app\Request</code>对象中设置<code>filter</code>全局过滤属性：</p></blockquote>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">namespace app<span class="token punctuation">;</span>
+
+class <span class="token class-name">Request</span> extends <span class="token class-name"><span class="token punctuation">\</span>think<span class="token punctuation">\</span>Request</span>
+<span class="token punctuation">{</span>
+    protected $filter <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token string">'htmlspecialchars'</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>也支持使用<code>Request</code>对象进行全局变量的获取过滤，过滤方式包括函数、方法过滤，以及PHP内置的Types of filters，我们可以设置全局变量过滤方法，支持设置多个过滤方法，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Request<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">filter</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'strip_tags'</span><span class="token punctuation">,</span><span class="token string">'htmlspecialchars'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+</code></pre></div>
+<p>也可以在获取变量的时候添加过滤方法，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Request<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">,</span><span class="token string">''</span><span class="token punctuation">,</span><span class="token string">'htmlspecialchars'</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 获取get变量 并用htmlspecialchars函数过滤</span>
+Request<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">param</span><span class="token punctuation">(</span><span class="token string">'username'</span><span class="token punctuation">,</span><span class="token string">''</span><span class="token punctuation">,</span><span class="token string">'strip_tags'</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 获取param变量 并用strip_tags函数过滤</span>
+Request<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">post</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">,</span><span class="token string">''</span><span class="token punctuation">,</span><span class="token string">'org\Filter::safeHtml'</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 获取post变量 并用org\Filter类的safeHtml方法过滤</span>
+</code></pre></div>
+<p>可以支持传入多个过滤规则，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Request<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">param</span><span class="token punctuation">(</span><span class="token string">'username'</span><span class="token punctuation">,</span><span class="token string">''</span><span class="token punctuation">,</span><span class="token string">'strip_tags,strtolower'</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 获取param变量 并依次调用strip_tags、strtolower函数过滤</span>
+</code></pre></div>
+<p>如果当前不需要进行任何过滤的话，可以使用</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 获取get变量 并且不进行任何过滤 即使设置了全局过滤</span>
+Request<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">,</span> <span class="token string">''</span><span class="token punctuation">,</span> <span class="token keyword">null</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<blockquote class="danger"><p>对于body中提交的<code>json</code>对象，你无需使用<code>php://input</code>去获取，可以直接当做表单提交的数据使用，因为系统已经自动处理过了</p></blockquote>
+<h2><a id="_142"></a>获取部分变量</h2>
+<p>如果你只需要获取当前请求的部分参数，可以使用：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 只获取当前请求的id和name变量</span>
+Request<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">only</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'id'</span><span class="token punctuation">,</span><span class="token string">'name'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<blockquote class="danger"><p>采用<code>only</code>方法能够安全的获取你需要的变量，避免额外变量影响数据处理和写入。</p></blockquote>
+<p><code>only</code>方法可以支持批量设置默认值，如下：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 设置默认值</span>
+Request<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">only</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'id'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token string">'name'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">''</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>表示<code>id</code>的默认值为0，<code>name</code>的默认值为空字符串。</p>
+<p>默认获取的是当前请求参数（<code>PARAM</code>类型变量），如果需要获取其它类型的参数，可以在第二个参数传入，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 只获取GET请求的id和name变量</span>
+Request<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">only</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'id'</span><span class="token punctuation">,</span><span class="token string">'name'</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token string">'get'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// 等效于</span>
+Request<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'id'</span><span class="token punctuation">,</span> <span class="token string">'name'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// 只获取POST请求的id和name变量</span>
+Request<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">only</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'id'</span><span class="token punctuation">,</span><span class="token string">'name'</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token string">'post'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// 等效于</span>
+Request<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">post</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'id'</span><span class="token punctuation">,</span> <span class="token string">'name'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>也支持排除某些变量后获取，例如</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 排除id和name变量</span>
+Request<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">except</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'id'</span><span class="token punctuation">,</span><span class="token string">'name'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>同样支持指定变量类型获取：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 排除GET请求的id和name变量</span>
+Request<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">except</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'id'</span><span class="token punctuation">,</span><span class="token string">'name'</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token string">'get'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// 排除POST请求的id和name变量</span>
+Request<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">except</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'id'</span><span class="token punctuation">,</span><span class="token string">'name'</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token string">'post'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h2><a id="_191"></a>变量修饰符</h2>
+<p>支持对变量使用修饰符功能，可以一定程度上简单过滤变量，更为严格的过滤请使用前面提过的变量过滤功能。</p>
+<p>用法如下：</p>
+<blockquote class="info"><h3><a id="Request_197"></a>Request::变量类型('变量名/修饰符');</h3></blockquote>
+<p>支持的变量修饰符，包括：</p>
+<table><thead><tr><th>修饰符</th><th>作用</th></tr></thead><tbody><tr><td>s</td><td>强制转换为字符串类型</td></tr><tr><td>d</td><td>强制转换为整型类型</td></tr><tr><td>b</td><td>强制转换为布尔类型</td></tr><tr><td>a</td><td>强制转换为数组类型</td></tr><tr><td>f</td><td>强制转换为浮点类型</td></tr></tbody></table>
+<p>下面是一些例子：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Request<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'id/d'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+Request<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">post</span><span class="token punctuation">(</span><span class="token string">'name/s'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+Request<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">post</span><span class="token punctuation">(</span><span class="token string">'ids/a'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h2><a id="_217"></a>中间件变量</h2>
+<p>可以在中间件里面设置和获取请求变量的值，这个值的改变不会影响<code>PARAM</code>变量的获取。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+
+namespace app\http\middleware<span class="token punctuation">;</span>
+
+class <span class="token class-name">Check</span>
+<span class="token punctuation">{</span>
+    public <span class="token keyword">function</span> <span class="token function">handle</span><span class="token punctuation">(</span>$request<span class="token punctuation">,</span> \Closure $next<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token string">'think'</span> <span class="token operator">==</span> $request<span class="token operator">-</span><span class="token operator">&gt;</span>name<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        	$request<span class="token operator">-</span><span class="token operator">&gt;</span>name <span class="token operator">=</span> <span class="token string">'ThinkPHP'</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token keyword">return</span> $<span class="token function">next</span><span class="token punctuation">(</span>$request<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<h2><a id="_239"></a>助手函数</h2>
+<p>为了简化使用，还可以使用系统提供的<code>input</code>助手函数完成上述大部分功能。</p>
+<p>判断变量是否定义</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token function">input</span><span class="token punctuation">(</span><span class="token string">'?get.id'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">input</span><span class="token punctuation">(</span><span class="token string">'?post.name'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>获取PARAM参数</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token function">input</span><span class="token punctuation">(</span><span class="token string">'param.name'</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 获取单个参数</span>
+<span class="token function">input</span><span class="token punctuation">(</span><span class="token string">'param.'</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 获取全部参数</span>
+<span class="token comment">// 下面是等效的</span>
+<span class="token function">input</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">)</span><span class="token punctuation">;</span> 
+<span class="token function">input</span><span class="token punctuation">(</span><span class="token string">''</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>获取GET参数</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 获取单个变量</span>
+<span class="token function">input</span><span class="token punctuation">(</span><span class="token string">'get.id'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// 使用过滤方法获取 默认为空字符串</span>
+<span class="token function">input</span><span class="token punctuation">(</span><span class="token string">'get.name'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// 获取全部变量</span>
+<span class="token function">input</span><span class="token punctuation">(</span><span class="token string">'get.'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>使用过滤方法</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token function">input</span><span class="token punctuation">(</span><span class="token string">'get.name'</span><span class="token punctuation">,</span><span class="token string">''</span><span class="token punctuation">,</span><span class="token string">'htmlspecialchars'</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 获取get变量 并用htmlspecialchars函数过滤</span>
+<span class="token function">input</span><span class="token punctuation">(</span><span class="token string">'username'</span><span class="token punctuation">,</span><span class="token string">''</span><span class="token punctuation">,</span><span class="token string">'strip_tags'</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 获取param变量 并用strip_tags函数过滤</span>
+<span class="token function">input</span><span class="token punctuation">(</span><span class="token string">'post.name'</span><span class="token punctuation">,</span><span class="token string">''</span><span class="token punctuation">,</span><span class="token string">'org\Filter::safeHtml'</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 获取post变量 并用org\Filter类的safeHtml方法过滤</span>
+</code></pre></div>
+<p>使用变量修饰符</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token function">input</span><span class="token punctuation">(</span><span class="token string">'get.id/d'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">input</span><span class="token punctuation">(</span><span class="token string">'post.name/s'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">input</span><span class="token punctuation">(</span><span class="token string">'post.ids/a'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

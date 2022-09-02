@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Trace调试</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s-1736620683"><p>调试模式并不能完全满足我们调试的需要，有时候我们需要手动的输出一些调试信息。除了本身可以借助一些开发工具进行调试外，ThinkPHP还提供了一些内置的调试工具和函数。</p>
+<p><code>Trace</code>调试功能就是ThinkPHP提供给开发人员的一个用于开发调试的辅助工具。可以实时显示当前页面或者请求的请求信息、运行情况、SQL执行、错误信息和调试信息等，并支持自定义显示，并且支持没有页面输出的操作调试。最新版本页面Trace功能已经不再内置在核心，但默认安装的时候会自动安装<code>topthink/think-trace</code>扩展，所以你可以在项目里面直接使用。</p>
+<p>如果部署到服务器的话，你可以通过下面方式安装</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">composer install <span class="token operator">--</span>no<span class="token operator">-</span>dev
+</code></pre></div>
+<p>就不会安装页面Trace扩展。</p>
+<h2><a id="_12"></a>使用</h2>
+<blockquote class="danger"><p>页面Trace功能仅在调试模式下有效</p></blockquote>
+<p>安装页面Trace扩展后，如果开启调试模式并且运行后有页面有输出的话，页面右下角会显示<code>ThinkPHP</code>的LOGO：</p>
+<p><img src="https://box.kancloud.cn/fa196d0c104cc425c023bf8f2b6638be_110x37.png" alt=""></p>
+<p>LOGO后面的数字就是当前页面的执行时间（单位是秒） 点击该图标后，会展开详细的Trace信息，如图：</p>
+<p><img src="https://img.kancloud.cn/d3/14/d314b0ff7f4660593d2f590a3bcd9917_817x224.png" alt=""></p>
+<p>Trace框架有6个选项卡，分别是基本、文件、流程、错误、SQL和调试，点击不同的选项卡会切换到不同的Trace信息窗口。</p>
+<table><thead><tr><th>选项卡</th><th>描述</th></tr></thead><tbody><tr><td>基本</td><td>当前页面的基本摘要信息，例如执行时间、内存开销、文件加载数、查询次数等等</td></tr><tr><td>文件</td><td>详细列出当前页面执行过程中加载的文件及其大小</td></tr><tr><td>流程</td><td>会列出当前页面执行到的行为和相关流程</td></tr><tr><td>错误</td><td>当前页面执行过程中的一些错误信息，包括警告错误</td></tr><tr><td>SQL</td><td>当前页面执行到的SQL语句信息</td></tr><tr><td>调试</td><td>开发人员在程序中进行的调试输出</td></tr></tbody></table>
+<p>Trace的选项卡是可以定制和扩展的，如果你希望增加新的选项卡，则可以修改配置目录下的<code>trace.php</code>文件中的配置参数如下：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token keyword">return</span> <span class="token punctuation">[</span>
+    <span class="token string">'type'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'Html'</span><span class="token punctuation">,</span>
+    <span class="token string">'tabs'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token punctuation">[</span>
+        <span class="token string">'base'</span>  <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'基本'</span><span class="token punctuation">,</span>
+        <span class="token string">'file'</span>  <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'文件'</span><span class="token punctuation">,</span>
+        <span class="token string">'info'</span>  <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'流程'</span><span class="token punctuation">,</span>
+        <span class="token string">'error'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'错误'</span><span class="token punctuation">,</span>
+        <span class="token string">'sql'</span>   <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'SQL'</span><span class="token punctuation">,</span>
+        <span class="token string">'debug'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'调试'</span><span class="token punctuation">,</span>
+        <span class="token string">'user'</span>  <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'用户'</span><span class="token punctuation">,</span>
+    <span class="token punctuation">]</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">;</span>
+</code></pre></div>
+<blockquote class="danger"><p><code>base</code>和<code>file</code>是系统内置的，其它的选项其实都属于日志的等级（user是用户自定义的日志等级）。</p></blockquote>
+<p>也可以把某几个选项卡合并，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token keyword">return</span> <span class="token punctuation">[</span>
+    <span class="token string">'type'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'Html'</span><span class="token punctuation">,</span>
+    <span class="token string">'tabs'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token punctuation">[</span>
+        <span class="token string">'base'</span>                 <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'基本'</span><span class="token punctuation">,</span>
+        <span class="token string">'file'</span>                 <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'文件'</span><span class="token punctuation">,</span>
+        <span class="token string">'error|notice|warning'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'错误'</span><span class="token punctuation">,</span>
+        <span class="token string">'sql'</span>                  <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'SQL'</span><span class="token punctuation">,</span>
+        <span class="token string">'debug|info'</span>           <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'调试'</span><span class="token punctuation">,</span>
+    <span class="token punctuation">]</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>更改后的Trace显示效果如图：</p>
+<p><img src="https://img.kancloud.cn/02/35/023543adab917ac4b3918bec83b76c94_814x231.png" alt=""></p>
+<p>如果需要更改页面Trace输出的样式，可以自定义模板文件（可以复制内置模板文件<code>vendor/topthink/think-trace/src/tpl/page_trace.tpl</code>的内容），然后配置<code>file</code>参数指定模板文件位置。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'file'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span>    <span class="token string">'app\trace\page_trace.html'</span><span class="token punctuation">,</span>
+</code></pre></div>
+<h2><a id="_79"></a>浏览器控制台输出</h2>
+<p>trace功能支持在浏览器的<code>console</code>直接输出，这样可以方便没有页面输出的操作功能调试，只需要在配置文件中设置：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">    <span class="token comment">// 使用浏览器console输出trace信息</span>
+    <span class="token string">'type'</span>  <span class="token operator">=</span><span class="token operator">&gt;</span>  <span class="token string">'console'</span><span class="token punctuation">,</span>
+</code></pre></div>
+<p>运行后打开浏览器的console控制台可以看到如图所示的信息：</p>
+<p><img src="https://img.kancloud.cn/af/98/af9878cc36cdfbe462108bbcffa994f7_1089x354.png" alt=""></p>
+<p>浏览器Trace输出同样支持<code>tabs</code>设置。</p>
+<blockquote class="danger"><p>由于页面Trace功能是通过中间件来执行，所以命令行下面不会显示任何的页面Trace信息</p></blockquote>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

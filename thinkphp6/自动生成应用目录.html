@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>自动生成应用目录</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s-57153665"><p>ThinkPHP 具备自动创建功能，可以用来自动生成需要的应用及目录结构和文件等。</p>
+<blockquote class="danger"><p>本指令需要安装多应用扩展后才支持。</p></blockquote>
+<h2><a id="_4"></a>快速生成应用</h2>
+<p>如果使用了多应用模式，可以快速生成一个应用，例如生成<code>demo</code>应用的指令如下：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&gt;</span>php think build demo
+</code></pre></div>
+<p>如果看到输出</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Successed
+</code></pre></div>
+<p>则表示自动生成应用成功。</p>
+<p>会自动生成<code>demo</code>应用，自动生成的应用目录包含了<code>controller</code>、<code>model</code>和<code>view</code>目录以及<code>common.php</code>、<code>middleware.php</code>、<code>event.php</code>和<code>provider.php</code>等文件。</p>
+<p>生成成功后，我们可以直接访问<code>demo</code>应用</p>
+<p>会显示</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">您好！这是一个<span class="token punctuation">[</span>demo<span class="token punctuation">]</span>示例应用
+</code></pre></div>
+<h2><a id="_25"></a>应用结构自定义</h2>
+<p>如果你希望自定义生成应用的结构，可以在app目录下增加一个<code>build.php</code>文件，内容如下：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token keyword">return</span> <span class="token punctuation">[</span>
+    <span class="token comment">// 需要自动创建的文件</span>
+    <span class="token string">'__file__'</span>   <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token comment">// 需要自动创建的目录</span>
+    <span class="token string">'__dir__'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token punctuation">[</span><span class="token string">'controller'</span><span class="token punctuation">,</span> <span class="token string">'model'</span><span class="token punctuation">,</span> <span class="token string">'view'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token comment">// 需要自动创建的控制器</span>
+    <span class="token string">'controller'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token punctuation">[</span><span class="token string">'Index'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token comment">// 需要自动创建的模型</span>
+    <span class="token string">'model'</span>      <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token punctuation">[</span><span class="token string">'User'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token comment">// 需要自动创建的模板</span>
+    <span class="token string">'view'</span>       <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token punctuation">[</span><span class="token string">'index/index'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>可以给定义需要自动生成的文件和目录，以及MVC类。</p>
+<ul><li><code>__dir__</code> 表示生成目录（支持多级目录）</li><li><code>__file__</code> 表示生成文件（默认会生成<code>common.php</code>、<code>middleware.php</code>、<code>event.php</code>和<code>provider.php</code>文件，无需定义）</li><li><code>controller</code>表示生成控制器类</li><li><code>model</code>表示生成模型类</li><li><code>view</code>表示生成模板文件（支持子目录）</li></ul>
+<p>并且会自动生成应用的默认<code>Index</code>访问控制器文件用于显示应用的欢迎页面。</p>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

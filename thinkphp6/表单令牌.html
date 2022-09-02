@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>表单令牌</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s1102772611"><h2><a id="Token_0"></a>添加令牌<code>Token</code>验证</h2>
+<p>验证规则支持对表单的令牌验证，首先需要在你的表单里面增加下面隐藏域：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span>input type<span class="token operator">=</span><span class="token string">"hidden"</span> name<span class="token operator">=</span><span class="token string">"__token__"</span> value<span class="token operator">=</span><span class="token string">"{:token()}"</span> <span class="token operator">/</span><span class="token operator">&gt;</span>
+</code></pre></div>
+<p>也可以直接使用</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token punctuation">{</span><span class="token punctuation">:</span><span class="token function">token_field</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">}</span>
+</code></pre></div>
+<p>默认的令牌Token名称是<code>__token__</code>，如果需要自定义名称及令牌生成规则可以使用</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token punctuation">{</span><span class="token punctuation">:</span><span class="token function">token_field</span><span class="token punctuation">(</span><span class="token string">'__hash__'</span><span class="token punctuation">,</span> <span class="token string">'md5'</span><span class="token punctuation">)</span><span class="token punctuation">}</span>
+</code></pre></div>
+<p>第二个参数表示token的生成规则，也可以使用闭包。</p>
+<p>如果你没有使用默认的模板引擎，则需要自己生成表单隐藏域</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">namespace app\controller<span class="token punctuation">;</span>
+
+use think\Request<span class="token punctuation">;</span>
+use think\facade\View<span class="token punctuation">;</span>
+
+class <span class="token class-name">Index</span>
+<span class="token punctuation">{</span>
+    public <span class="token keyword">function</span> <span class="token function">index</span><span class="token punctuation">(</span>Request $request<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        $token <span class="token operator">=</span> $request<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">buildToken</span><span class="token punctuation">(</span><span class="token string">'__token__'</span><span class="token punctuation">,</span> <span class="token string">'sha1'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        View<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">assign</span><span class="token punctuation">(</span><span class="token string">'token'</span><span class="token punctuation">,</span> $token<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> View<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">fetch</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>然后在模板表单中使用：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span>input type<span class="token operator">=</span><span class="token string">"hidden"</span> name<span class="token operator">=</span><span class="token string">"__token__"</span> value<span class="token operator">=</span><span class="token string">"{$token}"</span> <span class="token operator">/</span><span class="token operator">&gt;</span>
+</code></pre></div>
+<h2><a id="AJAX_47"></a>AJAX提交</h2>
+<p>如果是AJAX提交的表单，可以将<code>token</code>设置在<code>meta</code>中</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span>meta name<span class="token operator">=</span><span class="token string">"csrf-token"</span> content<span class="token operator">=</span><span class="token string">"{:token()}"</span><span class="token operator">&gt;</span>
+</code></pre></div>
+<p>或者直接使用</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token punctuation">{</span><span class="token punctuation">:</span><span class="token function">token_meta</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">}</span>
+</code></pre></div>
+<p>然后在全局Ajax中使用这种方式设置<code>X-CSRF-Token</code>请求头并提交：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$<span class="token punctuation">.</span><span class="token function">ajaxSetup</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+    headers<span class="token punctuation">:</span> <span class="token punctuation">{</span>
+        <span class="token string">'X-CSRF-TOKEN'</span><span class="token punctuation">:</span> $<span class="token punctuation">(</span><span class="token string">'meta[name="csrf-token"]'</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">attr</span><span class="token punctuation">(</span><span class="token string">'content'</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h2><a id="_71"></a>路由验证</h2>
+<p>然后在路由规则定义中，使用</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">post</span><span class="token punctuation">(</span><span class="token string">'blog/save'</span><span class="token punctuation">,</span><span class="token string">'blog/save'</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">token</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>如果自定义了<code>token</code>名称，需要改成</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">post</span><span class="token punctuation">(</span><span class="token string">'blog/save'</span><span class="token punctuation">,</span><span class="token string">'blog/save'</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">token</span><span class="token punctuation">(</span><span class="token string">'__hash__'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>令牌检测如果不通过，会抛出<code>think\exception\ValidateException</code>异常。</p>
+<h2><a id="_87"></a>控制器验证</h2>
+<p>如果没有使用路由定义，可以在控制器里面手动进行令牌验证</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">namespace app\controller<span class="token punctuation">;</span>
+
+use think\exception\ValidateException<span class="token punctuation">;</span>
+use think\Request<span class="token punctuation">;</span>
+
+class <span class="token class-name">Index</span>
+<span class="token punctuation">{</span>
+    public <span class="token keyword">function</span> <span class="token function">index</span><span class="token punctuation">(</span>Request $request<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        $check <span class="token operator">=</span> $request<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">checkToken</span><span class="token punctuation">(</span><span class="token string">'__token__'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        
+        <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token boolean">false</span> <span class="token operator">===</span> $check<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">ValidateException</span><span class="token punctuation">(</span><span class="token string">'invalid token'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token comment">// ...</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>提交数据默认获取<code>post</code>数据，支持指定数据进行<code>Token</code>验证。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">namespace app\controller<span class="token punctuation">;</span>
+
+use think\exception\ValidateException<span class="token punctuation">;</span>
+use think\Request<span class="token punctuation">;</span>
+
+class <span class="token class-name">Index</span>
+<span class="token punctuation">{</span>
+    public <span class="token keyword">function</span> <span class="token function">index</span><span class="token punctuation">(</span>Request $request<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        $check <span class="token operator">=</span> $request<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">checkToken</span><span class="token punctuation">(</span><span class="token string">'__token__'</span><span class="token punctuation">,</span> $request<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">param</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        
+        <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token boolean">false</span> <span class="token operator">===</span> $check<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">ValidateException</span><span class="token punctuation">(</span><span class="token string">'invalid token'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token comment">// ...</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<h2><a id="_135"></a>使用验证器验证</h2>
+<p>在你的验证规则中，添加<code>token</code>验证规则即可，例如，如果使用的是验证器的话，可以改为：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">protected $rule <span class="token operator">=</span> <span class="token punctuation">[</span>
+        <span class="token string">'name'</span>  <span class="token operator">=</span><span class="token operator">&gt;</span>  <span class="token string">'require|max:25|token'</span><span class="token punctuation">,</span>
+        <span class="token string">'email'</span> <span class="token operator">=</span><span class="token operator">&gt;</span>  <span class="token string">'email'</span><span class="token punctuation">,</span>
+    <span class="token punctuation">]</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>如果你的令牌名称不是<code>__token__</code>（假设是<code>__hash__</code>)，验证器中需要改为：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">protected $rule <span class="token operator">=</span> <span class="token punctuation">[</span>
+        <span class="token string">'name'</span>  <span class="token operator">=</span><span class="token operator">&gt;</span>  <span class="token string">'require|max:25|token:__hash__'</span><span class="token punctuation">,</span>
+        <span class="token string">'email'</span> <span class="token operator">=</span><span class="token operator">&gt;</span>  <span class="token string">'email'</span><span class="token punctuation">,</span>
+    <span class="token punctuation">]</span><span class="token punctuation">;</span>
+</code></pre></div>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

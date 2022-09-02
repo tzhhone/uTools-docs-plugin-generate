@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>数据集</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s-889157851"><h2><a id="_0"></a>数据集</h2>
+<blockquote class="default"><p>模型的<code>select</code>查询方法返回数据集对象 <code>think\model\Collection</code>，该对象继承自<code>think\Collection</code>，因此具有数据库的<a href="1037576">数据集类</a>的所有方法，而且还提供了额外的模型操作方法。</p></blockquote>
+<p>基本用法和数组一样，例如可以遍历和直接获取某个元素。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 模型查询返回数据集对象</span>
+$list <span class="token operator">=</span> User<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">where</span><span class="token punctuation">(</span><span class="token string">'id'</span><span class="token punctuation">,</span> <span class="token string">'&gt;'</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">select</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// 获取数据集的数量</span>
+echo <span class="token function">count</span><span class="token punctuation">(</span>$list<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// 直接获取其中的某个元素</span>
+<span class="token function">dump</span><span class="token punctuation">(</span>$list<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// 遍历数据集对象</span>
+foreach <span class="token punctuation">(</span>$list as $user<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token function">dump</span><span class="token punctuation">(</span>$user<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span class="token comment">// 删除某个元素</span>
+<span class="token function">unset</span><span class="token punctuation">(</span>$list<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>需要注意的是，如果要判断数据集是否为空，不能直接使用<code>empty</code>判断，而必须使用数据集对象的<code>isEmpty</code>方法判断，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$users <span class="token operator">=</span> User<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">select</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">if</span><span class="token punctuation">(</span>$users<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">isEmpty</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+    echo <span class="token string">'数据集为空'</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>你可以使用模型的<code>hidden</code>/<code>visible</code>/<code>append</code>/<code>withAttr</code>方法进行数据集的输出处理，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 模型查询返回数据集对象</span>
+$list <span class="token operator">=</span> User<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">where</span><span class="token punctuation">(</span><span class="token string">'id'</span><span class="token punctuation">,</span> <span class="token string">'&gt;'</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">select</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// 对输出字段进行处理</span>
+$list<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">hidden</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'password'</span><span class="token punctuation">]</span><span class="token punctuation">)</span> 
+	<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">append</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'status_text'</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">withAttr</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">,</span> <span class="token keyword">function</span><span class="token punctuation">(</span>$value<span class="token punctuation">,</span> $data<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token function">strtolower</span><span class="token punctuation">(</span>$value<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">dump</span><span class="token punctuation">(</span>$list<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>如果需要对数据集的结果进行筛选，可以使用：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 模型查询返回数据集对象</span>
+$list <span class="token operator">=</span> User<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">where</span><span class="token punctuation">(</span><span class="token string">'id'</span><span class="token punctuation">,</span> <span class="token string">'&gt;'</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">select</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">where</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">,</span> <span class="token string">'think'</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">where</span><span class="token punctuation">(</span><span class="token string">'score'</span><span class="token punctuation">,</span> <span class="token string">'&gt;'</span><span class="token punctuation">,</span> <span class="token number">80</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">dump</span><span class="token punctuation">(</span>$list<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>支持<code>whereLike</code>/<code>whereIn</code>/<code>whereBetween</code>等快捷方法。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 模型查询返回数据集对象</span>
+$list <span class="token operator">=</span> User<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">where</span><span class="token punctuation">(</span><span class="token string">'id'</span><span class="token punctuation">,</span> <span class="token string">'&gt;'</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">select</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">whereLike</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">,</span> <span class="token string">'think%'</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">whereBetween</span><span class="token punctuation">(</span><span class="token string">'score'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token number">80</span><span class="token punctuation">,</span><span class="token number">100</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">dump</span><span class="token punctuation">(</span>$list<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>支持数据集的<code>order</code>排序操作。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 模型查询返回数据集对象</span>
+$list <span class="token operator">=</span> User<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">where</span><span class="token punctuation">(</span><span class="token string">'id'</span><span class="token punctuation">,</span> <span class="token string">'&gt;'</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">select</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">where</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">,</span> <span class="token string">'think'</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">where</span><span class="token punctuation">(</span><span class="token string">'score'</span><span class="token punctuation">,</span> <span class="token string">'&gt;'</span><span class="token punctuation">,</span> <span class="token number">80</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">order</span><span class="token punctuation">(</span><span class="token string">'create_time'</span><span class="token punctuation">,</span><span class="token string">'desc'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">dump</span><span class="token punctuation">(</span>$list<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>支持数据集的<code>diff/intersect</code>操作。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 模型查询返回数据集对象</span>
+$list1 <span class="token operator">=</span> User<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">where</span><span class="token punctuation">(</span><span class="token string">'status'</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">field</span><span class="token punctuation">(</span><span class="token string">'id,name'</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">select</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+$list2 <span class="token operator">=</span> User<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">where</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">,</span> <span class="token string">'like'</span><span class="token punctuation">,</span> <span class="token string">'think'</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">field</span><span class="token punctuation">(</span><span class="token string">'id,name'</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">select</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// 计算差集</span>
+<span class="token function">dump</span><span class="token punctuation">(</span>$list1<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">diff</span><span class="token punctuation">(</span>$list2<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// 计算交集</span>
+<span class="token function">dump</span><span class="token punctuation">(</span>$list1<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">intersect</span><span class="token punctuation">(</span>$list2<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h2><a id="_84"></a>批量删除和更新数据</h2>
+<p>支持对数据集的数据进行批量删除和更新操作，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$list <span class="token operator">=</span> User<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">where</span><span class="token punctuation">(</span><span class="token string">'status'</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">select</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+$list<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">update</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'name'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'php'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+$list <span class="token operator">=</span> User<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">where</span><span class="token punctuation">(</span><span class="token string">'status'</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">select</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+$list<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">delete</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>模板变量</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s-1219963103"><h2><a id="_0"></a>模板赋值</h2>
+<p>模板中的变量（除了一些系统变量外）必须先进行模板赋值后才能使用，可以使用<code>assign</code>方法进行全局模板变量赋值。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">namespace app\controller<span class="token punctuation">;</span>
+
+use think\facade\View<span class="token punctuation">;</span>
+
+class <span class="token class-name">Index</span>
+<span class="token punctuation">{</span>
+    public <span class="token keyword">function</span> <span class="token function">index</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token comment">// 模板变量赋值</span>
+        View<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">assign</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">,</span><span class="token string">'ThinkPHP'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        View<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">assign</span><span class="token punctuation">(</span><span class="token string">'email'</span><span class="token punctuation">,</span><span class="token string">'thinkphp@qq.com'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment">// 或者批量赋值</span>
+        View<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">assign</span><span class="token punctuation">(</span><span class="token punctuation">[</span>
+            <span class="token string">'name'</span>  <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'ThinkPHP'</span><span class="token punctuation">,</span>
+            <span class="token string">'email'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'thinkphp@qq.com'</span>
+        <span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment">// 模板输出</span>
+        <span class="token keyword">return</span> View<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">fetch</span><span class="token punctuation">(</span><span class="token string">'index'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p><code>assign</code>方法赋值属于全局变量赋值，如果你需要单次赋值的话，可以直接在<code>fetch</code>方法中传入。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">namespace app\controller<span class="token punctuation">;</span>
+
+use think\facade\View<span class="token punctuation">;</span>
+
+class <span class="token class-name">Index</span>
+<span class="token punctuation">{</span>
+    public <span class="token keyword">function</span> <span class="token function">index</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token comment">// 模板输出并变量赋值</span>
+        <span class="token keyword">return</span> View<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">fetch</span><span class="token punctuation">(</span><span class="token string">'index'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span>
+            <span class="token string">'name'</span>  <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'ThinkPHP'</span><span class="token punctuation">,</span>
+            <span class="token string">'email'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'thinkphp@qq.com'</span>
+        <span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<h3><a id="_47"></a>助手函数</h3>
+<p>如果使用<code>view</code>助手函数渲染输出的话，可以使用下面的方法进行模板变量赋值：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token keyword">return</span> <span class="token function">view</span><span class="token punctuation">(</span><span class="token string">'index'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span>
+    <span class="token string">'name'</span>  <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'ThinkPHP'</span><span class="token punctuation">,</span>
+    <span class="token string">'email'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'thinkphp@qq.com'</span>
+<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>助手函数的变量赋值也是当次模板渲染有效。</p>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

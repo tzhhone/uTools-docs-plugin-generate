@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>多语言</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s-733331196"><p>ThinkPHP内置通过<code>\think\facade\Lang</code>类提供多语言支持，如果你的应用涉及到国际化的支持，那么可以定义相关的语言包文件。任何字符串形式的输出，都可以定义语言常量。</p>
+<h2><a id="_2"></a>开启和加载语言包</h2>
+<p>默认系统会加载默认语言包，但如果需要多语言自动侦测及自动切换，你需要在全局的中间件定义文件中添加中间件定义：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'think\middleware\LoadLangPack'</span><span class="token punctuation">,</span>
+</code></pre></div>
+<p>默认情况下，系统载入的是配置的默认语言包，并且不会自动侦测当前系统的语言。多语言相关的设置在<code>lang.php</code>配置文件中进行设置。</p>
+<p>默认语言由<code>default_lang</code>配置参数设置，系统默认设置为：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 默认语言</span>
+<span class="token string">'default_lang'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'zh-cn'</span><span class="token punctuation">,</span>
+</code></pre></div>
+<p>启用中间件后，系统会自动侦测和多语言自动切换，可以在配置文件设置自动侦测的多语言变量名：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 自动侦测的GET变量名</span>
+<span class="token string">'detect_var'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'lang'</span><span class="token punctuation">,</span>
+</code></pre></div>
+<p>开启自动侦测后会会首先检查请求的URL或者Cookie中是否包含语言变量，然后根据<code>HTTP_ACCEPT_LANGUAGE</code>自动识别当前语言（并载入对应的语言包）。</p>
+<blockquote class="default"><p><code>V6.0.3+</code>版本开始支持通过Header方式自动侦测多语言</p></blockquote>
+<p>如果在自动侦测语言的时候，希望设置允许的语言列表，不在列表范围的语言则仍然使用默认语言，可以配置：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 设置允许的语言</span>
+<span class="token string">'allow_lang_list'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span>    <span class="token punctuation">[</span><span class="token string">'zh-cn'</span><span class="token punctuation">,</span> <span class="token string">'en-us'</span><span class="token punctuation">]</span>
+</code></pre></div>
+<p>如果希望使用<code>Cookie</code>保存语言，可以设置</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 使用Cookie保存</span>
+<span class="token string">'use_cookie'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+<span class="token comment">// Cookie保存变量</span>
+<span class="token string">'cookie_var'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'think_lang'</span><span class="token punctuation">,</span>
+</code></pre></div>
+<p>设置后，自动检测的语言会通过<code>Cookie</code>记录下来，下次则直接通过<code>Cookie</code>判断语言。</p>
+<h2><a id="_42"></a>语言变量定义</h2>
+<p>语言变量的定义，只需要在需要使用多语言的地方，写成：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Lang<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'add user error'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// 使用系统封装的助手函数</span>
+<span class="token function">lang</span><span class="token punctuation">(</span><span class="token string">'add user error'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>也就是说，字符串信息要改成<code>Lang::get</code>方法来表示。</p>
+<p>语言定义一般采用英语来描述。</p>
+<h2><a id="_56"></a>语言文件定义</h2>
+<p>自动加载的应用语言文件位于：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 单应用模式</span>
+app\lang\当前语言<span class="token punctuation">.</span>php
+<span class="token comment">// 多应用模式</span>
+app\应用\lang\当前语言<span class="token punctuation">.</span>php
+</code></pre></div>
+<blockquote class="default"><p>语言包文件支持多种格式，包括php数组、<code>yaml</code>格式及<code>json</code>格式（<code>V6.0.4+</code>）。</p></blockquote>
+<p>如果你还需要加载其他的语言包，可以通过<code>extend_list</code>设置，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'extend_list'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span>    <span class="token punctuation">[</span>
+    <span class="token string">'zh-cn'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token punctuation">[</span>
+        <span class="token function">app</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">getBasePath</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">.</span> <span class="token string">'lang\zh-cn\app.php'</span><span class="token punctuation">,</span>
+        <span class="token function">app</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">getBasePath</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">.</span> <span class="token string">'lang\zh-cn\core.php'</span><span class="token punctuation">,</span>
+    <span class="token punctuation">]</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span>
+</code></pre></div>
+<blockquote class="default"><p>目前核心框架仅内置<code>zh-cn</code>语言包，如果需要其它语言的提示，可以通过扩展语言包的方式自行加载。</p></blockquote>
+<p>ThinkPHP语言文件定义采用返回数组方式：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token keyword">return</span> <span class="token punctuation">[</span>
+     <span class="token string">'hello thinkphp'</span>  <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'欢迎使用ThinkPHP'</span><span class="token punctuation">,</span>
+     <span class="token string">'data type error'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'数据类型错误'</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>通常多语言的使用是在控制器里面，但是模型类的自动验证功能里面会用到提示信息，这个部分也可以使用多语言的特性。</p>
+<p>如果使用了多语言功能的话（假设，我们在当前语言包里面定义了' lang_var'=&gt;'标题必须！'），就可以使用下面的字符串来替代原来的错误提示。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token punctuation">{</span><span class="token operator">%</span>lang_var<span class="token punctuation">}</span>
+</code></pre></div>
+<p>如果要在模板中输出语言变量不需要在控制器中赋值，可以直接使用模板引擎特殊标签来直接输出语言定义的值：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token punctuation">{</span>$Think<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>lang_var<span class="token punctuation">}</span>
+</code></pre></div>
+<p>可以输出当前语言包里面定义的&nbsp;<code>lang_var</code>语言定义。</p>
+<h2><a id="_106"></a>变量传入支持</h2>
+<p>语言包定义的时候支持传入变量，有两种方式</p>
+<p>使用命名绑定方式，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'file_format'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span>    <span class="token string">'文件格式: {:format},文件大小：{:size}'</span><span class="token punctuation">,</span>
+</code></pre></div>
+<p>在模板中输出语言字符串的时候传入变量值即可：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token punctuation">{</span><span class="token punctuation">:</span><span class="token function">lang</span><span class="token punctuation">(</span><span class="token string">'file_format'</span><span class="token punctuation">,</span><span class="token punctuation">[</span><span class="token string">'format'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'jpeg,png,gif,jpg'</span><span class="token punctuation">,</span><span class="token string">'size'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'2MB'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">}</span>
+</code></pre></div>
+<p>第二种方式是使用格式字串，如果你需要使用第三方的翻译工具，建议使用该方式定义变量。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'file_format'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span>    <span class="token string">'文件格式: %s,文件大小：%d'</span><span class="token punctuation">,</span>
+</code></pre></div>
+<p>在模板中输出多语言的方式更改为：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token punctuation">{</span><span class="token punctuation">:</span><span class="token function">lang</span><span class="token punctuation">(</span><span class="token string">'file_format'</span><span class="token punctuation">,</span><span class="token punctuation">[</span><span class="token string">'jpeg,png,gif,jpg'</span><span class="token punctuation">,</span><span class="token string">'2MB'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">}</span>
+</code></pre></div>
+<h2><a id="_133"></a>语言分组</h2>
+<p>首先你需要在lang.php配置文件中开启语言分组，</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 开启多语言分组</span>
+<span class="token string">'allow_group'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span>    <span class="token boolean">true</span>
+</code></pre></div>
+<p>然后你可以在定义多语言的时候使用分组定义</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token keyword">return</span> <span class="token punctuation">[</span>
+    <span class="token string">'user'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span>    <span class="token punctuation">[</span>
+         <span class="token string">'welcome'</span>  <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'欢迎回来'</span><span class="token punctuation">,</span>
+         <span class="token string">'login'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'用户登录'</span><span class="token punctuation">,</span>
+         <span class="token string">'logout'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'用户登出'</span><span class="token punctuation">,</span>
+    <span class="token punctuation">]</span>
+<span class="token punctuation">]</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>然后使用下面的方式获取多语言变量</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Lang<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'user.login'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">lang</span><span class="token punctuation">(</span><span class="token string">'user.login'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

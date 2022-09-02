@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>定义</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s1852108074"><h2><a id="_0"></a>模型定义</h2>
+<p>定义一个模型类很简单，例如下面是一个<code>User</code>模型：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\model<span class="token punctuation">;</span>
+
+use think\Model<span class="token punctuation">;</span>
+
+class <span class="token class-name">User</span> extends <span class="token class-name">Model</span>
+<span class="token punctuation">{</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<blockquote class="info"><p>请确保你已经在数据库配置文件中配置了数据库连接信息，如不清楚请参考数据库一章</p></blockquote>
+<p>模型会自动对应数据表，模型类的命名规则是除去表前缀的数据表名称，采用驼峰法命名，并且首字母大写，例如：</p>
+<table><thead><tr><th>模型名</th><th>约定对应数据表（假设数据库的前缀定义是 <code>think_</code>）</th></tr></thead><tbody><tr><td>User</td><td>think_user</td></tr><tr><td>UserType</td><td>think_user_type</td></tr></tbody></table>
+<p>如果你的规则和上面的系统约定不符合，那么需要设置Model类的数据表名称属性，以确保能够找到对应的数据表。</p>
+<blockquote class="danger"><p>模型自动对应的数据表名称都是遵循小写+下划线规范，如果你的表名有大写的情况，必须通过设置模型的<code>table</code>属性。</p></blockquote>
+<p>如果你希望给模型类添加后缀，需要设置<code>name</code>属性或者<code>table</code>属性。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\model<span class="token punctuation">;</span>
+
+use think\Model<span class="token punctuation">;</span>
+
+class <span class="token class-name">UserModel</span> extends <span class="token class-name">Model</span>
+<span class="token punctuation">{</span>
+    protected $name <span class="token operator">=</span> <span class="token string">'user'</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<h2><a id="_41"></a>模型设置</h2>
+<p>默认主键为<code>id</code>，如果你没有使用<code>id</code>作为主键名，需要在模型中设置属性：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\model<span class="token punctuation">;</span>
+
+use think\Model<span class="token punctuation">;</span>
+
+class <span class="token class-name">User</span> extends <span class="token class-name">Model</span>
+<span class="token punctuation">{</span>
+    protected $pk <span class="token operator">=</span> <span class="token string">'uid'</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>如果你想指定数据表甚至数据库连接的话，可以使用：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\model<span class="token punctuation">;</span>
+
+use think\Model<span class="token punctuation">;</span>
+
+class <span class="token class-name">User</span> extends <span class="token class-name">Model</span>
+<span class="token punctuation">{</span>
+    <span class="token comment">// 设置当前模型对应的完整数据表名称</span>
+    protected $table <span class="token operator">=</span> <span class="token string">'think_user'</span><span class="token punctuation">;</span>
+    
+    <span class="token comment">// 设置当前模型的数据库连接</span>
+    protected $connection <span class="token operator">=</span> <span class="token string">'db_config'</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<blockquote class="danger"><p><code>connection</code>属性使用用配置参数名（需要在数据库配置文件中的<code>connections</code>参数中添加对应标识）。</p></blockquote>
+<p>常用的模型设置属性包括（以下属性都不是必须设置）：</p>
+<table><thead><tr><th>属性</th><th>描述</th></tr></thead><tbody><tr><td>name</td><td>模型名（相当于不带数据表前后缀的表名，默认为当前模型类名）</td></tr><tr><td>table</td><td>数据表名（默认自动获取）</td></tr><tr><td>suffix</td><td>数据表后缀（默认为空）</td></tr><tr><td>pk</td><td>主键名（默认为<code>id</code>）</td></tr><tr><td>connection</td><td>数据库连接（默认读取数据库配置）</td></tr><tr><td>query</td><td>模型使用的查询类名称</td></tr><tr><td>field</td><td>模型允许写入的字段列表（数组）</td></tr><tr><td>schema</td><td>模型对应数据表字段及类型</td></tr><tr><td>type</td><td>模型需要自动转换的字段及类型</td></tr><tr><td>strict</td><td>是否严格区分字段大小写（默认为true）</td></tr><tr><td>disuse</td><td>数据表废弃字段（数组）</td></tr></tbody></table>
+<blockquote class="danger"><p>模型不支持对数据表的前缀单独设置，并且也不推荐使用数据表的前缀设计，应该用不同的库区分。当你的数据表没有前缀的时候，<code>name</code>和<code>table</code>属性的定义是没有区别的，定义任何一个即可。</p></blockquote>
+<h2><a id="_93"></a>模型初始化</h2>
+<p>模型支持初始化，只需要定义<code>init</code>方法，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\model<span class="token punctuation">;</span>
+
+use think\Model<span class="token punctuation">;</span>
+
+class <span class="token class-name">User</span> extends <span class="token class-name">Model</span>
+<span class="token punctuation">{</span>
+    <span class="token comment">// 模型初始化</span>
+    protected static <span class="token keyword">function</span> <span class="token function">init</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token comment">//TODO:初始化内容</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<blockquote class="danger"><p><code>init</code>必须是静态方法，并且只在第一次实例化的时候执行，并且只会执行一次</p></blockquote>
+<h2><a id="_116"></a>模型操作</h2>
+<blockquote class="default"><p>在模型中除了可以调用数据库类的方法之外（换句话说，<strong>数据库的所有查询构造器方法模型中都可以支持</strong>），可以定义自己的方法，所以也可以把模型看成是数据库的增强版。</p></blockquote>
+<p>模型的操作方法无需和数据库查询一样调用必须首先调用<code>table</code>或者<code>name</code>方法，因为模型会按照规则自动匹配对应的数据表，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Db<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">name</span><span class="token punctuation">(</span><span class="token string">'user'</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">where</span><span class="token punctuation">(</span><span class="token string">'id'</span><span class="token punctuation">,</span><span class="token string">'&gt;'</span><span class="token punctuation">,</span><span class="token number">10</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">select</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>改成模型操作的话就变成</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">User<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">where</span><span class="token punctuation">(</span><span class="token string">'id'</span><span class="token punctuation">,</span><span class="token string">'&gt;'</span><span class="token punctuation">,</span><span class="token number">10</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">select</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>虽然看起来是相同的查询条件，但一个最明显的区别是<strong>查询结果的类型</strong>不同。第一种方式的查询结果是一个（二维）数组，而第二种方式的查询结果是包含了模型（集合）的数据集。不过，在大多数情况下，这二种返回类型的使用方式并无明显区别。</p>
+<p>模型操作和数据库操作的另外一个显著区别是模型支持包括获取器、修改器、自动时间写入在内的一系列自动化操作和事件，简化了数据的存取操作，但随之而来的是性能有所下降（其实并没下降，而是自动帮你处理了一些原本需要手动处理的操作），后面会逐步领略到模型的这些特色功能。</p>
+<h2><a id="_134"></a>动态切换后缀</h2>
+<p>新版模型增加了一个数据表后缀属性，可以用于多语言或者数据分表的模型查询，省去为多个相同结构的表定义多个模型的麻烦。</p>
+<p>默认的数据表后缀可以在模型类里面直接定义<code>suffix</code>属性。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\model<span class="token punctuation">;</span>
+
+use think\Model<span class="token punctuation">;</span>
+
+class <span class="token class-name">Blog</span> extends <span class="token class-name">Model</span>
+<span class="token punctuation">{</span>
+    <span class="token comment">// 定义默认的表后缀（默认查询中文数据）</span>
+    protected $suffix <span class="token operator">=</span> _cn'<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<blockquote class="danger"><p>你在模型里面定义的<code>name</code>和<code>table</code>属性无需包含后缀定义</p></blockquote>
+<p>模型提供了动态切换方法<code>suffix</code>和<code>setSuffix</code>，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// suffix方法用于静态查询</span>
+$blog <span class="token operator">=</span> Blog<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">suffix</span><span class="token punctuation">(</span><span class="token string">'_en'</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+$blog<span class="token operator">-</span><span class="token operator">&gt;</span>name <span class="token operator">=</span> <span class="token string">'test'</span><span class="token punctuation">;</span>
+$blog<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">save</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">// setSuffix用于动态设置</span>
+$blog <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Blog</span><span class="token punctuation">(</span>$data<span class="token punctuation">)</span><span class="token punctuation">;</span>
+$blog<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">setSuffix</span><span class="token punctuation">(</span><span class="token string">'_en'</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">save</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h2><a id="_168"></a>模型方法依赖注入</h2>
+<p>如果你需要对模型的方法支持依赖注入，可以把模型的方法改成闭包的方式，例如，你需要对获取器方法增加依赖注入</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">public <span class="token keyword">function</span> <span class="token function">getTestFieldAttr</span><span class="token punctuation">(</span>$value<span class="token punctuation">,</span>$data<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> $this<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">invoke</span><span class="token punctuation">(</span><span class="token keyword">function</span><span class="token punctuation">(</span>Request $request<span class="token punctuation">)</span>  <span class="token function">use</span><span class="token punctuation">(</span>$value<span class="token punctuation">,</span>$data<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> $data<span class="token punctuation">[</span><span class="token string">'name'</span><span class="token punctuation">]</span> <span class="token punctuation">.</span> $request<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">action</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>不仅仅是获取器方法，在任何需要依赖注入的方法都可以改造为调用<code>invoke</code>方法的方式，<code>invoke</code>方法第二个参数用于传入需要调用的（数组）参数。</p>
+<p>如果你需要直接调用某个已经定义的模型方法（假设已经使用了依赖注入），可以使用</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">protected <span class="token keyword">function</span> <span class="token function">bar</span><span class="token punctuation">(</span>$name<span class="token punctuation">,</span> Request $request<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// ...</span>
+<span class="token punctuation">}</span>
+
+protected <span class="token keyword">function</span> <span class="token function">invokeCall</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token keyword">return</span> $this<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">invoke</span><span class="token punctuation">(</span><span class="token string">'bar'</span><span class="token punctuation">,</span><span class="token punctuation">[</span><span class="token string">'think'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>获取器</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s1106439256"><h2><a id="_0"></a>获取器</h2>
+<p>获取器的作用是对模型实例的（原始）数据做出自动处理。一个获取器对应模型的一个特殊方法（该方法必须为<code>public</code>类型），方法命名规范为：</p>
+<blockquote class="info"><h3><a id="getFieldNameAttr_4"></a>get<code>FieldName</code>Attr</h3></blockquote>
+<p><code>FieldName</code>为数据表字段的驼峰转换，定义了获取器之后会在下列情况自动触发：</p>
+<ul><li>模型的数据对象取值操作（<code>$model-&gt;field_name</code>）；</li><li>模型的序列化输出操作（<code>$model-&gt;toArray()</code>及<code>toJson()</code>）；</li><li>显式调用<code>getAttr</code>方法（<code>$this-&gt;getAttr('field_name')</code>）；</li></ul>
+<p>获取器的场景包括：</p>
+<ul><li>时间日期字段的格式化输出；</li><li>集合或枚举类型的输出；</li><li>数字状态字段的输出；</li><li>组合字段的输出；</li></ul>
+<p>例如，我们需要对状态值进行转换，可以使用：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\model<span class="token punctuation">;</span>
+
+use think\Model<span class="token punctuation">;</span>
+
+class <span class="token class-name">User</span> extends <span class="token class-name">Model</span> 
+<span class="token punctuation">{</span>
+    public <span class="token keyword">function</span> <span class="token function">getStatusAttr</span><span class="token punctuation">(</span>$value<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        $status <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token operator">-</span><span class="token number">1</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'删除'</span><span class="token punctuation">,</span><span class="token number">0</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'禁用'</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'正常'</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'待审核'</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> $status<span class="token punctuation">[</span>$value<span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>数据表的字段会自动转换为驼峰法，一般<code>status</code>字段的值采用数值类型，我们可以通过获取器定义，自动转换为字符串描述。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$user <span class="token operator">=</span> User<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+echo $user<span class="token operator">-</span><span class="token operator">&gt;</span>status<span class="token punctuation">;</span> <span class="token comment">// 例如输出“正常”</span>
+</code></pre></div>
+<p>获取器还可以定义数据表中不存在的字段，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\model<span class="token punctuation">;</span>
+
+use think\Model<span class="token punctuation">;</span>
+
+class <span class="token class-name">User</span> extends <span class="token class-name">Model</span> 
+<span class="token punctuation">{</span>
+    public <span class="token keyword">function</span> <span class="token function">getStatusTextAttr</span><span class="token punctuation">(</span>$value<span class="token punctuation">,</span>$data<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        $status <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token operator">-</span><span class="token number">1</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'删除'</span><span class="token punctuation">,</span><span class="token number">0</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'禁用'</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'正常'</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'待审核'</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> $status<span class="token punctuation">[</span>$data<span class="token punctuation">[</span><span class="token string">'status'</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<blockquote class="default"><p>获取器方法的第二个参数传入的是当前的所有数据数组。</p></blockquote>
+<p>我们就可以直接使用status_text字段的值了，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$user <span class="token operator">=</span> User<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+echo $user<span class="token operator">-</span><span class="token operator">&gt;</span>status_text<span class="token punctuation">;</span> <span class="token comment">// 例如输出“正常”</span>
+</code></pre></div>
+<h2><a id="_70"></a>获取原始数据</h2>
+<p>如果你定义了获取器的情况下，希望获取数据表中的原始数据，可以使用：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$user <span class="token operator">=</span> User<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// 通过获取器获取字段</span>
+echo $user<span class="token operator">-</span><span class="token operator">&gt;</span>status<span class="token punctuation">;</span>
+<span class="token comment">// 获取原始字段数据</span>
+echo $user<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">getData</span><span class="token punctuation">(</span><span class="token string">'status'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// 获取全部原始数据</span>
+<span class="token function">dump</span><span class="token punctuation">(</span>$user<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">getData</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h2><a id="_84"></a>动态获取器</h2>
+<p>可以支持对模型使用动态获取器，无需在模型类中定义获取器方法。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">User<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">withAttr</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">,</span> <span class="token keyword">function</span><span class="token punctuation">(</span>$value<span class="token punctuation">,</span> $data<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+	<span class="token keyword">return</span> <span class="token function">strtolower</span><span class="token punctuation">(</span>$value<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">select</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<blockquote class="default"><p><code>withAttr</code>方法支持多次调用，定义多个字段的获取器。另外注意，<code>withAttr</code>方法之后不能再使用模型的查询方法，必须使用Db类的查询方法。</p></blockquote>
+<blockquote class="danger"><p>如果同时还在模型里面定义了相同字段的获取器，则动态获取器优先，也就是可以临时覆盖定义某个字段的获取器。</p></blockquote>
+<p>支持对关联模型的字段使用动态获取器，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">User<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">with</span><span class="token punctuation">(</span><span class="token string">'profile'</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">withAttr</span><span class="token punctuation">(</span><span class="token string">'profile.name'</span><span class="token punctuation">,</span> <span class="token keyword">function</span><span class="token punctuation">(</span>$value<span class="token punctuation">,</span> $data<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+	<span class="token keyword">return</span> <span class="token function">strtolower</span><span class="token punctuation">(</span>$value<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">select</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<blockquote class="danger"><p>注意：对于<code>MorphTo</code>关联不支持使用动态获取器。</p></blockquote>
+<p>并且支持对<code>JSON</code>字段使用获取器，例如在模型中定义了<code>JSON</code>字段的话：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\index\model<span class="token punctuation">;</span>
+
+use think\Model<span class="token punctuation">;</span>
+
+class <span class="token class-name">User</span> extends <span class="token class-name">Model</span>
+<span class="token punctuation">{</span>
+	<span class="token comment">// 设置json类型字段</span>
+	protected $json <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token string">'info'</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>可以使用下面的代码定义JSON字段的获取器。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">User<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">withAttr</span><span class="token punctuation">(</span><span class="token string">'info.name'</span><span class="token punctuation">,</span> <span class="token keyword">function</span><span class="token punctuation">(</span>$value<span class="token punctuation">,</span> $data<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+	<span class="token keyword">return</span> <span class="token function">strtolower</span><span class="token punctuation">(</span>$value<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">select</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>可以在查询之后使用<code>withAttr</code>方法，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">User<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">select</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">withAttr</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">,</span> <span class="token keyword">function</span><span class="token punctuation">(</span>$value<span class="token punctuation">,</span> $data<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+	<span class="token keyword">return</span> <span class="token function">strtolower</span><span class="token punctuation">(</span>$value<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h2><a id="_137"></a>查询结果处理</h2>
+<p>如果你需要处理多个字段的数据或者增加虚拟字段的话，可以使用新版本增加的查询结果处理机制更方便对模型对象实例进行统一的数据处理。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">User<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">filter</span><span class="token punctuation">(</span><span class="token keyword">function</span><span class="token punctuation">(</span>$user<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    $user<span class="token operator">-</span><span class="token operator">&gt;</span>name  <span class="token operator">=</span> <span class="token string">'new value'</span><span class="token punctuation">;</span>
+    $user<span class="token operator">-</span><span class="token operator">&gt;</span>test <span class="token operator">=</span> <span class="token string">'test'</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">select</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<blockquote class="danger"><p>注意：<code>filter</code>方法的数据处理和获取器并不冲突，<code>filter</code>处理的数据会改变模型的原始数据，获取器只有在取值或输出的时候才会进行处理。</p></blockquote>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

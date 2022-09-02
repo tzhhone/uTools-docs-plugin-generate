@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>中间件</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s564836814"><p>中间件主要用于拦截或过滤应用的<code>HTTP</code>请求，并进行必要的业务处理。</p>
+<blockquote class="danger"><p>新版部分核心功能使用中间件处理，你可以灵活关闭。包括Session功能、请求缓存和多语言功能。</p></blockquote>
+<h2><a id="_4"></a>定义中间件</h2>
+<p>可以通过命令行指令快速生成中间件</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">php think make<span class="token punctuation">:</span>middleware Check
+</code></pre></div>
+<p>这个指令会 <code>app/middleware</code>目录下面生成一个<code>Check</code>中间件。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+
+namespace app\middleware<span class="token punctuation">;</span>
+
+class <span class="token class-name">Check</span>
+<span class="token punctuation">{</span>
+    public <span class="token keyword">function</span> <span class="token function">handle</span><span class="token punctuation">(</span>$request<span class="token punctuation">,</span> \Closure $next<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>$request<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">param</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token string">'think'</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">return</span> <span class="token function">redirect</span><span class="token punctuation">(</span><span class="token string">'index/think'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token keyword">return</span> $<span class="token function">next</span><span class="token punctuation">(</span>$request<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>中间件的入口执行方法必须是<code>handle</code>方法，而且第一个参数是<code>Request</code>对象，第二个参数是一个闭包。</p>
+<blockquote class="danger"><p>中间件<code>handle</code>方法的返回值必须是一个<code>Response</code>对象。</p></blockquote>
+<p>在这个中间件中我们判断当前请求的<code>name</code>参数等于<code>think</code>的时候进行重定向处理。否则，请求将进一步传递到应用中。要让请求继续传递到应用程序中，只需使用 <code>$request</code> 作为参数去调用回调函数 <code>$next</code> 。</p>
+<blockquote class="info"><p>在某些需求下，可以使用第三个参数传入额外的参数。</p></blockquote>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+
+namespace app\middleware<span class="token punctuation">;</span>
+
+class <span class="token class-name">Check</span>
+<span class="token punctuation">{</span>
+    public <span class="token keyword">function</span> <span class="token function">handle</span><span class="token punctuation">(</span>$request<span class="token punctuation">,</span> \Closure $next<span class="token punctuation">,</span> $name<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>$name <span class="token operator">==</span> <span class="token string">'think'</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">return</span> <span class="token function">redirect</span><span class="token punctuation">(</span><span class="token string">'index/think'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token keyword">return</span> $<span class="token function">next</span><span class="token punctuation">(</span>$request<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<h2><a id="_58"></a>结束调度</h2>
+<p>中间件支持定义请求结束前的回调机制，你只需要在中间件类中添加<code>end</code>方法。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">    public <span class="token keyword">function</span> <span class="token function">end</span><span class="token punctuation">(</span>\think\Response $response<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token comment">// 回调行为</span>
+    <span class="token punctuation">}</span>
+</code></pre></div>
+<blockquote class="danger"><p>注意，在<code>end</code>方法里面不能有任何的响应输出。因为回调触发的时候请求响应输出已经完成了。</p></blockquote>
+<h2><a id="_71"></a>前置/后置中间件</h2>
+<p>中间件是在请求具体的操作之前还是之后执行，完全取决于中间件的定义本身。</p>
+<p>下面是一个前置行为的中间件</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+
+namespace app\middleware<span class="token punctuation">;</span>
+
+class <span class="token class-name">Before</span>
+<span class="token punctuation">{</span>
+    public <span class="token keyword">function</span> <span class="token function">handle</span><span class="token punctuation">(</span>$request<span class="token punctuation">,</span> \Closure $next<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token comment">// 添加中间件执行代码</span>
+
+        <span class="token keyword">return</span> $<span class="token function">next</span><span class="token punctuation">(</span>$request<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>下面是一个后置行为的中间件</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+
+namespace app\middleware<span class="token punctuation">;</span>
+
+class <span class="token class-name">After</span>
+<span class="token punctuation">{</span>
+    public <span class="token keyword">function</span> <span class="token function">handle</span><span class="token punctuation">(</span>$request<span class="token punctuation">,</span> \Closure $next<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+		$response <span class="token operator">=</span> $<span class="token function">next</span><span class="token punctuation">(</span>$request<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token comment">// 添加中间件执行代码</span>
+
+        <span class="token keyword">return</span> $response<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>中间件方法同样也可以支持依赖注入。</p>
+<p>来个比较实际的例子，我们需要判断当前浏览器环境是在微信或支付宝</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">namespace app\middleware<span class="token punctuation">;</span>
+
+<span class="token comment">/**
+ * 访问环境检查，是否是微信或支付宝等
+ */</span>
+class <span class="token class-name">InAppCheck</span>
+<span class="token punctuation">{</span>
+    public <span class="token keyword">function</span> <span class="token function">handle</span><span class="token punctuation">(</span>$request<span class="token punctuation">,</span> \Closure $next<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">preg_match</span><span class="token punctuation">(</span><span class="token string">'~micromessenger~i'</span><span class="token punctuation">,</span> $request<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">header</span><span class="token punctuation">(</span><span class="token string">'user-agent'</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            $request<span class="token operator">-</span><span class="token operator">&gt;</span>InApp <span class="token operator">=</span> <span class="token string">'WeChat'</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">preg_match</span><span class="token punctuation">(</span><span class="token string">'~alipay~i'</span><span class="token punctuation">,</span> $request<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">header</span><span class="token punctuation">(</span><span class="token string">'user-agent'</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            $request<span class="token operator">-</span><span class="token operator">&gt;</span>InApp <span class="token operator">=</span> <span class="token string">'Alipay'</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">return</span> $<span class="token function">next</span><span class="token punctuation">(</span>$request<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>然后在你的移动版的应用里添加一个<code>middleware.php</code>文件<br>
+例如：<code>/path/app/mobile/middleware.php</code></p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token keyword">return</span> <span class="token punctuation">[</span>
+    app\middleware\InAppCheck<span class="token punctuation">:</span><span class="token punctuation">:</span>class<span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>然后在你的<code>controller</code>中可以通过<code>request()-&gt;InApp</code>获取相关的值</p>
+<h2><a id="_148"></a>定义中间件别名</h2>
+<p>可以直接在应用配置目录下的<code>middleware.php</code>中先预定义中间件（其实就是增加别名标识），例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token keyword">return</span> <span class="token punctuation">[</span>
+    <span class="token string">'alias'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token punctuation">[</span>
+        <span class="token string">'auth'</span>  <span class="token operator">=</span><span class="token operator">&gt;</span> app\middleware\Auth<span class="token punctuation">:</span><span class="token punctuation">:</span>class<span class="token punctuation">,</span>
+        <span class="token string">'check'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> app\middleware\Check<span class="token punctuation">:</span><span class="token punctuation">:</span>class<span class="token punctuation">,</span>
+    <span class="token punctuation">]</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>可以支持使用别名定义一组中间件，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token keyword">return</span> <span class="token punctuation">[</span>
+    <span class="token string">'alias'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token punctuation">[</span>
+        <span class="token string">'check'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token punctuation">[</span>
+            app\middleware\Auth<span class="token punctuation">:</span><span class="token punctuation">:</span>class<span class="token punctuation">,</span>
+            app\middleware\Check<span class="token punctuation">:</span><span class="token punctuation">:</span>class<span class="token punctuation">,</span>
+        <span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token punctuation">]</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h2><a id="_174"></a>注册中间件</h2>
+<p>新版的中间件分为全局中间件、应用中间件（多应用模式下有效）、路由中间件以及控制器中间件四个组。执行顺序分别为：</p>
+<blockquote class="default"><p>全局中间件-&gt;应用中间件-&gt;路由中间件-&gt;控制器中间件</p></blockquote>
+<h3><a id="_181"></a>全局中间件</h3>
+<p>全局中间件在<code>app</code>目录下面<code>middleware.php</code>文件中定义，使用下面的方式：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+
+<span class="token keyword">return</span> <span class="token punctuation">[</span>
+	\app\middleware\Auth<span class="token punctuation">:</span><span class="token punctuation">:</span>class<span class="token punctuation">,</span>
+    <span class="token string">'check'</span><span class="token punctuation">,</span>
+    <span class="token string">'Hello'</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>中间件的注册应该使用完整的类名，如果已经定义了中间件别名（或者分组）则可以直接使用。</p>
+<p>全局中间件的执行顺序就是定义顺序。可以在定义全局中间件的时候传入中间件参数，支持两种方式传入。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+
+<span class="token keyword">return</span> <span class="token punctuation">[</span>
+	<span class="token punctuation">[</span>\app\http\middleware\Auth<span class="token punctuation">:</span><span class="token punctuation">:</span>class<span class="token punctuation">,</span> <span class="token string">'admin'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token string">'Check'</span><span class="token punctuation">,</span>
+    <span class="token punctuation">[</span><span class="token string">'hello'</span><span class="token punctuation">,</span><span class="token string">'thinkphp'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>上面的定义表示 给<code>Auth</code>中间件传入<code>admin</code>参数，给<code>Hello</code>中间件传入<code>thinkphp</code>参数。</p>
+<h3><a id="_211"></a>应用中间件</h3>
+<p>如果你使用了多应用模式，则支持应用中间件定义，你可以直接在应用目录下面增加<code>middleware.php</code>文件，定义方式和全局中间件定义一样，只是只会在该应用下面生效。</p>
+<h3><a id="_215"></a>路由中间件</h3>
+<p>最常用的中间件注册方式是注册路由中间件</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">rule</span><span class="token punctuation">(</span><span class="token string">'hello/:name'</span><span class="token punctuation">,</span><span class="token string">'hello'</span><span class="token punctuation">)</span>
+	<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">middleware</span><span class="token punctuation">(</span>\app\middleware\Auth<span class="token punctuation">:</span><span class="token punctuation">:</span>class<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>支持注册多个中间件</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">rule</span><span class="token punctuation">(</span><span class="token string">'hello/:name'</span><span class="token punctuation">,</span><span class="token string">'hello'</span><span class="token punctuation">)</span>
+	<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">middleware</span><span class="token punctuation">(</span><span class="token punctuation">[</span>\app\middleware\Auth<span class="token punctuation">:</span><span class="token punctuation">:</span>class<span class="token punctuation">,</span> \app\middleware\Check<span class="token punctuation">:</span><span class="token punctuation">:</span>class<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>然后，直接使用下面的方式注册中间件</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">rule</span><span class="token punctuation">(</span><span class="token string">'hello/:name'</span><span class="token punctuation">,</span><span class="token string">'hello'</span><span class="token punctuation">)</span>
+	<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">middleware</span><span class="token punctuation">(</span><span class="token string">'check'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>支持对路由分组注册中间件</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">group</span><span class="token punctuation">(</span><span class="token string">'hello'</span><span class="token punctuation">,</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+	Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">rule</span><span class="token punctuation">(</span><span class="token string">'hello/:name'</span><span class="token punctuation">,</span><span class="token string">'hello'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">middleware</span><span class="token punctuation">(</span><span class="token string">'auth'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>支持对某个域名注册中间件</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">domain</span><span class="token punctuation">(</span><span class="token string">'admin'</span><span class="token punctuation">,</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+	<span class="token comment">// 注册域名下的路由规则</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">middleware</span><span class="token punctuation">(</span><span class="token string">'auth'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>如果需要传入额外参数给中间件，可以使用</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">rule</span><span class="token punctuation">(</span><span class="token string">'hello/:name'</span><span class="token punctuation">,</span><span class="token string">'hello'</span><span class="token punctuation">)</span>
+	<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">middleware</span><span class="token punctuation">(</span><span class="token string">'auth'</span><span class="token punctuation">,</span> <span class="token string">'admin'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>如果需要定义多个中间件，使用数组方式</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">rule</span><span class="token punctuation">(</span><span class="token string">'hello/:name'</span><span class="token punctuation">,</span><span class="token string">'hello'</span><span class="token punctuation">)</span>
+	<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">middleware</span><span class="token punctuation">(</span><span class="token punctuation">[</span>Auth<span class="token punctuation">:</span><span class="token punctuation">:</span>class<span class="token punctuation">,</span> <span class="token string">'Check'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>可以统一传入同一个额外参数</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">rule</span><span class="token punctuation">(</span><span class="token string">'hello/:name'</span><span class="token punctuation">,</span><span class="token string">'hello'</span><span class="token punctuation">)</span>
+	<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">middleware</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'auth'</span><span class="token punctuation">,</span> <span class="token string">'check'</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token string">'admin'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>或者分开多次调用，指定不同的参数</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">rule</span><span class="token punctuation">(</span><span class="token string">'hello/:name'</span><span class="token punctuation">,</span><span class="token string">'hello'</span><span class="token punctuation">)</span>
+	<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">middleware</span><span class="token punctuation">(</span><span class="token string">'auth'</span><span class="token punctuation">,</span> <span class="token string">'admin'</span><span class="token punctuation">)</span>
+        <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">middleware</span><span class="token punctuation">(</span><span class="token string">'hello'</span><span class="token punctuation">,</span> <span class="token string">'thinkphp'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>如果你希望某个路由中间件是全局执行（不管路由是否匹配），可以不需要在路由里面定义，支持直接在路由配置文件中定义，例如在<code>config/route.php</code>配置文件中添加：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'middleware'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span>    <span class="token punctuation">[</span>
+    app\middleware\Auth<span class="token punctuation">:</span><span class="token punctuation">:</span>class<span class="token punctuation">,</span>
+    app\middleware\Check<span class="token punctuation">:</span><span class="token punctuation">:</span>class<span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">,</span>
+</code></pre></div>
+<p>这样，所有该应用下的请求都会执行<code>Auth</code>和<code>Check</code>中间件。</p>
+<h3><a id="_294"></a>使用闭包定义中间件</h3>
+<p>你不一定要使用中间件类，在某些简单的场合你可以使用闭包定义中间件，但闭包函数必须返回<code>Response</code>对象实例。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">group</span><span class="token punctuation">(</span><span class="token string">'hello'</span><span class="token punctuation">,</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+	Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">rule</span><span class="token punctuation">(</span><span class="token string">'hello/:name'</span><span class="token punctuation">,</span><span class="token string">'hello'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">middleware</span><span class="token punctuation">(</span><span class="token keyword">function</span><span class="token punctuation">(</span>$request<span class="token punctuation">,</span>\Closure $next<span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>$request<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">param</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token string">'think'</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token function">redirect</span><span class="token punctuation">(</span><span class="token string">'index/think'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    
+	<span class="token keyword">return</span> $<span class="token function">next</span><span class="token punctuation">(</span>$request<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h3><a id="_311"></a>控制器中间件</h3>
+<p>支持为控制器定义中间件，只需要在控制器中定义<code>middleware</code>属性，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\controller<span class="token punctuation">;</span>
+
+class <span class="token class-name">Index</span>
+<span class="token punctuation">{</span>
+    protected $middleware <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token string">'auth'</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+    public <span class="token keyword">function</span> <span class="token function">index</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token string">'index'</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    public <span class="token keyword">function</span> <span class="token function">hello</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token string">'hello'</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>当执行<code>index</code>控制器的时候就会调用<code>auth</code>中间件，一样支持使用完整的命名空间定义。</p>
+<p>如果需要设置控制器中间的生效操作，可以如下定义：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\controller<span class="token punctuation">;</span>
+
+
+class <span class="token class-name">Index</span>
+<span class="token punctuation">{</span>
+    protected $middleware <span class="token operator">=</span> <span class="token punctuation">[</span> 
+    	<span class="token string">'auth'</span> 	<span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token punctuation">[</span><span class="token string">'except'</span> 	<span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token punctuation">[</span><span class="token string">'hello'</span><span class="token punctuation">]</span> <span class="token punctuation">]</span><span class="token punctuation">,</span>
+        <span class="token string">'check'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token punctuation">[</span><span class="token string">'only'</span> 		<span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token punctuation">[</span><span class="token string">'hello'</span><span class="token punctuation">]</span> <span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+    public <span class="token keyword">function</span> <span class="token function">index</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token string">'index'</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    public <span class="token keyword">function</span> <span class="token function">hello</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token string">'hello'</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<h2><a id="_363"></a>中间件向控制器传参</h2>
+<p>可以通过给请求对象赋值的方式传参给控制器（或者其它地方），例如</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+
+namespace app\middleware<span class="token punctuation">;</span>
+
+class <span class="token class-name">Hello</span>
+<span class="token punctuation">{</span>
+    public <span class="token keyword">function</span> <span class="token function">handle</span><span class="token punctuation">(</span>$request<span class="token punctuation">,</span> \Closure $next<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        $request<span class="token operator">-</span><span class="token operator">&gt;</span>hello <span class="token operator">=</span> <span class="token string">'ThinkPHP'</span><span class="token punctuation">;</span>
+        
+        <span class="token keyword">return</span> $<span class="token function">next</span><span class="token punctuation">(</span>$request<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>然后在控制器的方法里面可以直接使用</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">public <span class="token keyword">function</span> <span class="token function">index</span><span class="token punctuation">(</span>Request $request<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	<span class="token keyword">return</span> $request<span class="token operator">-</span><span class="token operator">&gt;</span>hello<span class="token punctuation">;</span> <span class="token comment">// ThinkPHP</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<h2><a id="_392"></a>执行优先级</h2>
+<p>如果对中间件的执行顺序有严格的要求，可以定义中间件的执行优先级。在配置文件中添加</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token keyword">return</span> <span class="token punctuation">[</span>
+    <span class="token string">'alias'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token punctuation">[</span>
+        <span class="token string">'check'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token punctuation">[</span>
+            app\middleware\Auth<span class="token punctuation">:</span><span class="token punctuation">:</span>class<span class="token punctuation">,</span>
+            app\middleware\Check<span class="token punctuation">:</span><span class="token punctuation">:</span>class<span class="token punctuation">,</span>
+        <span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token string">'priority'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token punctuation">[</span>
+        think\middleware\SessionInit<span class="token punctuation">:</span><span class="token punctuation">:</span>class<span class="token punctuation">,</span>
+        app\middleware\Auth<span class="token punctuation">:</span><span class="token punctuation">:</span>class<span class="token punctuation">,</span>
+        app\middleware\Check<span class="token punctuation">:</span><span class="token punctuation">:</span>class<span class="token punctuation">,</span>
+    <span class="token punctuation">]</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h2><a id="_412"></a>内置中间件</h2>
+<p>新版内置了几个系统中间件，包括：</p>
+<table><thead><tr><th>中间件类</th><th>描述</th></tr></thead><tbody><tr><td>think\middleware\AllowCrossDomain</td><td>跨域请求支持</td></tr><tr><td>think\middleware\CheckRequestCache</td><td>请求缓存</td></tr><tr><td>think\middleware\LoadLangPack</td><td>多语言加载</td></tr><tr><td>think\middleware\SessionInit</td><td>Session初始化</td></tr><tr><td>think\middleware\FormTokenCheck</td><td>表单令牌</td></tr></tbody></table>
+<p>这些内置中间件默认都没有定义，你可以在应用的<code>middleware.php</code>文件中、路由或者控制器中定义这些中间件，如果不需要使用的话，取消定义即可。</p>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

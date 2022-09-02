@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>门面</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s-1784535773"><h2><a id="Facade_0"></a>门面（<code>Facade</code>）</h2>
+<p>门面为容器中的（动态）类提供了一个静态调用接口，相比于传统的静态方法调用， 带来了更好的可测试性和扩展性，你可以为任何的非静态类库定义一个<code>facade</code>类。</p>
+<blockquote class="info"><p>系统已经为大部分核心类库定义了<code>Facade</code>，所以你可以通过<code>Facade</code>来访问这些系统类，当然也可以为你的应用类库添加静态代理。</p></blockquote>
+<p>下面是一个示例，假如我们定义了一个<code>app\common\Test</code>类，里面有一个<code>hello</code>动态方法。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\common<span class="token punctuation">;</span>
+
+class <span class="token class-name">Test</span>
+<span class="token punctuation">{</span>
+    public <span class="token keyword">function</span> <span class="token function">hello</span><span class="token punctuation">(</span>$name<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token string">'hello,'</span> <span class="token punctuation">.</span> $name<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>调用hello方法的代码应该类似于：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$test <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name"><span class="token punctuation">\</span>app<span class="token punctuation">\</span>common<span class="token punctuation">\</span>Test</span><span class="token punctuation">;</span>
+echo $test<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">hello</span><span class="token punctuation">(</span><span class="token string">'thinkphp'</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 输出 hello，thinkphp</span>
+</code></pre></div>
+<p>接下来，我们给这个类定义一个静态代理类<code>app\facade\Test</code>（这个类名不一定要和<code>Test</code>类一致，但通常为了便于管理，建议保持名称统一）。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\facade<span class="token punctuation">;</span>
+
+use think\Facade<span class="token punctuation">;</span>
+
+class <span class="token class-name">Test</span> extends <span class="token class-name">Facade</span>
+<span class="token punctuation">{</span>
+    protected static <span class="token keyword">function</span> <span class="token function">getFacadeClass</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+    	<span class="token keyword">return</span> <span class="token string">'app\common\Test'</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>只要这个类库继承<code>think\Facade</code>，就可以使用静态方式调用动态类<code>app\common\Test</code>的动态方法，例如上面的代码就可以改成：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 无需进行实例化 直接以静态方法方式调用hello</span>
+echo \app\facade\Test<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">hello</span><span class="token punctuation">(</span><span class="token string">'thinkphp'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>结果也会输出 <code>hello，thinkphp</code>。</p>
+<blockquote class="danger"><p>说的直白一点，Facade功能可以让类无需实例化而直接进行静态方式调用。</p></blockquote>
+<h2><a id="Facade_56"></a>核心<code>Facade</code>类库</h2>
+<p>系统给内置的常用类库定义了<code>Facade</code>类库，包括：</p>
+<table><thead><tr><th>（动态）类库</th><th>Facade类</th></tr></thead><tbody><tr><td>think\App</td><td>think\facade\App</td></tr><tr><td>think\Cache</td><td>think\facade\Cache</td></tr><tr><td>think\Config</td><td>think\facade\Config</td></tr><tr><td>think\Cookie</td><td>think\facade\Cookie</td></tr><tr><td>think\Db</td><td>think\facade\Db</td></tr><tr><td>think\Env</td><td>think\facade\Env</td></tr><tr><td>think\Event</td><td>think\facade\Event</td></tr><tr><td>think\Filesystem</td><td>think\facade\Filesystem</td></tr><tr><td>think\Lang</td><td>think\facade\Lang</td></tr><tr><td>think\Log</td><td>think\facade\Log</td></tr><tr><td>think\Middleware</td><td>think\facade\Middleware</td></tr><tr><td>think\Request</td><td>think\facade\Request</td></tr><tr><td>think\Route</td><td>think\facade\Route</td></tr><tr><td>think\Session</td><td>think\facade\Session</td></tr><tr><td>think\Validate</td><td>think\facade\Validate</td></tr><tr><td>think\View</td><td>think\facade\View</td></tr></tbody></table>
+<p>所以你无需进行实例化就可以很方便的进行方法调用，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">use think\facade\Cache<span class="token punctuation">;</span>
+
+Cache<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">set</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">,</span><span class="token string">'value'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+echo Cache<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>在进行依赖注入的时候，请不要使用<code>Facade</code>类作为类型约束，而是建议使用原来的动态类，下面是错误的用法：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\index\controller<span class="token punctuation">;</span>
+
+use think\facade\App<span class="token punctuation">;</span>
+
+class <span class="token class-name">Index</span>
+<span class="token punctuation">{</span>
+    public <span class="token keyword">function</span> <span class="token function">index</span><span class="token punctuation">(</span>App $app<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>应当使用下面的方式：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\index\controller<span class="token punctuation">;</span>
+
+use think\App<span class="token punctuation">;</span>
+
+class <span class="token class-name">Index</span>
+<span class="token punctuation">{</span>
+    public <span class="token keyword">function</span> <span class="token function">index</span><span class="token punctuation">(</span>App $app<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>事实上，依赖注入和使用<code>Facade</code>代理的效果大多数情况下是一样的，都是从容器中获取对象实例。例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\index\controller<span class="token punctuation">;</span>
+
+use think\Request<span class="token punctuation">;</span>
+
+class <span class="token class-name">Index</span>
+<span class="token punctuation">{</span>
+    public <span class="token keyword">function</span> <span class="token function">index</span><span class="token punctuation">(</span>Request $request<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        echo $request<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">controller</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>和下面的作用是一样的</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\index\controller<span class="token punctuation">;</span>
+
+use think\facade\Request<span class="token punctuation">;</span>
+
+class <span class="token class-name">Index</span>
+<span class="token punctuation">{</span>
+    public <span class="token keyword">function</span> <span class="token function">index</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        echo Request<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">controller</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>依赖注入的优势是支持接口的注入，而<code>Facade</code>则无法完成。</p>
+<blockquote class="danger"><p>一定要注意两种方式的<code>use</code>引入类库的区别</p></blockquote>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

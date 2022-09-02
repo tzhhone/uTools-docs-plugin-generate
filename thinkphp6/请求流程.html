@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>请求流程</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s-365830593"><h2><a id="HTTP_0"></a>HTTP请求流程</h2>
+<p>对于一个HTTP应用来说，从用户发起请求到响应输出结束，大致的标准请求流程如下：</p>
+<ul><li>载入<code>Composer</code>的自动加载<code>autoload</code>文件</li><li>实例化系统应用基础类<code>think\App</code></li><li>获取应用目录等相关路径信息</li><li>加载全局的服务提供<code>provider.php</code>文件</li><li>设置容器实例及应用对象实例，确保当前容器对象唯一</li><li>从容器中获取<code>HTTP</code>应用类<code>think\Http</code></li><li>执行<code>HTTP</code>应用类的<code>run</code>方法启动一个<code>HTTP</code>应用</li><li>获取当前请求对象实例（默认为 <code>app\Request</code> 继承<code>think\Request</code>）保存到容器</li><li>执行<code>think\App</code>类的初始化方法<code>initialize</code></li><li>加载环境变量文件<code>.env</code>和全局初始化文件</li><li>加载全局公共文件、系统助手函数、全局配置文件、全局事件定义和全局服务定义</li><li>判断应用模式（调试或者部署模式）</li><li>监听<code>AppInit</code>事件</li><li>注册异常处理</li><li>服务注册</li><li>启动注册的服务</li><li>加载全局中间件定义</li><li>监听<code>HttpRun</code>事件</li><li>执行全局中间件</li><li>执行路由调度（<code>Route</code>类<code>dispatch</code>方法）</li><li>如果开启路由则检查路由缓存</li><li>加载路由定义</li><li>监听<code>RouteLoaded</code>事件</li><li>如果开启注解路由则检测注解路由</li><li>路由检测（中间流程很复杂 略）</li><li>路由调度对象<code>think\route\Dispatch</code>初始化</li><li>设置当前请求的控制器和操作名</li><li>注册路由中间件</li><li>绑定数据模型</li><li>设置路由额外参数</li><li>执行数据自动验证</li><li>执行路由调度子类的<code>exec</code>方法返回响应<code>think\Response</code>对象</li><li>获取当前请求的控制器对象实例</li><li>利用反射机制注册控制器中间件</li><li>执行控制器方法以及前后置中间件</li><li>执行当前响应对象的<code>send</code>方法输出</li><li>执行HTTP应用对象的<code>end</code>方法善后</li><li>监听<code>HttpEnd</code>事件</li><li>执行中间件的<code>end</code>回调</li><li>写入当前请求的日志信息</li></ul>
+<p>至此，当前请求流程结束。</p>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

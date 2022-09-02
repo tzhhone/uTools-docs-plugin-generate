@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>验证场景</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s-1309913242"><h2><a id="_0"></a>验证场景</h2>
+<blockquote class="danger"><p>验证场景仅针对验证器有效，独立验证不存在验证场景的概念</p></blockquote>
+<p>验证器支持定义场景，并且验证不同场景的数据，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">namespace app\validate<span class="token punctuation">;</span>
+
+use think\Validate<span class="token punctuation">;</span>
+
+class <span class="token class-name">User</span> extends <span class="token class-name">Validate</span>
+<span class="token punctuation">{</span>
+    protected $rule <span class="token operator">=</span>   <span class="token punctuation">[</span>
+        <span class="token string">'name'</span>  <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'require|max:25'</span><span class="token punctuation">,</span>
+        <span class="token string">'age'</span>   <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'number|between:1,120'</span><span class="token punctuation">,</span>
+        <span class="token string">'email'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'email'</span><span class="token punctuation">,</span>    
+    <span class="token punctuation">]</span><span class="token punctuation">;</span>
+    
+    protected $message  <span class="token operator">=</span>   <span class="token punctuation">[</span>
+        <span class="token string">'name.require'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'名称必须'</span><span class="token punctuation">,</span>
+        <span class="token string">'name.max'</span>     <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'名称最多不能超过25个字符'</span><span class="token punctuation">,</span>
+        <span class="token string">'age.number'</span>   <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'年龄必须是数字'</span><span class="token punctuation">,</span>
+        <span class="token string">'age.between'</span>  <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'年龄只能在1-120之间'</span><span class="token punctuation">,</span>
+        <span class="token string">'email'</span>        <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'邮箱格式错误'</span><span class="token punctuation">,</span>    
+    <span class="token punctuation">]</span><span class="token punctuation">;</span>
+    
+    protected $scene <span class="token operator">=</span> <span class="token punctuation">[</span>
+        <span class="token string">'edit'</span>  <span class="token operator">=</span><span class="token operator">&gt;</span>  <span class="token punctuation">[</span><span class="token string">'name'</span><span class="token punctuation">,</span><span class="token string">'age'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token punctuation">]</span><span class="token punctuation">;</span>    
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>然后可以在验证方法中制定验证的场景</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$data <span class="token operator">=</span> <span class="token punctuation">[</span>
+    <span class="token string">'name'</span>  <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'thinkphp'</span><span class="token punctuation">,</span>
+    <span class="token string">'age'</span>   <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token number">10</span><span class="token punctuation">,</span>
+    <span class="token string">'email'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'thinkphp@qq.com'</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+<span class="token keyword">try</span> <span class="token punctuation">{</span>
+    <span class="token function">validate</span><span class="token punctuation">(</span>app\validate\User<span class="token punctuation">:</span><span class="token punctuation">:</span>class<span class="token punctuation">)</span>
+        <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">scene</span><span class="token punctuation">(</span><span class="token string">'edit'</span><span class="token punctuation">)</span>
+        <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">check</span><span class="token punctuation">(</span>$data<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">ValidateException</span> $e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// 验证失败 输出错误信息</span>
+    <span class="token function">dump</span><span class="token punctuation">(</span>$e<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">getError</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>可以单独为某个场景定义方法（方法的命名规范是<code>scene</code>+场景名），并且对某些字段的规则重新设置，例如：</p>
+<ul><li>注意：场景名不区分大小写，且在调用的时候不能将驼峰写法转为下划线</li></ul>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">namespace app\validate<span class="token punctuation">;</span>
+
+use think\Validate<span class="token punctuation">;</span>
+
+class <span class="token class-name">User</span> extends <span class="token class-name">Validate</span>
+<span class="token punctuation">{</span>
+    protected $rule <span class="token operator">=</span>   <span class="token punctuation">[</span>
+        <span class="token string">'name'</span>  <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'require|max:25'</span><span class="token punctuation">,</span>
+        <span class="token string">'age'</span>   <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'number|between:1,120'</span><span class="token punctuation">,</span>
+        <span class="token string">'email'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'email'</span><span class="token punctuation">,</span>    
+    <span class="token punctuation">]</span><span class="token punctuation">;</span>
+    
+    protected $message  <span class="token operator">=</span>   <span class="token punctuation">[</span>
+        <span class="token string">'name.require'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'名称必须'</span><span class="token punctuation">,</span>
+        <span class="token string">'name.max'</span>     <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'名称最多不能超过25个字符'</span><span class="token punctuation">,</span>
+        <span class="token string">'age.number'</span>   <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'年龄必须是数字'</span><span class="token punctuation">,</span>
+        <span class="token string">'age.between'</span>  <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'年龄只能在1-120之间'</span><span class="token punctuation">,</span>
+        <span class="token string">'email'</span>        <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'邮箱格式错误'</span><span class="token punctuation">,</span>    
+    <span class="token punctuation">]</span><span class="token punctuation">;</span>
+    
+    <span class="token comment">// edit 验证场景定义</span>
+    public <span class="token keyword">function</span> <span class="token function">sceneEdit</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+    	<span class="token keyword">return</span> $this<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">only</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'name'</span><span class="token punctuation">,</span><span class="token string">'age'</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+        	<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">append</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">,</span> <span class="token string">'min:5'</span><span class="token punctuation">)</span>
+            <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">remove</span><span class="token punctuation">(</span><span class="token string">'age'</span><span class="token punctuation">,</span> <span class="token string">'between'</span><span class="token punctuation">)</span>
+            <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">append</span><span class="token punctuation">(</span><span class="token string">'age'</span><span class="token punctuation">,</span> <span class="token string">'require|max:100'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>    
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>主要方法说明如下：</p>
+<table><thead><tr><th>方法名</th><th>描述</th></tr></thead><tbody><tr><td>only</td><td>场景需要验证的字段</td></tr><tr><td>remove</td><td>移除场景中的字段的部分验证规则</td></tr><tr><td>append</td><td>给场景中的字段需要追加验证规则</td></tr></tbody></table>
+<p>如果对同一个字段进行多次规则补充（包括移除和追加），必须使用下面的方式：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token function">remove</span><span class="token punctuation">(</span><span class="token string">'field'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token string">'rule1'</span><span class="token punctuation">,</span><span class="token string">'rule2'</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+<span class="token comment">// 或者</span>
+<span class="token function">remove</span><span class="token punctuation">(</span><span class="token string">'field'</span><span class="token punctuation">,</span> <span class="token string">'rule1|rule2'</span><span class="token punctuation">)</span>
+</code></pre></div>
+<p>下面的方式会导致rule1规则remove不成功</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token function">remove</span><span class="token punctuation">(</span><span class="token string">'field'</span><span class="token punctuation">,</span> <span class="token string">'rule1'</span><span class="token punctuation">)</span>
+<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">remove</span><span class="token punctuation">(</span><span class="token string">'field'</span><span class="token punctuation">,</span> <span class="token string">'rule2'</span><span class="token punctuation">)</span>
+</code></pre></div>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>验证器</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s1878802462"><p>ThinkPHP推荐使用验证器，可以在控制器中使用<code>validate</code>助手函数（或者封装验证方法）进行验证。</p>
+<h2><a id="_2"></a>验证器定义</h2>
+<p>为具体的验证场景或者数据表定义好验证器类，直接调用验证类的<code>check</code>方法即可完成验证，下面是一个例子：</p>
+<p>我们定义一个<code>\app\validate\User</code>验证器类用于<code>User</code>的验证。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">namespace app\validate<span class="token punctuation">;</span>
+
+use think\Validate<span class="token punctuation">;</span>
+
+class <span class="token class-name">User</span> extends <span class="token class-name">Validate</span>
+<span class="token punctuation">{</span>
+    protected $rule <span class="token operator">=</span> <span class="token punctuation">[</span>
+        <span class="token string">'name'</span>  <span class="token operator">=</span><span class="token operator">&gt;</span>  <span class="token string">'require|max:25'</span><span class="token punctuation">,</span>
+        <span class="token string">'email'</span> <span class="token operator">=</span><span class="token operator">&gt;</span>  <span class="token string">'email'</span><span class="token punctuation">,</span>
+    <span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+<span class="token punctuation">}</span>
+</code></pre></div>
+<blockquote class="default"><p>可以使用下面的指令快速生成<code>User</code>验证器。</p><div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">php think make<span class="token punctuation">:</span>validate User
+</code></pre></div></blockquote>
+<p>可以直接在验证器类中使用<code>message</code>属性定义错误提示信息，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">namespace app\validate<span class="token punctuation">;</span>
+
+use think\Validate<span class="token punctuation">;</span>
+
+class <span class="token class-name">User</span> extends <span class="token class-name">Validate</span>
+<span class="token punctuation">{</span>
+    protected $rule <span class="token operator">=</span>   <span class="token punctuation">[</span>
+        <span class="token string">'name'</span>  <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'require|max:25'</span><span class="token punctuation">,</span>
+        <span class="token string">'age'</span>   <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'number|between:1,120'</span><span class="token punctuation">,</span>
+        <span class="token string">'email'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'email'</span><span class="token punctuation">,</span>    
+    <span class="token punctuation">]</span><span class="token punctuation">;</span>
+    
+    protected $message  <span class="token operator">=</span>   <span class="token punctuation">[</span>
+        <span class="token string">'name.require'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'名称必须'</span><span class="token punctuation">,</span>
+        <span class="token string">'name.max'</span>     <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'名称最多不能超过25个字符'</span><span class="token punctuation">,</span>
+        <span class="token string">'age.number'</span>   <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'年龄必须是数字'</span><span class="token punctuation">,</span>
+        <span class="token string">'age.between'</span>  <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'年龄只能在1-120之间'</span><span class="token punctuation">,</span>
+        <span class="token string">'email'</span>        <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'邮箱格式错误'</span><span class="token punctuation">,</span>    
+    <span class="token punctuation">]</span><span class="token punctuation">;</span>
+    
+<span class="token punctuation">}</span>
+</code></pre></div>
+<blockquote class="danger"><p>如果没有定义错误提示信息，则使用系统默认的提示信息</p></blockquote>
+<h2><a id="_56"></a>数据验证</h2>
+<p>在需要进行<code>User</code>验证的控制器方法中，添加如下代码即可：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\controller<span class="token punctuation">;</span>
+
+use app\validate\User<span class="token punctuation">;</span>
+use think\exception\ValidateException<span class="token punctuation">;</span>
+
+class <span class="token class-name">Index</span>
+<span class="token punctuation">{</span>
+    public <span class="token keyword">function</span> <span class="token function">index</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token keyword">try</span> <span class="token punctuation">{</span>
+            <span class="token function">validate</span><span class="token punctuation">(</span>User<span class="token punctuation">:</span><span class="token punctuation">:</span>class<span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">check</span><span class="token punctuation">(</span><span class="token punctuation">[</span>
+                <span class="token string">'name'</span>  <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'thinkphp'</span><span class="token punctuation">,</span>
+                <span class="token string">'email'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'thinkphp@qq.com'</span><span class="token punctuation">,</span>
+            <span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">ValidateException</span> $e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token comment">// 验证失败 输出错误信息</span>
+            <span class="token function">dump</span><span class="token punctuation">(</span>$e<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">getError</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<h2><a id="_84"></a>批量验证</h2>
+<p>默认情况下，一旦有某个数据的验证规则不符合，就会停止后续数据及规则的验证，如果希望批量进行验证，可以设置：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\controller<span class="token punctuation">;</span>
+
+use app\validate\User<span class="token punctuation">;</span>
+use think\exception\ValidateException<span class="token punctuation">;</span>
+
+class <span class="token class-name">Index</span>
+<span class="token punctuation">{</span>
+    public <span class="token keyword">function</span> <span class="token function">index</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+	<span class="token keyword">try</span> <span class="token punctuation">{</span>
+		$result <span class="token operator">=</span> <span class="token function">validate</span><span class="token punctuation">(</span>User<span class="token punctuation">:</span><span class="token punctuation">:</span>class<span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">batch</span><span class="token punctuation">(</span><span class="token boolean">true</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">check</span><span class="token punctuation">(</span><span class="token punctuation">[</span>
+			<span class="token string">'name'</span>  <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'thinkphp'</span><span class="token punctuation">,</span>
+			<span class="token string">'email'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'thinkphp@qq.com'</span><span class="token punctuation">,</span>
+		    <span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+		<span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token boolean">true</span> <span class="token operator">!==</span> $result<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+		    <span class="token comment">// 验证失败 输出错误信息</span>
+		    <span class="token function">dump</span><span class="token punctuation">(</span>$result<span class="token punctuation">)</span><span class="token punctuation">;</span>
+		<span class="token punctuation">}</span>
+	<span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">ValidateException</span> $e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token comment">// 验证失败 输出错误信息</span>
+            <span class="token function">dump</span><span class="token punctuation">(</span>$e<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">getError</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<h2><a id="_117"></a>自定义验证规则</h2>
+<p>系统内置了一些常用的规则（参考后面的内置规则），如果不能满足需求，可以在验证器重添加额外的验证方法，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\validate<span class="token punctuation">;</span>
+
+use think\Validate<span class="token punctuation">;</span>
+
+class <span class="token class-name">User</span> extends <span class="token class-name">Validate</span>
+<span class="token punctuation">{</span>
+    protected $rule <span class="token operator">=</span> <span class="token punctuation">[</span>
+        <span class="token string">'name'</span>  <span class="token operator">=</span><span class="token operator">&gt;</span>  <span class="token string">'checkName:thinkphp'</span><span class="token punctuation">,</span>
+        <span class="token string">'email'</span> <span class="token operator">=</span><span class="token operator">&gt;</span>  <span class="token string">'email'</span><span class="token punctuation">,</span>
+    <span class="token punctuation">]</span><span class="token punctuation">;</span>
+    
+    protected $message <span class="token operator">=</span> <span class="token punctuation">[</span>
+        <span class="token string">'name'</span>  <span class="token operator">=</span><span class="token operator">&gt;</span>  <span class="token string">'用户名必须'</span><span class="token punctuation">,</span>
+        <span class="token string">'email'</span> <span class="token operator">=</span><span class="token operator">&gt;</span>  <span class="token string">'邮箱格式错误'</span><span class="token punctuation">,</span>
+    <span class="token punctuation">]</span><span class="token punctuation">;</span>
+    
+    <span class="token comment">// 自定义验证规则</span>
+    protected <span class="token keyword">function</span> <span class="token function">checkName</span><span class="token punctuation">(</span>$value<span class="token punctuation">,</span> $rule<span class="token punctuation">,</span> $data<span class="token operator">=</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> $rule <span class="token operator">==</span> $value <span class="token operator">?</span> <span class="token boolean">true</span> <span class="token punctuation">:</span> <span class="token string">'名称错误'</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>验证方法可以传入的参数共有<code>5</code>个（后面三个根据情况选用），依次为：</p>
+<ul><li>验证数据</li><li>验证规则</li><li>全部数据（数组）</li><li>字段名</li><li>字段描述</li></ul>
+<blockquote class="danger"><p>自定义的验证规则方法名不能和已有的规则冲突。</p></blockquote>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

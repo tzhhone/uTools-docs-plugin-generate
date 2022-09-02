@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>变量调试</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s-505039346"><p>输出某个变量是开发过程中经常会用到的调试方法，除了使用php内置的<code>var_dump</code>和<code>print_r</code>之外，ThinkPHP框架内置了一个对浏览器友好的<code>dump</code>方法，用于输出变量的信息到浏览器查看。</p>
+<p>用法和PHP内置的<code>var_dump</code>一致：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token function">dump</span><span class="token punctuation">(</span>$var1<span class="token punctuation">,</span> <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>$varN<span class="token punctuation">)</span>
+</code></pre></div>
+<p>使用示例：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$blog <span class="token operator">=</span> Db<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">name</span><span class="token punctuation">(</span><span class="token string">'blog'</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">where</span><span class="token punctuation">(</span><span class="token string">'id'</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+$user <span class="token operator">=</span> User<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">dump</span><span class="token punctuation">(</span>$blog<span class="token punctuation">,</span> $user<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>如果需要在调试变量输出后中止程序的执行，可以使用<code>halt</code>函数，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$blog <span class="token operator">=</span> Db<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">name</span><span class="token punctuation">(</span><span class="token string">'blog'</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">where</span><span class="token punctuation">(</span><span class="token string">'id'</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+$user <span class="token operator">=</span> User<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">halt</span><span class="token punctuation">(</span>$blog<span class="token punctuation">,</span> $user<span class="token punctuation">)</span><span class="token punctuation">;</span>
+echo <span class="token string">'这里的信息是看不到的'</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>执行后会输出同样的结果并中止执行后续的程序。</p>
+<blockquote class="danger"><p>为了方便查看，某些核心对象由于定义了<code>__debugInfo</code>方法，因此在<code>dump</code>输出的时候属性可能做了简化。</p></blockquote>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>参数绑定</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s-1956355587"><h2><a id="_0"></a>参数绑定</h2>
+<p>参数绑定是把当前请求的变量作为操作方法（也包括架构方法）的参数直接传入，参数绑定并不区分请求类型。</p>
+<blockquote class="danger"><p>参数绑定传入的值会经过全局过滤，如果你有额外的过滤需求可以在操作方法中单独处理。</p></blockquote>
+<p>参数绑定方式默认是按照变量名进行绑定，例如，我们给<code>Blog</code>控制器定义了两个操作方法<code>read</code>和<code>archive</code>方法，由于<code>read</code>操作需要指定一个<code>id</code>参数，<code>archive</code>方法需要指定年份（<code>year</code>）和月份（<code>month</code>）两个参数，那么我们可以如下定义：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\controller<span class="token punctuation">;</span>
+
+class <span class="token class-name">Blog</span> 
+<span class="token punctuation">{</span>
+    public <span class="token keyword">function</span> <span class="token function">read</span><span class="token punctuation">(</span>$id<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token string">'id='</span> <span class="token punctuation">.</span> $id<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    public <span class="token keyword">function</span> <span class="token function">archive</span><span class="token punctuation">(</span>$year<span class="token punctuation">,</span> $month<span class="token operator">=</span><span class="token string">'01'</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token string">'year='</span> <span class="token punctuation">.</span> $year <span class="token punctuation">.</span> <span class="token string">'&amp;month='</span> <span class="token punctuation">.</span> $month<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<blockquote class="default"><p>注意这里的操作方法并没有具体的业务逻辑，只是简单的示范。</p></blockquote>
+<p>URL的访问地址分别是：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">http<span class="token punctuation">:</span><span class="token operator">/</span><span class="token operator">/</span>serverName<span class="token operator">/</span>index<span class="token punctuation">.</span>php<span class="token operator">/</span>blog<span class="token operator">/</span>read<span class="token operator">/</span>id<span class="token operator">/</span><span class="token number">5</span>
+http<span class="token punctuation">:</span><span class="token operator">/</span><span class="token operator">/</span>serverName<span class="token operator">/</span>index<span class="token punctuation">.</span>php<span class="token operator">/</span>blog<span class="token operator">/</span>archive<span class="token operator">/</span>year<span class="token operator">/</span><span class="token number">2016</span><span class="token operator">/</span>month<span class="token operator">/</span><span class="token number">06</span>
+</code></pre></div>
+<p>两个URL地址中的<code>id</code>参数和<code>year</code>和<code>month</code>参数会自动和<code>read</code>操作方法以及<code>archive</code>操作方法的<code>同名参数</code>绑定。</p>
+<blockquote class="default"><p>变量名绑定不一定由访问URL决定，路由地址也能起到相同的作用</p></blockquote>
+<p>输出的结果依次是：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">id<span class="token operator">=</span><span class="token number">5</span>
+year<span class="token operator">=</span><span class="token number">2016</span><span class="token operator">&amp;</span>month<span class="token operator">=</span><span class="token number">06</span>
+</code></pre></div>
+<p>按照变量名进行参数绑定的参数必须和URL中传入的变量名称一致，但是参数顺序不需要一致。也就是说</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">http<span class="token punctuation">:</span><span class="token operator">/</span><span class="token operator">/</span>serverName<span class="token operator">/</span>index<span class="token punctuation">.</span>php<span class="token operator">/</span>blog<span class="token operator">/</span>archive<span class="token operator">/</span>month<span class="token operator">/</span><span class="token number">06</span><span class="token operator">/</span>year<span class="token operator">/</span><span class="token number">2016</span>
+</code></pre></div>
+<p>和上面的访问结果是一致的，URL中的参数顺序和操作方法中的参数顺序都可以随意调整，关键是确保参数名称一致即可。</p>
+<p>如果用户访问的URL地址是：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">http<span class="token punctuation">:</span><span class="token operator">/</span><span class="token operator">/</span>serverName<span class="token operator">/</span>index<span class="token punctuation">.</span>php<span class="token operator">/</span>blog<span class="token operator">/</span>read
+</code></pre></div>
+<p>那么会抛出下面的异常提示： <code>参数错误:id</code></p>
+<p>报错的原因很简单，因为在执行read操作方法的时候，id参数是必须传入参数的，但是方法无法从URL地址中获取正确的id参数信息。由于我们不能相信用户的任何输入，因此建议你给read方法的id参数添加默认值，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">public <span class="token keyword">function</span> <span class="token function">read</span><span class="token punctuation">(</span>$id <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token string">'id='</span> <span class="token punctuation">.</span> $id<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>这样，当我们访问 <code>http://serverName/index.php/blog/read/</code> 的时候 就会输出</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">id<span class="token operator">=</span><span class="token number">0</span>
+</code></pre></div>
+<blockquote class="default"><p>始终给操作方法的参数定义默认值是一个避免报错的好办法（依赖注入参数除外）</p></blockquote>
+<p>为了更好的配合前端规范，支持自动识别小写+下划线的请求变量使用驼峰注入，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">http<span class="token punctuation">:</span><span class="token operator">/</span><span class="token operator">/</span>serverName<span class="token operator">/</span>index<span class="token punctuation">.</span>php<span class="token operator">/</span>blog<span class="token operator">/</span>read<span class="token operator">/</span>blog_id<span class="token operator">/</span><span class="token number">5</span>
+</code></pre></div>
+<p>可以使用下面的方式接收<code>blog_id</code>变量，所以请确保在方法的参数使用驼峰（首字母小写）规范。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">public <span class="token keyword">function</span> <span class="token function">read</span><span class="token punctuation">(</span>$blogId <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token string">'id='</span> <span class="token punctuation">.</span> $blogId<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

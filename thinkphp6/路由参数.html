@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>路由参数</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s1609489664"><h2><a id="_0"></a>路由参数</h2>
+<p>路由分组及规则定义支持指定路由参数，这些参数主要完成路由匹配检测以及后续行为。</p>
+<blockquote class="danger"><p>路由参数可以在定义路由规则的时候直接传入（批量），推荐使用方法配置更加清晰。</p></blockquote>
+<table><thead><tr><th>参数</th><th>说明</th><th>方法名</th></tr></thead><tbody><tr><td>ext</td><td>URL后缀检测，支持匹配多个后缀</td><td>ext</td></tr><tr><td>deny_ext</td><td>URL禁止后缀检测，支持匹配多个后缀</td><td>denyExt</td></tr><tr><td>https</td><td>检测是否https请求</td><td>https</td></tr><tr><td>domain</td><td>域名检测</td><td>domain</td></tr><tr><td>complete_match</td><td>是否完整匹配路由</td><td>completeMatch</td></tr><tr><td>model</td><td>绑定模型</td><td>model</td></tr><tr><td>cache</td><td>请求缓存</td><td>cache</td></tr><tr><td>ajax</td><td>Ajax检测</td><td>ajax</td></tr><tr><td>pjax</td><td>Pjax检测</td><td>pjax</td></tr><tr><td>json</td><td>JSON检测</td><td>json</td></tr><tr><td>validate</td><td>绑定验证器类进行数据验证</td><td>validate</td></tr><tr><td>append</td><td>追加额外的参数</td><td>append</td></tr><tr><td>middleware</td><td>注册路由中间件</td><td>middleware</td></tr><tr><td>filter</td><td>请求变量过滤</td><td>filter</td></tr><tr><td>match</td><td>路由闭包检测（<code>V6.0.12+</code>）</td><td>match</td></tr></tbody></table>
+<p>用法举例：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'new/:id'</span><span class="token punctuation">,</span> <span class="token string">'News/read'</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">ext</span><span class="token punctuation">(</span><span class="token string">'html'</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">https</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<blockquote class="default"><p>这些路由参数可以混合使用，只要有任何一条参数检查不通过，当前路由就不会生效，继续检测后面的路由规则。</p></blockquote>
+<p>如果你需要批量设置路由参数，也可以使用<code>option</code>方法。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'new/:id'</span><span class="token punctuation">,</span> <span class="token string">'News/read'</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">option</span><span class="token punctuation">(</span><span class="token punctuation">[</span>
+        <span class="token string">'ext'</span>   <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'html'</span><span class="token punctuation">,</span>
+        <span class="token string">'https'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token boolean">true</span>
+    <span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h3><a id="URL_45"></a>URL后缀</h3>
+<blockquote class="danger"><p>URL后缀如果是全局统一的话，可以在路由配置文件中设置<code>url_html_suffix</code>参数，如果当前访问的URL地址中的URL后缀是允许的伪静态后缀，那么后缀本身是不会被作为参数值传入的。</p></blockquote>
+<p>不同参数设置的区别如下：</p>
+<table><thead><tr><th>配置值</th><th>描述</th></tr></thead><tbody><tr><td><code>false</code></td><td>禁止伪静态访问</td></tr><tr><td>空字符串</td><td>允许任意伪静态后缀</td></tr><tr><td><code>html</code></td><td>只允许设置的伪静态后缀</td></tr><tr><td><code>html|htm</code></td><td>允许多个伪静态后缀</td></tr></tbody></table>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 定义GET请求路由规则 并设置URL后缀为html的时候有效</span>
+Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'new/:id'</span><span class="token punctuation">,</span> <span class="token string">'News/read'</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">ext</span><span class="token punctuation">(</span><span class="token string">'html'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>支持匹配多个后缀，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'new/:id'</span><span class="token punctuation">,</span> <span class="token string">'News/read'</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">ext</span><span class="token punctuation">(</span><span class="token string">'shtml|html'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<blockquote class="default"><p>如果<code>ext</code>方法不传入任何值，表示不允许使用任何后缀访问。</p></blockquote>
+<p>可以设置禁止访问的URL后缀，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 定义GET请求路由规则 并设置禁止URL后缀为png、jpg和gif的访问</span>
+Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'new/:id'</span><span class="token punctuation">,</span> <span class="token string">'News/read'</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">denyExt</span><span class="token punctuation">(</span><span class="token string">'jpg|png|gif'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<blockquote class="default"><p>如果<code>denyExt</code>方法不传入任何值，表示必须使用后缀访问。</p></blockquote>
+<h3><a id="_81"></a>域名检测</h3>
+<p>支持使用完整域名或者子域名进行检测，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 完整域名检测 只在news.thinkphp.cn访问时路由有效</span>
+Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'new/:id'</span><span class="token punctuation">,</span> <span class="token string">'News/read'</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">domain</span><span class="token punctuation">(</span><span class="token string">'news.thinkphp.cn'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// 子域名检测</span>
+Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'new/:id'</span><span class="token punctuation">,</span> <span class="token string">'News/read'</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">domain</span><span class="token punctuation">(</span><span class="token string">'news'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<blockquote class="default"><p>如果需要给子域名定义批量的路由规则，建议使用<code>domain</code>方法进行路由定义。</p></blockquote>
+<h3><a id="HTTPS_95"></a><code>HTTPS</code>检测</h3>
+<p>支持检测当前是否<code>HTTPS</code>访问</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 必须使用HTTPS访问</span>
+Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'new/:id'</span><span class="token punctuation">,</span> <span class="token string">'News/read'</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">https</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h3><a id="AJAXPJAXJSON_104"></a><code>AJAX</code>/<code>PJAX</code>/<code>JSON</code>检测</h3>
+<p>可以检测当前是否为<code>AJAX</code>/<code>PJAX</code>/<code>JSON</code>请求。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 必须是JSON请求访问</span>
+Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'new/:id'</span><span class="token punctuation">,</span> <span class="token string">'News/read'</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">json</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h3><a id="_113"></a>请求变量检测</h3>
+<p>可以在匹配路由地址之外，额外检查请求变量是否匹配，只有指定的请求变量也一致的情况下才能匹配该路由。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 检查type变量</span>
+Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">post</span><span class="token punctuation">(</span><span class="token string">'new/:id'</span><span class="token punctuation">,</span> <span class="token string">'News/save'</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">filter</span><span class="token punctuation">(</span><span class="token string">'type'</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>   
+    
+<span class="token comment">// 检查多个请求变量</span>
+Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">post</span><span class="token punctuation">(</span><span class="token string">'new/:id'</span><span class="token punctuation">,</span> <span class="token string">'News/save'</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">filter</span><span class="token punctuation">(</span><span class="token punctuation">[</span> <span class="token string">'type'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token number">1</span><span class="token punctuation">,</span><span class="token string">'status'</span><span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token number">1</span> <span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>       
+</code></pre></div>
+<h3><a id="_127"></a>闭包检测</h3>
+<p><code>V6.0.12+</code>开始，可以通过闭包来检测当前路由或分组是否匹配</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 闭包检测</span>
+Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'new/:id'</span><span class="token punctuation">,</span> <span class="token string">'News/read'</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">match</span><span class="token punctuation">(</span><span class="token keyword">function</span><span class="token punctuation">(</span>Rule $rule<span class="token punctuation">,</span>Request $request<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token comment">// 如果返回false 则视为不匹配</span>
+        <span class="token keyword">return</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h3><a id="_138"></a>追加额外参数</h3>
+<p>可以在定义路由的时候隐式追加额外的参数，这些参数不会出现在URL地址中。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'blog/:id'</span><span class="token punctuation">,</span> <span class="token string">'Blog/read'</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">append</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'app_id'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token string">'status'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>在路由请求的时候会同时传入<code>app_id</code>和<code>status</code>两个参数。</p>
+<h3><a id="_148"></a>路由绑定模型</h3>
+<p>路由规则和分组支持绑定模型数据，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'hello/:id'</span><span class="token punctuation">,</span> <span class="token string">'index/hello'</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">model</span><span class="token punctuation">(</span><span class="token string">'id'</span><span class="token punctuation">,</span> <span class="token string">'\app\index\model\User'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>会自动给当前路由绑定 <code>id</code>为 当前路由变量值的<code>User</code>模型数据。</p>
+<p>如果你的模型绑定使用的是<code>id</code>作为查询条件的话，还可以简化成下面的方式</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'hello/:id'</span><span class="token punctuation">,</span> <span class="token string">'index/hello'</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">model</span><span class="token punctuation">(</span><span class="token string">'\app\index\model\User'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>默认情况下，如果没有查询到模型数据，则会抛出异常，如果不希望抛出异常，可以使用</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">rule</span><span class="token punctuation">(</span><span class="token string">'hello/:id'</span><span class="token punctuation">,</span> <span class="token string">'index/hello'</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">model</span><span class="token punctuation">(</span><span class="token string">'id'</span><span class="token punctuation">,</span> <span class="token string">'\app\index\model\User'</span><span class="token punctuation">,</span> <span class="token boolean">false</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>可以定义模型数据的查询条件，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">rule</span><span class="token punctuation">(</span><span class="token string">'hello/:name/:id'</span><span class="token punctuation">,</span> <span class="token string">'index/hello'</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">model</span><span class="token punctuation">(</span><span class="token string">'id&amp;name'</span><span class="token punctuation">,</span> <span class="token string">'\app\index\model\User'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>表示查询<code>id</code>和<code>name</code>的值等于当前路由变量的模型数据。</p>
+<p>也可以使用闭包来自定义返回需要的模型对象</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">rule</span><span class="token punctuation">(</span><span class="token string">'hello/:id'</span><span class="token punctuation">,</span> <span class="token string">'index/hello'</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">model</span><span class="token punctuation">(</span><span class="token keyword">function</span> <span class="token punctuation">(</span>$id<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        $model <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name"><span class="token punctuation">\</span>app<span class="token punctuation">\</span>index<span class="token punctuation">\</span>model<span class="token punctuation">\</span>User</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> $model<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">where</span><span class="token punctuation">(</span><span class="token string">'id'</span><span class="token punctuation">,</span> $id<span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>闭包函数的参数就是当前请求的URL变量信息。</p>
+<blockquote class="default"><p>绑定的模型可以直接在控制器的架构方法或者操作方法中自动注入，具体可以参考请求章节的依赖注入。</p></blockquote>
+<h2><a id="_190"></a>请求缓存</h2>
+<p>可以对当前的路由请求进行请求缓存处理，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'new/:name$'</span><span class="token punctuation">,</span> <span class="token string">'News/read'</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">cache</span><span class="token punctuation">(</span><span class="token number">3600</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>表示对当前路由请求缓存<code>3600</code>秒，更多内容可以参考请求缓存一节。</p>
+<h2><a id="_202"></a>动态参数</h2>
+<p>如果你需要额外自定义一些路由参数，可以使用下面的方式：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'new/:name$'</span><span class="token punctuation">,</span> <span class="token string">'News/read'</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">option</span><span class="token punctuation">(</span><span class="token string">'rule'</span><span class="token punctuation">,</span><span class="token string">'admin'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>或者使用动态方法</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'new/:name$'</span><span class="token punctuation">,</span> <span class="token string">'News/read'</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">rule</span><span class="token punctuation">(</span><span class="token string">'admin'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>在后续的路由行为后可以调用该路由的<code>rule</code>参数来进行权限检查。</p>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>URL生成</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s-500974534"><p>ThinkPHP支持路由URL地址的统一生成，并且支持所有的路由方式，以及完美解决了路由地址的反转解析，无需再为路由定义和变化而改变URL生成。</p>
+<blockquote class="danger"><p>如果你开启了路由延迟解析，需要生成路由映射缓存才能支持全部的路由地址的反转解析。</p></blockquote>
+<p>URL生成使用 <code>\think\facade\Route::buildUrl()</code> 方法即可。该方法会返回一个<code>think\route\Url</code>对象实例，因为使用了<code>__toString</code>方法，因此可以直接输出路由地址。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">echo \think\facade\Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">buildUrl</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>如果是通过数据返回客户端，你可以先强制转换为字符串类型后再返回。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$url <span class="token operator">=</span> <span class="token punctuation">(</span>string<span class="token punctuation">)</span> \think\facade\Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">buildUrl</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h2><a id="_14"></a>使用路由标识</h2>
+<p>对使用不同的路由地址方式，地址表达式的定义有所区别。参数单独通过第二个参数传入，假设我们定义了一个路由规则如下：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">rule</span><span class="token punctuation">(</span><span class="token string">'blog/:id'</span><span class="token punctuation">,</span><span class="token string">'blog/read'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>在没有指定路由标识的情况下，可以直接使用路由地址来生成URL地址：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">buildUrl</span><span class="token punctuation">(</span><span class="token string">'blog/read'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token string">'id'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token number">5</span><span class="token punctuation">,</span> <span class="token string">'name'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'thinkphp'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>如果我们在注册路由的时候指定了路由标识</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">rule</span><span class="token punctuation">(</span><span class="token string">'blog/:id'</span><span class="token punctuation">,</span><span class="token string">'blog/read'</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">name</span><span class="token punctuation">(</span><span class="token string">'blog_read'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>那么必须使用路由标识来生成URL地址</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">buildUrl</span><span class="token punctuation">(</span><span class="token string">'blog_read'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token string">'id'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token number">5</span><span class="token punctuation">,</span> <span class="token string">'name'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'thinkphp'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>以上方法都会生成下面的URL地址：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">/</span>index<span class="token punctuation">.</span>php<span class="token operator">/</span>blog<span class="token operator">/</span><span class="token number">5</span><span class="token operator">/</span>name<span class="token operator">/</span>thinkphp<span class="token punctuation">.</span>html
+</code></pre></div>
+<p>如果你的环境支持REWRITE，那么生成的URL地址会变为：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">/</span>blog<span class="token operator">/</span><span class="token number">5</span><span class="token operator">/</span>name<span class="token operator">/</span>thinkphp<span class="token punctuation">.</span>html
+</code></pre></div>
+<p>如果你配置了：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'url_common_param'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token boolean">true</span>
+</code></pre></div>
+<p>那么生成的URL地址变为：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">/</span>index<span class="token punctuation">.</span>php<span class="token operator">/</span>blog<span class="token operator">/</span><span class="token number">5.</span>html<span class="token operator">?</span>name<span class="token operator">=</span>thinkphp
+</code></pre></div>
+<p>不在路由规则里面的变量会直接使用普通URL参数的方式。</p>
+<blockquote class="default"><p>需要注意的是，URL地址生成不会检测路由的有效性，只是按照给定的路由地址和参数生成符合条件的路由规则。</p></blockquote>
+<h2><a id="_66"></a>使用路由地址</h2>
+<p>我们也可以直接使用路由地址来生成URL，例如：</p>
+<p>我们定义了路由规则如下：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'blog/:id'</span> <span class="token punctuation">,</span> <span class="token string">'blog/read'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>可以使用下面的方式直接使用路由规则生成URL地址：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">buildUrl</span><span class="token punctuation">(</span><span class="token string">'/blog/5'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>那么自动生成的URL地址变为：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">/</span>index<span class="token punctuation">.</span>php<span class="token operator">/</span>blog<span class="token operator">/</span><span class="token number">5.</span>html
+</code></pre></div>
+<h2><a id="URL_88"></a>URL后缀</h2>
+<p>默认情况下，系统会自动读取<code>url_html_suffix</code>配置参数作为URL后缀（默认为html），如果我们设置了：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'url_html_suffix'</span>   <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'shtml'</span>
+</code></pre></div>
+<p>那么自动生成的URL地址变为：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">/</span>index<span class="token punctuation">.</span>php<span class="token operator">/</span>blog<span class="token operator">/</span><span class="token number">5.</span>shtml
+</code></pre></div>
+<p>如果我们设置了多个URL后缀支持</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'url_html_suffix'</span>   <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'html|shtml'</span>
+</code></pre></div>
+<p>则会取第一个后缀来生成URL地址，所以自动生成的URL地址还是：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">/</span>index<span class="token punctuation">.</span>php<span class="token operator">/</span>blog<span class="token operator">/</span><span class="token number">5.</span>html
+</code></pre></div>
+<p>如果你希望指定URL后缀生成，则可以使用：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">buildUrl</span><span class="token punctuation">(</span><span class="token string">'blog/read'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token string">'id'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token number">5</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">suffix</span><span class="token punctuation">(</span><span class="token string">'shtml'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h2><a id="_120"></a>域名生成</h2>
+<p>默认生成的URL地址是不带域名的，如果你采用了多域名部署或者希望生成带有域名的URL地址的话，就需要传入第四个参数，该参数有两种用法：</p>
+<h3><a id="_124"></a>自动生成域名</h3>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">buildUrl</span><span class="token punctuation">(</span><span class="token string">'index/blog/read'</span><span class="token punctuation">,</span>  <span class="token punctuation">[</span><span class="token string">'id'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token number">5</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">suffix</span><span class="token punctuation">(</span><span class="token string">'shtml'</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">domain</span><span class="token punctuation">(</span><span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>第四个参数传入<code>true</code>的话，表示自动生成域名，如果你开启了<code>url_domain_deploy</code>还会自动识别匹配当前URL规则的域名。</p>
+<p>例如，我们注册了域名路由信息如下：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">domain</span><span class="token punctuation">(</span><span class="token string">'blog'</span><span class="token punctuation">,</span><span class="token string">'index/blog'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>那么上面的URL地址生成为：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">http<span class="token punctuation">:</span><span class="token operator">/</span><span class="token operator">/</span>blog<span class="token punctuation">.</span>thinkphp<span class="token punctuation">.</span>cn<span class="token operator">/</span>read<span class="token operator">/</span>id<span class="token operator">/</span><span class="token number">5.</span>shtml
+</code></pre></div>
+<h3><a id="_146"></a>指定域名</h3>
+<p>你也可以显式传入需要生成地址的域名，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">buildUrl</span><span class="token punctuation">(</span><span class="token string">'blog/read'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token string">'id'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token number">5</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">domain</span><span class="token punctuation">(</span><span class="token string">'blog'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>或者传入完整的域名</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">buildUrl</span><span class="token punctuation">(</span><span class="token string">'index/blog/read'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token string">'id'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token number">5</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">domain</span><span class="token punctuation">(</span><span class="token string">'blog.thinkphp.cn'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>生成的URL地址为：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">http<span class="token punctuation">:</span><span class="token operator">/</span><span class="token operator">/</span>blog<span class="token punctuation">.</span>thinkphp<span class="token punctuation">.</span>cn<span class="token operator">/</span>read<span class="token operator">/</span>id<span class="token operator">/</span><span class="token number">5.</span>shtml
+</code></pre></div>
+<p>也可以直接在第一个参数里面传入域名，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">buildUrl</span><span class="token punctuation">(</span><span class="token string">'index/blog/read@blog'</span><span class="token punctuation">,</span>  <span class="token punctuation">[</span><span class="token string">'id'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token number">5</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">buildUrl</span><span class="token punctuation">(</span><span class="token string">'index/blog/read@blog.thinkphp.cn'</span><span class="token punctuation">,</span>  <span class="token punctuation">[</span><span class="token string">'id'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token number">5</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h2><a id="_173"></a>生成锚点</h2>
+<p>支持生成URL的锚点，可以直接在URL地址参数中使用：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">buildUrl</span><span class="token punctuation">(</span><span class="token string">'index/blog/read#anchor@blog'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token string">'id'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token number">5</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<blockquote class="default"><p>锚点和域名一起使用的时候，注意锚点在前面，域名在后面。</p></blockquote>
+<p>生成的URL地址为：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">http<span class="token punctuation">:</span><span class="token operator">/</span><span class="token operator">/</span>blog<span class="token punctuation">.</span>thinkphp<span class="token punctuation">.</span>cn<span class="token operator">/</span>read<span class="token operator">/</span>id<span class="token operator">/</span><span class="token number">5.</span>html#anchor
+</code></pre></div>
+<h2><a id="_189"></a>加上入口文件</h2>
+<p>有时候我们生成的URL地址可能需要加上<code>index.php</code>或者去掉<code>index.php</code>，大多数时候系统会自动判断，如果发现自动生成的地址有问题，可以使用下面的方法：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">buildUrl</span><span class="token punctuation">(</span><span class="token string">'index/blog/read'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token string">'id'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token number">5</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">root</span><span class="token punctuation">(</span><span class="token string">'/index.php'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h2><a id="_197"></a>助手函数</h2>
+<p>系统提供了一个<code>url</code>助手函数用于完成相同的功能，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token function">url</span><span class="token punctuation">(</span><span class="token string">'index/blog/read'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token string">'id'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token number">5</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">suffix</span><span class="token punctuation">(</span><span class="token string">'html'</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">domain</span><span class="token punctuation">(</span><span class="token boolean">true</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">root</span><span class="token punctuation">(</span><span class="token string">'/index.php'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

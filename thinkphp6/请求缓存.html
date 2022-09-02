@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>请求缓存</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s1387556901"><h2><a id="_0"></a>请求缓存</h2>
+<p>支持请求缓存功能，支持对GET请求设置缓存访问，并设置有效期。</p>
+<blockquote class="danger"><p>请求缓存仅对GET请求有效</p></blockquote>
+<p>有两种方式可以设置请求缓存：</p>
+<h3><a id="_8"></a>路由设置</h3>
+<p>可以在路由规则里面调用<code>cache</code>方法设置当前路由规则的请求缓存，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 定义GET请求路由规则 并设置3600秒的缓存</span>
+Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'new/:id'</span><span class="token punctuation">,</span><span class="token string">'News/read'</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">cache</span><span class="token punctuation">(</span><span class="token number">3600</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>第二次访问相同的路由地址的时候，会自动获取请求缓存的数据响应输出，并发送<code>304</code>状态码。</p>
+<p>默认请求缓存的标识为当前访问的<code>pathinfo</code>地址，可以定义请求缓存的标识，如下：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 定义GET请求路由规则 并设置3600秒的缓存</span>
+Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'new/:id'</span><span class="token punctuation">,</span><span class="token string">'News/read'</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">cache</span><span class="token punctuation">(</span>
+	<span class="token punctuation">[</span> <span class="token string">'new/:id/:page'</span><span class="token punctuation">,</span> <span class="token number">3600</span><span class="token punctuation">]</span>
+<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p><code>:id</code>、<code>:page</code>表示使用当前请求的<code>param</code>参数进行动态标识替换，也就是根据<code>id</code>和<code>page</code>变量进行<code>3600</code>秒的请求缓存。</p>
+<blockquote class="danger"><p>如果<code>cache</code>参数传入<code>false</code>，则表示关闭当前路由的请求缓存（即使开启全局请求缓存）。</p></blockquote>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 定义GET请求路由规则 并关闭请求缓存（即使开启了全局请求缓存）</span>
+Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'new/:id'</span><span class="token punctuation">,</span><span class="token string">'News/read'</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">cache</span><span class="token punctuation">(</span><span class="token boolean">false</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>支持给一组路由设置缓存标签</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 定义GET请求路由规则 并设置3600秒的缓存</span>
+Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'new/:id'</span><span class="token punctuation">,</span><span class="token string">'News/read'</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">cache</span><span class="token punctuation">(</span>
+	<span class="token punctuation">[</span> <span class="token string">'new/:id/:page'</span><span class="token punctuation">,</span> <span class="token number">3600</span><span class="token punctuation">,</span> <span class="token string">'page'</span><span class="token punctuation">]</span>
+<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>这样可以在需要的时候统一清理缓存标签为<code>page</code>的请求缓存。</p>
+<h2><a id="_48"></a>全局请求缓存</h2>
+<p>如果需要开启全局请求缓存，只需要在全局（或者应用）的中间件定义文件<code>middleware.php</code>中增加</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"> <span class="token string">'think\middleware\CheckRequestCache'</span><span class="token punctuation">,</span>
+</code></pre></div>
+<p>然后只需要在<code>route.php</code>配置文件中设置全局缓存的有效时间（秒）：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'request_cache_expire'</span>	<span class="token operator">=</span><span class="token operator">&gt;</span>	<span class="token number">3600</span><span class="token punctuation">,</span>
+</code></pre></div>
+<p>就会自动根据当前请求URL地址（只针对GET请求类型）进行请求缓存，全局缓存有效期为3600秒。</p>
+<p>如果需要对全局缓存设置缓存规则，可以直接设置<code>request_cache_key</code>参数，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'request_cache_key'</span>	<span class="token operator">=</span><span class="token operator">&gt;</span>	<span class="token string">'__URL__'</span><span class="token punctuation">,</span>
+<span class="token string">'request_cache_expire'</span>	<span class="token operator">=</span><span class="token operator">&gt;</span>	<span class="token number">3600</span><span class="token punctuation">,</span>
+</code></pre></div>
+<p>缓存标识支持下面的特殊定义</p>
+<table><thead><tr><th>标识</th><th>含义</th></tr></thead><tbody><tr><td><code>__CONTROLLER__</code></td><td>当前控制器名</td></tr><tr><td><code>__ACTION__</code></td><td>当前操作名</td></tr><tr><td><code>__URL__</code></td><td>当前完整URL地址（包含域名）</td></tr></tbody></table>
+<p>全局请求缓存支持设置排除规则，使用方法如下：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'request_cache_key'</span>        <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+<span class="token string">'request_cache_expire'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token number">3600</span><span class="token punctuation">,</span>
+<span class="token string">'request_cache_except'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token punctuation">[</span>
+    <span class="token string">'/blog/index'</span><span class="token punctuation">,</span>
+    <span class="token string">'/user/member'</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">,</span>
+</code></pre></div>
+<p>排除规则为不使用请求缓存的地址（不支持变量）开头部分（不区分大小写）。</p>
+<blockquote class="info"><p>路由中设置的请求缓存依然有效并且优先，如果需要设置特殊的请求缓存有效期就可以直接在路由中设置。</p></blockquote>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

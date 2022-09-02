@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>入口文件</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s-1944596105"><p>ThinkPHP<code>6.0</code>采用<strong>单一入口模式</strong>进行项目部署和访问，一个应用都有一个统一（但不一定是唯一）的入口。如果采用自动多应用部署的话，一个入口文件还可以自动对应多个应用。</p>
+<h2><a id="_2"></a>入口文件定义</h2>
+<p>默认的应用入口文件位于<code>public/index.php</code>，默认内容如下：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// [ 应用入口文件 ]</span>
+namespace think<span class="token punctuation">;</span>
+
+require __DIR__ <span class="token punctuation">.</span> <span class="token string">'/../vendor/autoload.php'</span><span class="token punctuation">;</span>
+
+<span class="token comment">// 执行HTTP应用并响应</span>
+$http <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">App</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span>http<span class="token punctuation">;</span>
+$response <span class="token operator">=</span> $http<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">run</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+$response<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">send</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+$http<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">end</span><span class="token punctuation">(</span>$response<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<blockquote class="danger"><p>如果你没有特殊的自定义需求，无需对入口文件做任何的更改。</p></blockquote>
+<blockquote class="info"><p>入口文件位置的设计是为了让应用部署更安全，请尽量遵循<code>public</code>目录为唯一的<code>web</code>可访问目录，其他的文件都可以放到非WEB访问目录下面。</p></blockquote>
+<h2><a id="_23"></a>控制台入口文件</h2>
+<p>除了应用入口文件外，系统还提供了一个控制台入口文件，位于项目根目录的<code>think</code>（注意该文件没有任何的后缀）。</p>
+<p>该入口文件代码如下：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">#<span class="token operator">!</span><span class="token operator">/</span>usr<span class="token operator">/</span>bin<span class="token operator">/</span>env php
+<span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace think<span class="token punctuation">;</span>
+
+<span class="token comment">// 加载基础文件</span>
+require __DIR__ <span class="token punctuation">.</span> <span class="token string">'/vendor/autoload.php'</span><span class="token punctuation">;</span>
+
+<span class="token comment">// 应用初始化</span>
+<span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">App</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span>console<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">run</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>控制台入口文件用于执行控制台指令，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">php think version
+</code></pre></div>
+<blockquote class="default"><p>系统内置了一些常用的控制台指令，如果你安装了额外的扩展，也会增加相应的控制台指令，都是通过该入口文件执行的。</p></blockquote>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>多应用模式</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s-970764405"><h2><a id="_0"></a>多应用</h2>
+<p>安装后默认使用<strong>单应用模式部署</strong>，目录结构如下：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">├─app 应用目录
+│  ├─controller         控制器目录
+│  ├─model              模型目录
+│  ├─view               视图目录
+│  └─ <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>               更多类库目录
+│
+├─public                WEB目录（对外访问目录）
+│  ├─index<span class="token punctuation">.</span>php          入口文件
+│  ├─router<span class="token punctuation">.</span>php         快速测试文件
+│  └─<span class="token punctuation">.</span>htaccess          用于apache的重写
+│
+├─view                  视图目录
+├─config                应用配置目录
+├─route                 路由定义目录
+├─runtime               应用的运行时目录
+</code></pre></div>
+<blockquote class="default"><p>单应用模式的优势是简单灵活，URL地址完全通过路由可控。配合路由分组功能可以实现类似多应用的灵活机制。</p></blockquote>
+<blockquote class="danger"><p>如果要使用多应用模式，你需要安装多应用模式扩展<code>think-multi-app</code>。</p></blockquote>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">composer require topthink<span class="token operator">/</span>think<span class="token operator">-</span>multi<span class="token operator">-</span>app
+</code></pre></div>
+<p>然后你的应用目录结构需要做如下调整，主要区别在<code>app</code>目录增加了应用子目录，然后配置文件和路由定义文件都纳入应用目录下。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">├─app 应用目录
+│  ├─index              主应用
+│  │  ├─controller      控制器目录
+│  │  ├─model           模型目录
+│  │  ├─view            视图目录
+│  │  ├─config          配置目录
+│  │  ├─route           路由目录
+│  │  └─ <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>            更多类库目录
+│  │ 
+│  ├─admin              后台应用
+│  │  ├─controller      控制器目录
+│  │  ├─model           模型目录
+│  │  ├─view            视图目录
+│  │  ├─config          配置目录
+│  │  ├─route           路由目录
+│  │  └─ <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>            更多类库目录
+│
+├─public                WEB目录（对外访问目录）
+│  ├─admin<span class="token punctuation">.</span>php          后台入口文件
+│  ├─index<span class="token punctuation">.</span>php          入口文件
+│  ├─router<span class="token punctuation">.</span>php         快速测试文件
+│  └─<span class="token punctuation">.</span>htaccess          用于apache的重写
+│
+├─config                全局应用配置目录
+├─runtime               运行时目录
+│  ├─index              index应用运行时目录
+│  └─admin              admin应用运行时目录
+</code></pre></div>
+<p>从目录结构可以看出来，每个应用相对保持独立，并且可以支持多个入口文件，应用下面还可以通过多级控制器来维护控制器分组。</p>
+<h2><a id="_64"></a>自动多应用部署</h2>
+<p>支持在同一个入口文件中访问多个应用，并且支持应用的映射关系以及自定义。如果你通过<code>index.php</code>入口文件访问的话，并且没有设置应用<code>name</code>，系统自动采用自动多应用模式。</p>
+<p>自动多应用模式的URL地址默认使用</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 访问admin应用</span>
+http<span class="token punctuation">:</span><span class="token operator">/</span><span class="token operator">/</span>serverName<span class="token operator">/</span>index<span class="token punctuation">.</span>php<span class="token operator">/</span>admin
+<span class="token comment">// 访问shop应用</span>
+http<span class="token punctuation">:</span><span class="token operator">/</span><span class="token operator">/</span>serverName<span class="token operator">/</span>index<span class="token punctuation">.</span>php<span class="token operator">/</span>shop
+</code></pre></div>
+<blockquote class="default"><p>也就是说<code>pathinfo</code>地址的第一个参数就表示当前的应用名，后面才是该应用的路由或者控制器/操作。</p></blockquote>
+<p>如果直接访问</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">http<span class="token punctuation">:</span><span class="token operator">/</span><span class="token operator">/</span>serverName<span class="token operator">/</span>index<span class="token punctuation">.</span>php
+</code></pre></div>
+<p>访问的其实是<code>index</code>默认应用，可以通过<code>app.php</code>配置文件的<code>default_app</code>配置参数指定默认应用。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 设置默认应用名称</span>
+<span class="token string">'default_app'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'home'</span><span class="token punctuation">,</span>
+</code></pre></div>
+<p>接着访问</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">http<span class="token punctuation">:</span><span class="token operator">/</span><span class="token operator">/</span>serverName<span class="token operator">/</span>index<span class="token punctuation">.</span>php
+</code></pre></div>
+<p>其实访问的是<code>home</code>应用。</p>
+<blockquote class="danger"><p>自动多应用模式下，路由是每个应用独立的，所以你没法省略URL里面的应用参数。但可以使用域名绑定解决。</p></blockquote>
+<h2><a id="_101"></a>多应用智能识别</h2>
+<p>如果没有绑定入口或者域名的情况下，URL里面的应用不存在，例如访问：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">http<span class="token punctuation">:</span><span class="token operator">/</span><span class="token operator">/</span>serverName<span class="token operator">/</span>index<span class="token punctuation">.</span>php<span class="token operator">/</span>think
+</code></pre></div>
+<p>假设并不存在<code>think</code>应用，这个时候系统会自动切换到单应用模式，如果有定义全局的路由，也会进行路由匹配检查。</p>
+<p>如果我们在<code>route/route.php</code>全局路由中定义了：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'think'</span><span class="token punctuation">,</span> <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token string">'hello,ThinkPHP!'</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>访问上面的URL就会输出</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">hello<span class="token punctuation">,</span>ThinkPHP<span class="token operator">!</span>
+</code></pre></div>
+<p>如果你希望<code>think</code>应用不存在的时候，直接访问默认应用的路由，可以在<code>app.php</code>中配置</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 开启应用快速访问</span>
+<span class="token string">'app_express'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span>    <span class="token boolean">true</span><span class="token punctuation">,</span>
+<span class="token comment">// 默认应用</span>
+<span class="token string">'default_app'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span>    <span class="token string">'home'</span><span class="token punctuation">,</span>
+</code></pre></div>
+<p>这个时候就会访问<code>home</code>应用下的路由。</p>
+<h2><a id="_135"></a>增加应用入口</h2>
+<p>允许为每个应用创建单独的入口文件而不通过<code>index.php</code>入口文件访问多个应用，例如创建一个<code>admin.php</code>入口文件来访问<code>admin</code>应用。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// [ 应用入口文件 ]</span>
+namespace think<span class="token punctuation">;</span>
+
+require __DIR__ <span class="token punctuation">.</span> <span class="token string">'/../vendor/autoload.php'</span><span class="token punctuation">;</span>
+
+<span class="token comment">// 执行HTTP应用并响应</span>
+$http <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token keyword">new</span>  <span class="token class-name">App</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span>http<span class="token punctuation">;</span>
+$response <span class="token operator">=</span> $http<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">run</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+$response<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">send</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+$http<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">end</span><span class="token punctuation">(</span>$response<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<blockquote class="default"><p>多应用使用不同的入口的情况下，每个入口文件的内容都是一样的，默认入口文件名（不含后缀）就是应用名。</p></blockquote>
+<p>使用下面的方式访问<code>admin</code>应用</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">http<span class="token punctuation">:</span><span class="token operator">/</span><span class="token operator">/</span>serverName<span class="token operator">/</span>admin<span class="token punctuation">.</span>php
+</code></pre></div>
+<p>如果你的入口文件名和应用不一致，例如你的后台<code>admin</code>应用，入口文件名使用了<code>test.php</code>，那么入口文件需要改成：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// [ 应用入口文件 ]</span>
+namespace think<span class="token punctuation">;</span>
+
+require __DIR__ <span class="token punctuation">.</span> <span class="token string">'/../vendor/autoload.php'</span><span class="token punctuation">;</span>
+
+<span class="token comment">// 执行HTTP应用并响应</span>
+$http <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token keyword">new</span>  <span class="token class-name">App</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span>http<span class="token punctuation">;</span>
+$response <span class="token operator">=</span> $http<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">name</span><span class="token punctuation">(</span><span class="token string">'admin'</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">run</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+$response<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">send</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+$http<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">end</span><span class="token punctuation">(</span>$response<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h2><a id="_173"></a>获取当前应用</h2>
+<p>如果需要获取当前的应用名，可以使用</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token function">app</span><span class="token punctuation">(</span><span class="token string">'http'</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">getName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h2><a id="_180"></a>应用目录获取</h2>
+<p>单应用和多应用模式会影响一些系统路径的值，为了更好的理解本手册的内容，你可能需要理解下面几个系统路径所表示的位置。</p>
+<table><thead><tr><th>目录位置</th><th>目录说明</th><th>获取方法（助手函数）</th></tr></thead><tbody><tr><td>根目录</td><td>项目所在的目录，默认自动获取，可以在入口文件实例化<code>App</code>类的时候传入。</td><td><code>root_path()</code></td></tr><tr><td>基础目录</td><td>根目录下的<code>app</code>目录</td><td><code>base_path()</code></td></tr><tr><td>应用目录</td><td>当前应用所在的目录，如果是单应用模式则同基础目录，如果是多应用模式，则是<code>app</code>/应用子目录</td><td><code>app_path()</code></td></tr><tr><td>配置目录</td><td>根目录下的<code>config</code>目录</td><td><code>config_path()</code></td></tr><tr><td>运行时目录</td><td>框架运行时的目录，单应用模式就是根目录的<code>runtime</code>目录，多应用模式为<code>runtime</code>/应用子目录</td><td><code>runtime_path()</code></td></tr></tbody></table>
+<blockquote class="danger"><p>注意：应用支持使用<code>composer</code>包，这个时候目录可能是<code>composer</code>包的类库所在目录。</p></blockquote>
+<p>对于非自动多应用部署的情况，如果要加载<code>composer</code>应用，需要在入口文件中设置应用路径：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// [ 应用入口文件 ]</span>
+namespace think<span class="token punctuation">;</span>
+
+require __DIR__ <span class="token punctuation">.</span> <span class="token string">'/../vendor/autoload.php'</span><span class="token punctuation">;</span>
+
+<span class="token comment">// 执行HTTP应用并响应</span>
+$http <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token keyword">new</span>  <span class="token class-name">App</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span>http<span class="token punctuation">;</span>
+$response <span class="token operator">=</span> $http<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">path</span><span class="token punctuation">(</span><span class="token string">'path/to/app'</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">run</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+$response<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">send</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+$http<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">end</span><span class="token punctuation">(</span>$response<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h2><a id="_209"></a>应用映射</h2>
+<p>自动多应用模式下，支持应用的别名映射，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'app_map'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token punctuation">[</span>
+    <span class="token string">'think'</span>  <span class="token operator">=</span><span class="token operator">&gt;</span>  <span class="token string">'admin'</span><span class="token punctuation">,</span>  <span class="token comment">// 把admin应用映射为think</span>
+<span class="token punctuation">]</span><span class="token punctuation">,</span>
+</code></pre></div>
+<p>应用映射后，原来的应用名将不能被访问，例如上面的<code>admin</code>应用不能直接访问，只能通过<code>think</code>应用访问。</p>
+<p>应用映射支持泛解析，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'app_map'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token punctuation">[</span>
+    <span class="token string">'think'</span> <span class="token operator">=</span><span class="token operator">&gt;</span>  <span class="token string">'admin'</span><span class="token punctuation">,</span>  
+    <span class="token string">'home'</span>  <span class="token operator">=</span><span class="token operator">&gt;</span>  <span class="token string">'index'</span><span class="token punctuation">,</span>  
+    <span class="token string">'*'</span>     <span class="token operator">=</span><span class="token operator">&gt;</span>  <span class="token string">'index'</span><span class="token punctuation">,</span>  
+<span class="token punctuation">]</span><span class="token punctuation">,</span>
+</code></pre></div>
+<p>表示如果URL访问的应用不在当前设置的映射里面，则自动映射为<code>index</code>应用。</p>
+<p>如果要使用<code>composer</code>加载应用，需要设置</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'app_map'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span>    <span class="token punctuation">[</span>
+    <span class="token string">'think'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token keyword">function</span><span class="token punctuation">(</span>$app<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        $app<span class="token operator">-</span><span class="token operator">&gt;</span>http<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">path</span><span class="token punctuation">(</span><span class="token string">'path/to/composer/app'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">,</span>
+</code></pre></div>
+<h2><a id="_242"></a>域名绑定应用</h2>
+<p>如果你的多应用使用多个子域名或者独立域名访问，你可以在<code>config/app.php</code>配置文件中定义域名和应用的绑定。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'domain_bind'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token punctuation">[</span>
+    <span class="token string">'blog'</span>        <span class="token operator">=</span><span class="token operator">&gt;</span>  <span class="token string">'blog'</span><span class="token punctuation">,</span>  <span class="token comment">//  blog子域名绑定到blog应用</span>
+    <span class="token string">'shop.tp.com'</span> <span class="token operator">=</span><span class="token operator">&gt;</span>  <span class="token string">'shop'</span><span class="token punctuation">,</span>  <span class="token comment">//  完整域名绑定</span>
+    <span class="token string">'*'</span>           <span class="token operator">=</span><span class="token operator">&gt;</span>  <span class="token string">'home'</span><span class="token punctuation">,</span> <span class="token comment">// 二级泛域名绑定到home应用</span>
+<span class="token punctuation">]</span><span class="token punctuation">,</span>
+</code></pre></div>
+<h2><a id="_254"></a>禁止应用访问</h2>
+<p>你如果不希望某个应用通过URL访问，例如，你增加了一个<code>common</code>子目录用于放置一些公共类库，你可以设置</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'deny_app_list'</span> <span class="token operator">=</span><span class="token operator">&gt;</span>    <span class="token punctuation">[</span><span class="token string">'common'</span><span class="token punctuation">]</span>
+</code></pre></div>
+<blockquote class="danger"><p>多应用模式并非核心内置模式，官方提供的多应用扩展更多是抛砖引玉，你完全可以通过中间件来扩展适合自己的多应用模式</p></blockquote>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

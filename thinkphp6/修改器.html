@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>修改器</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s452985255"><h2><a id="_0"></a>修改器</h2>
+<p>和获取器相反，修改器的主要作用是对模型设置的数据对象值进行处理。</p>
+<p>修改器方法的命名规范为：</p>
+<blockquote class="info"><h3><a id="setFieldNameAttr_6"></a>set<code>FieldName</code>Attr</h3></blockquote>
+<p>修改器的使用场景和读取器类似：</p>
+<ul><li>时间日期字段的转换写入；</li><li>集合或枚举类型的写入；</li><li>数字状态字段的写入；</li><li>某个字段涉及其它字段的条件或者组合写入；</li></ul>
+<p>定义了修改器之后会在下列情况下触发：</p>
+<ul><li>模型对象赋值；</li><li>调用模型的<code>data</code>方法，并且第二个参数传入<code>true</code>；</li><li>调用模型的<code>appendData</code>方法，并且第二个参数传入<code>true</code>；</li><li>调用模型的<code>save</code>方法，并且传入数据；</li><li>显式调用模型的<code>setAttr</code>方法；</li><li>显式调用模型的<code>setAttrs</code>方法,效果与<code>appendData</code>并传入<code>true</code>的用法相同；</li></ul>
+<p>例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\model<span class="token punctuation">;</span>
+
+use think\Model<span class="token punctuation">;</span>
+
+class <span class="token class-name">User</span> extends <span class="token class-name">Model</span> 
+<span class="token punctuation">{</span>
+    public <span class="token keyword">function</span> <span class="token function">setNameAttr</span><span class="token punctuation">(</span>$value<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token function">strtolower</span><span class="token punctuation">(</span>$value<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>如下代码实际保存到数据库中的时候会转为小写</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$user <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">User</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+$user<span class="token operator">-</span><span class="token operator">&gt;</span>name <span class="token operator">=</span> <span class="token string">'THINKPHP'</span><span class="token punctuation">;</span>
+$user<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">save</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+echo $user<span class="token operator">-</span><span class="token operator">&gt;</span>name<span class="token punctuation">;</span> <span class="token comment">// thinkphp</span>
+</code></pre></div>
+<p>也可以进行序列化字段的组装：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">namespace app\model<span class="token punctuation">;</span>
+
+use think\Model<span class="token punctuation">;</span>
+
+class <span class="token class-name">User</span> extends <span class="token class-name">Model</span> 
+<span class="token punctuation">{</span>
+    public <span class="token keyword">function</span> <span class="token function">setSerializeAttr</span><span class="token punctuation">(</span>$value<span class="token punctuation">,</span>$data<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token function">serialize</span><span class="token punctuation">(</span>$data<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<blockquote class="default"><p>修改器方法的第二个参数会自动传入当前的所有数据数组。</p></blockquote>
+<p>如果你需要在修改器中修改其它数据，可以使用</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\model<span class="token punctuation">;</span>
+
+use think\Model<span class="token punctuation">;</span>
+
+class <span class="token class-name">User</span> extends <span class="token class-name">Model</span> 
+<span class="token punctuation">{</span>
+    public <span class="token keyword">function</span> <span class="token function">setTestFieldAttr</span><span class="token punctuation">(</span>$value<span class="token punctuation">,</span> $data<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        $this<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">set</span><span class="token punctuation">(</span><span class="token string">'other_field'</span><span class="token punctuation">,</span> $data<span class="token punctuation">[</span><span class="token string">'some_field'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>上面的例子，在<code>test_field</code>字段的修改器中修改了<code>other_field</code>字段数据，并且没有返回值（表示不对<code>test_field</code>字段做任何修改）。</p>
+<h2><a id="_85"></a>批量修改</h2>
+<p>除了赋值的方式可以触发修改器外，还可以用下面的方法批量触发修改器：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$user <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">User</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+$data<span class="token punctuation">[</span><span class="token string">'name'</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token string">'THINKPHP'</span><span class="token punctuation">;</span>
+$data<span class="token punctuation">[</span><span class="token string">'email'</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token string">'thinkphp@qq.com'</span><span class="token punctuation">;</span>
+$user<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">data</span><span class="token punctuation">(</span>$data<span class="token punctuation">,</span> <span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+$user<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">save</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+echo $user<span class="token operator">-</span><span class="token operator">&gt;</span>name<span class="token punctuation">;</span> <span class="token comment">// thinkphp</span>
+</code></pre></div>
+<p>如果为<code>name</code>和<code>email</code>字段都定义了修改器的话，都会进行处理。</p>
+<p>或者直接使用save方法触发，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$user <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">User</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+$data<span class="token punctuation">[</span><span class="token string">'name'</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token string">'THINKPHP'</span><span class="token punctuation">;</span>
+$data<span class="token punctuation">[</span><span class="token string">'email'</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token string">'thinkphp@qq.com'</span><span class="token punctuation">;</span>
+$user<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">save</span><span class="token punctuation">(</span>$data<span class="token punctuation">)</span><span class="token punctuation">;</span>
+echo $user<span class="token operator">-</span><span class="token operator">&gt;</span>name<span class="token punctuation">;</span> <span class="token comment">// thinkphp</span>
+</code></pre></div>
+<blockquote class="danger"><p>修改器方法仅对模型的写入方法有效，调用数据库的写入方法写入无效，例如下面的方式修改器无效。</p></blockquote>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$user <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">User</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+$data<span class="token punctuation">[</span><span class="token string">'name'</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token string">'THINKPHP'</span><span class="token punctuation">;</span>
+$data<span class="token punctuation">[</span><span class="token string">'email'</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token string">'thinkphp@qq.com'</span><span class="token punctuation">;</span>
+$user<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">insert</span><span class="token punctuation">(</span>$data<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

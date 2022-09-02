@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>变量规则</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s829529801"><h2><a id="_0"></a>变量规则</h2>
+<blockquote class="danger"><p>系统默认的变量规则设置是<code>\w+</code>，只会匹配字母、数字、中文和下划线字符，并不会<strong>匹配特殊符号以及其它字符</strong>，需要定义变量规则或者调整默认变量规则。</p></blockquote>
+<p>可以在路由配置文件中自定义默认的变量规则，例如增加中划线字符的匹配：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'default_route_pattern'</span>	<span class="token operator">=</span><span class="token operator">&gt;</span>	<span class="token string">'[\w\-]+'</span><span class="token punctuation">,</span>
+</code></pre></div>
+<p>支持在规则路由中指定变量规则，弥补了动态变量无法限制具体的类型问题，并且支持全局规则设置。使用方式如下：</p>
+<h3><a id="_12"></a>局部变量规则</h3>
+<p>局部变量规则，仅在当前路由有效：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 定义GET请求路由规则 并设置name变量规则</span>
+Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'new/:name'</span><span class="token punctuation">,</span> <span class="token string">'News/read'</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">pattern</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'name'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'[\w|\-]+'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<blockquote class="danger"><p>不需要开头添加<code>^</code>或者在最后添加<code>$</code>，也不支持模式修饰符，系统会自动添加。</p></blockquote>
+<h3><a id="_24"></a>全局变量规则</h3>
+<p>设置全局变量规则，全部路由有效：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 支持批量添加</span>
+Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">pattern</span><span class="token punctuation">(</span><span class="token punctuation">[</span>
+    <span class="token string">'name'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'\w+'</span><span class="token punctuation">,</span>
+    <span class="token string">'id'</span>   <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'\d+'</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h2><a id="_36"></a>组合变量</h2>
+<p>如果你的路由规则比较特殊，可以在路由定义的时候使用组合变量。</p>
+<p>例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'item-&lt;name&gt;-&lt;id&gt;'</span><span class="token punctuation">,</span> <span class="token string">'product/detail'</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">pattern</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'name'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'\w+'</span><span class="token punctuation">,</span> <span class="token string">'id'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'\d+'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>组合变量的优势是路由规则中没有固定的分隔符，可以随意组合需要的变量规则和分割符，例如路由规则改成如下一样可以支持：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'item&lt;name&gt;&lt;id&gt;'</span><span class="token punctuation">,</span> <span class="token string">'product/detail'</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">pattern</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'name'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'[a-zA-Z]+'</span><span class="token punctuation">,</span> <span class="token string">'id'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'\d+'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'item@&lt;name&gt;-&lt;id&gt;'</span><span class="token punctuation">,</span> <span class="token string">'product/detail'</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">pattern</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'name'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'\w+'</span><span class="token punctuation">,</span> <span class="token string">'id'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'\d+'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>使用组合变量的情况下如果需要使用可选变量，则可以使用下面的方式：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'item-&lt;name&gt;&lt;id?&gt;'</span><span class="token punctuation">,</span> <span class="token string">'product/detail'</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">pattern</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'name'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'[a-zA-Z]+'</span><span class="token punctuation">,</span> <span class="token string">'id'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'\d+'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h2><a id="_63"></a>动态路由</h2>
+<p>可以把路由规则中的变量传入路由地址中，就可以实现一个动态路由，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 定义动态路由</span>
+Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'hello/:name'</span><span class="token punctuation">,</span> <span class="token string">'index/:name/hello'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p><code>name</code>变量的值作为路由地址传入。</p>
+<p>动态路由中的变量也支持组合变量及拼装，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'item-&lt;name&gt;-&lt;id&gt;'</span><span class="token punctuation">,</span> <span class="token string">'product_:name/detail'</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">pattern</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'name'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'\w+'</span><span class="token punctuation">,</span> <span class="token string">'id'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'\d+'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

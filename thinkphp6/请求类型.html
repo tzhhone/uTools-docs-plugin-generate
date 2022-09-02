@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>请求类型</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s1812404616"><h2><a id="_0"></a>获取请求类型</h2>
+<p>在很多情况下面，我们需要判断当前操作的请求类型是<code>GET</code>、<code>POST</code>、<code>PUT</code>、<code>DELETE</code>或者<code>HEAD</code>，一方面可以针对请求类型作出不同的逻辑处理，另外一方面有些情况下面需要验证安全性，过滤不安全的请求。</p>
+<p>请求对象<code>Request</code>类提供了下列方法来获取或判断当前请求类型：</p>
+<table><thead><tr><th>用途</th><th>方法</th></tr></thead><tbody><tr><td>获取当前请求类型</td><td>method</td></tr><tr><td>判断是否GET请求</td><td>isGet</td></tr><tr><td>判断是否POST请求</td><td>isPost</td></tr><tr><td>判断是否PUT请求</td><td>isPut</td></tr><tr><td>判断是否DELETE请求</td><td>isDelete</td></tr><tr><td>判断是否AJAX请求</td><td>isAjax</td></tr><tr><td>判断是否PJAX请求</td><td>isPjax</td></tr><tr><td>判断是否JSON请求</td><td>isJson</td></tr><tr><td>判断是否手机访问</td><td>isMobile</td></tr><tr><td>判断是否HEAD请求</td><td>isHead</td></tr><tr><td>判断是否PATCH请求</td><td>isPatch</td></tr><tr><td>判断是否OPTIONS请求</td><td>isOptions</td></tr><tr><td>判断是否为CLI执行</td><td>isCli</td></tr><tr><td>判断是否为CGI模式</td><td>isCgi</td></tr></tbody></table>
+<blockquote class="info"><p><code>method</code>方法返回的请求类型始终是大写，这些方法都不需要传入任何参数。</p></blockquote>
+<blockquote class="danger"><p>没有必要在控制器中判断请求类型再来执行不同的逻辑，完全可以在路由中进行设置。</p></blockquote>
+<h2><a id="_27"></a>请求类型伪装</h2>
+<p>支持请求类型伪装，可以在<code>POST</code>表单里面提交<code>_method</code>变量，传入需要伪装的请求类型，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span>form method<span class="token operator">=</span><span class="token string">"post"</span> action<span class="token operator">=</span><span class="token string">""</span><span class="token operator">&gt;</span>
+    <span class="token operator">&lt;</span>input type<span class="token operator">=</span><span class="token string">"text"</span> name<span class="token operator">=</span><span class="token string">"name"</span> value<span class="token operator">=</span><span class="token string">"Hello"</span><span class="token operator">&gt;</span>
+    <span class="token operator">&lt;</span>input type<span class="token operator">=</span><span class="token string">"hidden"</span> name<span class="token operator">=</span><span class="token string">"_method"</span> value<span class="token operator">=</span><span class="token string">"PUT"</span> <span class="token operator">&gt;</span>
+    <span class="token operator">&lt;</span>input type<span class="token operator">=</span><span class="token string">"submit"</span> value<span class="token operator">=</span><span class="token string">"提交"</span><span class="token operator">&gt;</span>
+<span class="token operator">&lt;</span><span class="token operator">/</span>form<span class="token operator">&gt;</span>
+</code></pre></div>
+<p>提交后的请求类型会被系统识别为<code>PUT</code>请求。</p>
+<blockquote class="danger"><p>你可以设置为任何合法的请求类型，包括<code>GET</code>、<code>POST</code>、<code>PUT</code>和<code>DELETE</code>等，但伪装变量<code>_method</code>只能通过POST请求进行提交。</p></blockquote>
+<p>如果要获取原始的请求类型，可以使用</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Request<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">method</span><span class="token punctuation">(</span><span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<blockquote class="danger"><p>在命令行下面执行的话，请求类型返回的始终是<code>GET</code>。</p></blockquote>
+<p>如果你需要改变伪装请求的变量名，可以修改自定义Request类的<code>varMethod</code>属性：</p>
+<h2><a id="AJAXPJAX_53"></a><code>AJAX/PJAX</code>伪装</h2>
+<p>可以对请求进行<code>AJAX</code>请求伪装，如下：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">http<span class="token punctuation">:</span><span class="token operator">/</span><span class="token operator">/</span>localhost<span class="token operator">/</span>index<span class="token operator">?</span>_ajax<span class="token operator">=</span><span class="token number">1</span>
+</code></pre></div>
+<p>或者<code>PJAX</code>请求伪装</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">http<span class="token punctuation">:</span><span class="token operator">/</span><span class="token operator">/</span>localhost<span class="token operator">/</span>index<span class="token operator">?</span>_pjax<span class="token operator">=</span><span class="token number">1</span>
+</code></pre></div>
+<p>如果你需要改变伪装请求的变量名，可以修改自定义Request类的<code>varAjax</code>和<code>varPjax</code>属性：</p>
+<blockquote class="default"><p><code>_ajax</code>和<code>_pjax</code>可以通过<code>GET/POST/PUT</code>等请求变量伪装。</p></blockquote>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

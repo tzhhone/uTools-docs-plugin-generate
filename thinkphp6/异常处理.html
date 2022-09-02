@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>异常处理</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s866992441"><p>和PHP默认的异常处理不同，ThinkPHP抛出的不是单纯的错误信息，而是一个人性化的错误页面。</p>
+<div class="markdown-toc"><ul><li><a href="#_4">异常显示</a></li><li><a href="#_29">异常处理接管</a></li><li><a href="#_78">手动抛出和捕获异常</a></li><li><a href="#HTTP__101">HTTP 异常</a></li></ul></div><h2><a id="_4"></a>异常显示</h2>
+<p>新版的异常页面显示会自动判断当前的请求是否为Json请求，如果是JSON请求则采用JSON格式输出异常信息，否则按照HTML格式输出。</p>
+<p>在调试模式下，系统默认展示的异常页面：</p>
+<p><img src="https://box.kancloud.cn/cc2522ef8a6b4c94f2ca1421619e87ca_736x642.png" alt=""></p>
+<blockquote class="info"><p>只有在调试模式下面才能显示具体的错误信息，如果在部署模式下面，你可能看到的是一个简单的提示文字，例如：</p></blockquote>
+<p><img src="https://img.kancloud.cn/5c/f8/5cf8baf61164b7a2d2f7e4a56a233273_881x183.png" alt=""></p>
+<p>你可以通过设置<code>exception_tmpl</code>配置参数来自定义你的异常页面模板，默认的异常模板位于：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">thinkphp<span class="token operator">/</span>tpl<span class="token operator">/</span>think_exception<span class="token punctuation">.</span>tpl
+</code></pre></div>
+<p>你可以在应用配置文件<code>app.php</code>中更改异常模板</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 自定义异常页面的模板文件</span>
+<span class="token string">'exception_tmpl'</span>         <span class="token operator">=</span><span class="token operator">&gt;</span> \think\facade\App<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">getAppPath</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">.</span> <span class="token string">'template/exception.tpl'</span><span class="token punctuation">,</span>
+</code></pre></div>
+<p>默认的异常页面会返回<code>500</code>状态码，如果是一个<code>HttpException</code>异常则会返回HTTP的错误状态码。</p>
+<h2><a id="_29"></a>异常处理接管</h2>
+<blockquote class="danger"><p>本着严谨的原则，框架会对任何错误（包括警告错误）抛出异常。系统产生的异常和错误都是程序的隐患，要尽早排除和解决，而不是掩盖。对于应用自己抛出的异常则做出相应的捕获处理。</p></blockquote>
+<p>框架支持异常处理由开发者自定义类进行接管，需要在<code>app</code>目录下面的<code>provider.php</code>文件中绑定异常处理类，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">    <span class="token comment">// 绑定自定义异常处理handle类</span>
+    <span class="token string">'think\exception\Handle'</span>       <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'\\app\\exception\\Http'</span><span class="token punctuation">,</span>
+</code></pre></div>
+<p>自定义类需要继承<code>think\exception\Handle</code>并且实现<code>render</code>方法，可以参考如下代码：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\common\exception<span class="token punctuation">;</span>
+
+use think\exception\Handle<span class="token punctuation">;</span>
+use think\exception\HttpException<span class="token punctuation">;</span>
+use think\exception\ValidateException<span class="token punctuation">;</span>
+use think\Response<span class="token punctuation">;</span>
+use Throwable<span class="token punctuation">;</span>
+
+class <span class="token class-name">Http</span> extends <span class="token class-name">Handle</span>
+<span class="token punctuation">{</span>
+    public <span class="token keyword">function</span> <span class="token function">render</span><span class="token punctuation">(</span>$request<span class="token punctuation">,</span> Throwable $e<span class="token punctuation">)</span><span class="token punctuation">:</span> Response
+    <span class="token punctuation">{</span>
+        <span class="token comment">// 参数验证错误</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>$e <span class="token keyword">instanceof</span> <span class="token class-name">ValidateException</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">return</span> <span class="token function">json</span><span class="token punctuation">(</span>$e<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">getError</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token number">422</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token comment">// 请求异常</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>$e <span class="token keyword">instanceof</span> <span class="token class-name">HttpException</span> <span class="token operator">&amp;&amp;</span> $request<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">isAjax</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">return</span> <span class="token function">response</span><span class="token punctuation">(</span>$e<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">getMessage</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> $e<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">getStatusCode</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token comment">// 其他错误交给系统处理</span>
+        <span class="token keyword">return</span> parent<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">render</span><span class="token punctuation">(</span>$request<span class="token punctuation">,</span> $e<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>自定义异常处理的主要作用是根据不同的异常类型发送不同的状态码和响应输出格式。</p>
+<blockquote class="danger"><p>事实上，默认安装应用后，已经帮你内置了一个<code>app\ExceptionHandle</code>异常处理类，直接修改该类的相关方法即可完成应用的自定义异常处理机制。</p></blockquote>
+<blockquote class="info"><p>需要注意的是，如果自定义异常处理类没有再次调用系统<code>render</code>方法的话，配置<code>http_exception_template</code>就不再生效，具体可以参考<code>Handle</code>类内实现的功能。</p></blockquote>
+<h2><a id="_78"></a>手动抛出和捕获异常</h2>
+<p>ThinkPHP大部分情况异常都是自动抛出和捕获的，你也可以手动使用<code>throw</code>来抛出一个异常，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 使用think自带异常类抛出异常</span>
+<span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name"><span class="token punctuation">\</span>think<span class="token punctuation">\</span>Exception</span><span class="token punctuation">(</span><span class="token string">'异常消息'</span><span class="token punctuation">,</span> <span class="token number">10006</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>手动捕获异常方式是使用<code>try-catch</code>，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token keyword">try</span> <span class="token punctuation">{</span>
+    <span class="token comment">// 这里是主体代码</span>
+<span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">ValidateException</span> $e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// 这是进行验证异常捕获</span>
+    <span class="token keyword">return</span> <span class="token function">json</span><span class="token punctuation">(</span>$e<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">getError</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name"><span class="token punctuation">\</span>Exception</span> $e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// 这是进行异常捕获</span>
+    <span class="token keyword">return</span> <span class="token function">json</span><span class="token punctuation">(</span>$e<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">getMessage</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<blockquote class="default"><p>支持使用<code>try-catch-finally</code>结构捕获异常。</p></blockquote>
+<h2><a id="HTTP__101"></a>HTTP 异常</h2>
+<p>可以使用<code>\think\exception\HttpException</code>类来抛出异常<br>
+框架提供了一个<code>abort</code>助手函数快速抛出一个HTTP异常：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\index\controller<span class="token punctuation">;</span>
+
+
+class <span class="token class-name">Index</span>
+<span class="token punctuation">{</span>
+    public <span class="token keyword">function</span> <span class="token function">index</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+      <span class="token comment">// 抛出 HTTP 异常</span>
+      <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name"><span class="token punctuation">\</span>think<span class="token punctuation">\</span>exception<span class="token punctuation">\</span>HttpException</span><span class="token punctuation">(</span><span class="token number">404</span><span class="token punctuation">,</span> <span class="token string">'异常消息'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>系统提供了助手函数<code>abort</code>简化HTTP异常的处理，例如：<br>
+框架提供了一个<code>abort</code>助手函数快速抛出一个HTTP异常：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\index\controller<span class="token punctuation">;</span>
+
+
+class <span class="token class-name">Index</span>
+<span class="token punctuation">{</span>
+    public <span class="token keyword">function</span> <span class="token function">index</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token comment">// 抛出404异常</span>
+        <span class="token function">abort</span><span class="token punctuation">(</span><span class="token number">404</span><span class="token punctuation">,</span> <span class="token string">'页面异常'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>如果你的应用是API接口，那么请注意在客户端首先判断HTTP状态码是否正常，然后再进行数据处理，当遇到错误的状态码的话，应该根据状态码自行给出错误提示，或者采用下面的方法进行自定义异常处理。</p>
+<p><strong>部署模式</strong>下一旦抛出了<code>HttpException</code>异常，可以定义单独的异常页面模板，只需要在<code>app.php</code>配置文件中增加：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'http_exception_template'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span>  <span class="token punctuation">[</span>
+    <span class="token comment">// 定义404错误的模板文件地址</span>
+    <span class="token number">404</span> <span class="token operator">=</span><span class="token operator">&gt;</span>  \think\facade\App<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">getAppPath</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">.</span> <span class="token string">'404.html'</span><span class="token punctuation">,</span>
+    <span class="token comment">// 还可以定义其它的HTTP status</span>
+    <span class="token number">401</span> <span class="token operator">=</span><span class="token operator">&gt;</span>  \think\facade\App<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">getAppPath</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">.</span> <span class="token string">'401.html'</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span>
+</code></pre></div>
+<p>模板文件支持模板引擎中的标签。</p>
+<blockquote class="default"><p><code>http_exception_template</code>配置仅在部署模式下面生效。</p></blockquote>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

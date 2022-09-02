@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>模型字段</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s-1268230436"><h2><a id="_0"></a>模型字段</h2>
+<p>模型的数据字段和对应数据表的字段是对应的，默认会自动获取（包括字段类型），但自动获取会导致增加一次查询，因此你可以在模型中明确定义字段信息避免多一次查询的开销。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\model<span class="token punctuation">;</span>
+
+use think\Model<span class="token punctuation">;</span>
+
+class <span class="token class-name">User</span> extends <span class="token class-name">Model</span>
+<span class="token punctuation">{</span>
+    <span class="token comment">// 设置字段信息</span>
+    protected $schema <span class="token operator">=</span> <span class="token punctuation">[</span>
+        <span class="token string">'id'</span>          <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'int'</span><span class="token punctuation">,</span>
+        <span class="token string">'name'</span>        <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'string'</span><span class="token punctuation">,</span>
+        <span class="token string">'status'</span>      <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'int'</span><span class="token punctuation">,</span>
+        <span class="token string">'score'</span>       <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'float'</span><span class="token punctuation">,</span>
+        <span class="token string">'create_time'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'datetime'</span><span class="token punctuation">,</span>
+        <span class="token string">'update_time'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'datetime'</span><span class="token punctuation">,</span>
+    <span class="token punctuation">]</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<blockquote class="default"><p>字段类型的定义可以使用PHP类型或者数据库的字段类型都可以，字段类型定义的作用主要用于查询的参数自动绑定类型。</p></blockquote>
+<blockquote class="danger"><p>时间字段尽量采用实际的数据库类型定义，便于时间查询的字段自动识别。如果是<code>json</code>类型直接定义为<code>json</code>即可。</p></blockquote>
+<p>如果你没有定义<code>schema</code>属性的话，可以在部署完成后运行如下指令。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">php think optimize<span class="token punctuation">:</span>schema
+</code></pre></div>
+<p>运行后会自动生成数据表的字段信息缓存。使用命令行缓存的优势是Db类的查询仍然有效。</p>
+<blockquote class="default"><p>需要在数据库配置中设置<code>fields_cache</code>为<code>true</code>才能生成缓存</p></blockquote>
+<h2><a id="_38"></a>字段类型</h2>
+<p><code>schema</code>属性一旦定义，就必须定义完整的数据表字段类型。<br>
+如果你只希望对某个字段定义需要自动转换的类型，可以使用<code>type</code>属性，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\model<span class="token punctuation">;</span>
+
+use think\Model<span class="token punctuation">;</span>
+
+class <span class="token class-name">User</span> extends <span class="token class-name">Model</span>
+<span class="token punctuation">{</span>
+    <span class="token comment">// 设置字段自动转换类型</span>
+    protected $type <span class="token operator">=</span> <span class="token punctuation">[</span>
+        <span class="token string">'score'</span>       <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'float'</span><span class="token punctuation">,</span>
+    <span class="token punctuation">]</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p><code>type</code>属性定义的不一定是实际的字段，也有可能是你的字段别名。</p>
+<h2><a id="_60"></a>废弃字段</h2>
+<p>如果因为历史遗留问题 ，你的数据表存在很多的废弃字段，你可以在模型里面定义这些不再使用的字段。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\model<span class="token punctuation">;</span>
+
+use think\Model<span class="token punctuation">;</span>
+
+class <span class="token class-name">User</span> extends <span class="token class-name">Model</span>
+<span class="token punctuation">{</span>
+    <span class="token comment">// 设置废弃字段</span>
+    protected $disuse <span class="token operator">=</span> <span class="token punctuation">[</span> <span class="token string">'status'</span><span class="token punctuation">,</span> <span class="token string">'type'</span> <span class="token punctuation">]</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>在查询和写入的时候会忽略定义的<code>status</code>和<code>type</code>废弃字段。</p>
+<h2><a id="_78"></a>获取数据</h2>
+<p>在模型外部获取数据的方法如下</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$user <span class="token operator">=</span> User<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+echo $user<span class="token operator">-</span><span class="token operator">&gt;</span>create_time<span class="token punctuation">;</span>  
+echo $user<span class="token operator">-</span><span class="token operator">&gt;</span>name<span class="token punctuation">;</span>
+</code></pre></div>
+<p>由于模型类实现了<code>ArrayAccess</code>接口，所以可以当成数组使用。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$user <span class="token operator">=</span> User<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+echo $user<span class="token punctuation">[</span><span class="token string">'create_time'</span><span class="token punctuation">]</span><span class="token punctuation">;</span>  
+echo $user<span class="token punctuation">[</span><span class="token string">'name'</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>如果你是在模型内部获取数据的话，需要改成：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$user <span class="token operator">=</span> $this<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+echo $user<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">getAttr</span><span class="token punctuation">(</span><span class="token string">'create_time'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
+echo $user<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">getAttr</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>否则可能会出现意想不到的错误。</p>
+<h2><a id="_103"></a>模型赋值</h2>
+<p>可以使用下面的代码给模型对象赋值</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$user <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">User</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+$user<span class="token operator">-</span><span class="token operator">&gt;</span>name <span class="token operator">=</span> <span class="token string">'thinkphp'</span><span class="token punctuation">;</span>
+$user<span class="token operator">-</span><span class="token operator">&gt;</span>score <span class="token operator">=</span> <span class="token number">100</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>该方式赋值会自动执行模型的修改器，如果不希望执行修改器操作，可以使用</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$data<span class="token punctuation">[</span><span class="token string">'name'</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token string">'thinkphp'</span><span class="token punctuation">;</span>
+$data<span class="token punctuation">[</span><span class="token string">'score'</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">100</span><span class="token punctuation">;</span>
+$user <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">User</span><span class="token punctuation">(</span>$data<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>或者使用</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$user <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">User</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+$data<span class="token punctuation">[</span><span class="token string">'name'</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token string">'thinkphp'</span><span class="token punctuation">;</span>
+$data<span class="token punctuation">[</span><span class="token string">'score'</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">100</span><span class="token punctuation">;</span>
+$user<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">data</span><span class="token punctuation">(</span>$data<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p><code>data</code>方法支持使用修改器</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$user <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">User</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+$data<span class="token punctuation">[</span><span class="token string">'name'</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token string">'thinkphp'</span><span class="token punctuation">;</span>
+$data<span class="token punctuation">[</span><span class="token string">'score'</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">100</span><span class="token punctuation">;</span>
+$user<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">data</span><span class="token punctuation">(</span>$data<span class="token punctuation">,</span> <span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>如果需要对数据进行过滤，可以使用</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$user <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">User</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+$data<span class="token punctuation">[</span><span class="token string">'name'</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token string">'thinkphp'</span><span class="token punctuation">;</span>
+$data<span class="token punctuation">[</span><span class="token string">'score'</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">100</span><span class="token punctuation">;</span>
+$user<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">data</span><span class="token punctuation">(</span>$data<span class="token punctuation">,</span> <span class="token boolean">true</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token string">'name'</span><span class="token punctuation">,</span><span class="token string">'score'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>表示只设置<code>data</code>数组的<code>name</code>和<code>score</code>数据。</p>
+<blockquote class="default"><p>注意:<code>data</code>方法会清空调用前设置的数据</p></blockquote>
+<p>以追加数据的方式赋值:</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$user <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">User</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+$user<span class="token operator">-</span><span class="token operator">&gt;</span>group_id <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span>
+$data<span class="token punctuation">[</span><span class="token string">'name'</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token string">'thinkphp'</span><span class="token punctuation">;</span>
+$data<span class="token punctuation">[</span><span class="token string">'score'</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">100</span><span class="token punctuation">;</span>
+$user<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">appendData</span><span class="token punctuation">(</span>$data<span class="token punctuation">)</span><span class="token punctuation">;</span>    <span class="token comment">// 如果调用 data ,则清空group_id字段数据</span>
+</code></pre></div>
+<blockquote class="default"><p>可以通过传入第二个参数 true 来使用修改器 ,比如:appendData($data,true)</p></blockquote>
+<h2><a id="_157"></a>严格区分字段大小写</h2>
+<p>默认情况下，你的模型数据名称和数据表字段应该保持严格一致，也就是说区分大小写。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$user <span class="token operator">=</span> User<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+echo $user<span class="token operator">-</span><span class="token operator">&gt;</span>create_time<span class="token punctuation">;</span>  <span class="token comment">// 正确</span>
+echo $user<span class="token operator">-</span><span class="token operator">&gt;</span>createTime<span class="token punctuation">;</span>  <span class="token comment">// 错误</span>
+</code></pre></div>
+<blockquote class="danger"><p>严格区分字段大小写的情况下，如果你的数据表字段是大写，模型获取的时候也必须使用大写。</p></blockquote>
+<p>如果你希望在获取模型数据的时候不区分大小写（前提是数据表的字段命名必须规范，即小写+下划线），可以设置模型的<code>strict</code>属性。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\model<span class="token punctuation">;</span>
+
+use think\Model<span class="token punctuation">;</span>
+
+class <span class="token class-name">User</span> extends <span class="token class-name">Model</span> 
+<span class="token punctuation">{</span>
+    <span class="token comment">// 模型数据不区分大小写</span>
+    protected $strict <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>你现在可以使用</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$user <span class="token operator">=</span> User<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// 下面两种方式都有效</span>
+echo $user<span class="token operator">-</span><span class="token operator">&gt;</span>createTime<span class="token punctuation">;</span> 
+echo $user<span class="token operator">-</span><span class="token operator">&gt;</span>create_time<span class="token punctuation">;</span> 
+</code></pre></div>
+<h2><a id="_191"></a>模型数据转驼峰</h2>
+<p><code>V6.0.4+</code>版本开始，可以设置<code>convertNameToCamel</code>属性使得模型数据返回驼峰方式命名（前提也是数据表的字段命名必须规范，即小写+下划线）。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\model<span class="token punctuation">;</span>
+
+use think\Model<span class="token punctuation">;</span>
+
+class <span class="token class-name">User</span> extends <span class="token class-name">Model</span> 
+<span class="token punctuation">{</span>
+    <span class="token comment">// 数据转换为驼峰命名</span>
+    protected $convertNameToCamel <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>然后在模型输出的时候可以直接使用驼峰命名的方式获取。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$user <span class="token operator">=</span> User<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+$data <span class="token operator">=</span> $user<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">toArray</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+echo $data<span class="token punctuation">[</span><span class="token string">'createTime'</span><span class="token punctuation">]</span><span class="token punctuation">;</span> <span class="token comment">// 正确 </span>
+echo $user<span class="token punctuation">[</span><span class="token string">'create_time'</span><span class="token punctuation">]</span><span class="token punctuation">;</span>  <span class="token comment">// 错误</span>
+</code></pre></div>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

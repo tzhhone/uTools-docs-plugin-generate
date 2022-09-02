@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>上传</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s32401094"><h2><a id="_0"></a>上传文件</h2>
+<blockquote class="danger"><p>内置的上传只是上传到本地服务器，上传到远程或者第三方平台的话需要安装额外的扩展。</p></blockquote>
+<p>假设表单代码如下：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span>form action<span class="token operator">=</span><span class="token string">"/index/upload"</span> enctype<span class="token operator">=</span><span class="token string">"multipart/form-data"</span> method<span class="token operator">=</span><span class="token string">"post"</span><span class="token operator">&gt;</span>
+<span class="token operator">&lt;</span>input type<span class="token operator">=</span><span class="token string">"file"</span> name<span class="token operator">=</span><span class="token string">"image"</span> <span class="token operator">/</span><span class="token operator">&gt;</span> <span class="token operator">&lt;</span>br<span class="token operator">&gt;</span> 
+<span class="token operator">&lt;</span>input type<span class="token operator">=</span><span class="token string">"submit"</span> value<span class="token operator">=</span><span class="token string">"上传"</span> <span class="token operator">/</span><span class="token operator">&gt;</span> 
+<span class="token operator">&lt;</span><span class="token operator">/</span>form<span class="token operator">&gt;</span> 
+</code></pre></div>
+<p>然后在控制器中添加如下的代码：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">public <span class="token keyword">function</span> <span class="token function">upload</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token comment">// 获取表单上传文件 例如上传了001.jpg</span>
+    $file <span class="token operator">=</span> <span class="token function">request</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">file</span><span class="token punctuation">(</span><span class="token string">'image'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token comment">// 上传到本地服务器</span>
+    $savename <span class="token operator">=</span> \think\facade\Filesystem<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">putFile</span><span class="token punctuation">(</span> <span class="token string">'topic'</span><span class="token punctuation">,</span> $file<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p><code>$file</code>变量是一个<code>\think\File</code>对象，你可以获取相关的文件信息，支持使用<code>SplFileObject</code>类的属性和方法。</p>
+<h2><a id="_24"></a>上传规则</h2>
+<p>默认情况下是上传到本地服务器，会在<code>runtime/storage</code>目录下面生成以当前日期为子目录，以微秒时间的<code>md5</code>编码为文件名的文件，例如上面生成的文件名可能是：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">runtime<span class="token operator">/</span>storage<span class="token operator">/</span>topic<span class="token operator">/</span><span class="token number">20160510</span><span class="token operator">/</span><span class="token number">42</span>a79759f284b767dfcb2a0197904287<span class="token punctuation">.</span>jpg
+</code></pre></div>
+<p>如果是多应用的话，上传根目录默认是<code>runtime/index/storage</code>，如果你希望上传的文件是可以直接访问或者下载的话，可以使用<code>public</code>存储方式。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$savename <span class="token operator">=</span> \think\facade\Filesystem<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">disk</span><span class="token punctuation">(</span><span class="token string">'public'</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">putFile</span><span class="token punctuation">(</span> <span class="token string">'topic'</span><span class="token punctuation">,</span> $file<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>你可以在<code>config/filesystem.php</code>配置文件中配置上传根目录及上传规则，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token keyword">return</span> <span class="token punctuation">[</span>
+    <span class="token string">'default'</span> <span class="token operator">=</span><span class="token operator">&gt;</span>  <span class="token string">'local'</span><span class="token punctuation">,</span>
+    <span class="token string">'disks'</span>   <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token punctuation">[</span>
+        <span class="token string">'local'</span>  <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token punctuation">[</span>
+            <span class="token string">'type'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'local'</span><span class="token punctuation">,</span>
+            <span class="token string">'root'</span>   <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token function">app</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">getRuntimePath</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">.</span> <span class="token string">'storage'</span><span class="token punctuation">,</span>
+        <span class="token punctuation">]</span><span class="token punctuation">,</span>
+        <span class="token string">'public'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token punctuation">[</span>
+            <span class="token string">'type'</span>     <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'local'</span><span class="token punctuation">,</span>
+            <span class="token string">'root'</span>       <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token function">app</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">getRootPath</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">.</span> <span class="token string">'public/storage'</span><span class="token punctuation">,</span>
+            <span class="token string">'url'</span>        <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'/storage'</span><span class="token punctuation">,</span>
+            <span class="token string">'visibility'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'public'</span><span class="token punctuation">,</span>
+        <span class="token punctuation">]</span><span class="token punctuation">,</span>
+        <span class="token comment">// 更多的磁盘配置信息</span>
+    <span class="token punctuation">]</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>我们可以指定上传文件的命名规则，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$savename <span class="token operator">=</span> \think\facade\Filesystem<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">putFile</span><span class="token punctuation">(</span> <span class="token string">'topic'</span><span class="token punctuation">,</span> $file<span class="token punctuation">,</span> <span class="token string">'md5'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>最终生成的文件名类似于：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">runtime<span class="token operator">/</span>storage<span class="token operator">/</span>topic<span class="token operator">/</span><span class="token number">72</span><span class="token operator">/</span>ef580909368d824e899f77c7c98388<span class="token punctuation">.</span>jpg
+</code></pre></div>
+<p>系统默认提供了几种上传命名规则，包括：</p>
+<table><thead><tr><th>规则</th><th>描述</th></tr></thead><tbody><tr><td>date</td><td>根据日期和微秒数生成</td></tr><tr><td>md5</td><td>对文件使用md5_file散列生成</td></tr><tr><td>sha1</td><td>对文件使用sha1_file散列生成</td></tr></tbody></table>
+<blockquote class="default"><p>其中md5和sha1规则会自动以散列值的前两个字符作为子目录，后面的散列值作为文件名。</p></blockquote>
+<p>如果需要使用自定义命名规则，可以在<code>rule</code>方法中传入函数或者使用闭包方法，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$savename <span class="token operator">=</span> \think\facade\Filesystem<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">putFile</span><span class="token punctuation">(</span> <span class="token string">'topic'</span><span class="token punctuation">,</span> $file<span class="token punctuation">,</span><span class="token string">'uniqid'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>如果希望以指定的文件名保存,可调用<code>putFileAs</code>方法,例如:</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$savename <span class="token operator">=</span> \think\facade\Filesystem<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">putFileAs</span><span class="token punctuation">(</span> <span class="token string">'topic'</span><span class="token punctuation">,</span> $file<span class="token punctuation">,</span><span class="token string">'abc.jpg'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h2><a id="_91"></a>多文件上传</h2>
+<p>如果你使用的是多文件上传表单，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span>form action<span class="token operator">=</span><span class="token string">"/index/index/upload"</span> enctype<span class="token operator">=</span><span class="token string">"multipart/form-data"</span> method<span class="token operator">=</span><span class="token string">"post"</span><span class="token operator">&gt;</span>
+<span class="token operator">&lt;</span>input type<span class="token operator">=</span><span class="token string">"file"</span> name<span class="token operator">=</span><span class="token string">"image[]"</span> <span class="token operator">/</span><span class="token operator">&gt;</span> <span class="token operator">&lt;</span>br<span class="token operator">&gt;</span> 
+<span class="token operator">&lt;</span>input type<span class="token operator">=</span><span class="token string">"file"</span> name<span class="token operator">=</span><span class="token string">"image[]"</span> <span class="token operator">/</span><span class="token operator">&gt;</span> <span class="token operator">&lt;</span>br<span class="token operator">&gt;</span> 
+<span class="token operator">&lt;</span>input type<span class="token operator">=</span><span class="token string">"file"</span> name<span class="token operator">=</span><span class="token string">"image[]"</span> <span class="token operator">/</span><span class="token operator">&gt;</span> <span class="token operator">&lt;</span>br<span class="token operator">&gt;</span> 
+<span class="token operator">&lt;</span>input type<span class="token operator">=</span><span class="token string">"submit"</span> value<span class="token operator">=</span><span class="token string">"上传"</span> <span class="token operator">/</span><span class="token operator">&gt;</span> 
+<span class="token operator">&lt;</span><span class="token operator">/</span>form<span class="token operator">&gt;</span> 
+</code></pre></div>
+<p>控制器代码可以改成：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">public <span class="token keyword">function</span> <span class="token function">upload</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token comment">// 获取表单上传文件</span>
+    $files <span class="token operator">=</span> <span class="token function">request</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">file</span><span class="token punctuation">(</span><span class="token string">'image'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    $savename <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token function">foreach</span><span class="token punctuation">(</span>$files as $file<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        $savename<span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token operator">=</span> \think\facade\Filesystem<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">putFile</span><span class="token punctuation">(</span> <span class="token string">'topic'</span><span class="token punctuation">,</span> $file<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<h2><a id="_115"></a>上传验证</h2>
+<p>支持使用验证类对上传文件的验证，包括文件大小、文件类型和后缀：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">public <span class="token keyword">function</span> <span class="token function">upload</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token comment">// 获取表单上传文件</span>
+    $files <span class="token operator">=</span> <span class="token function">request</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">file</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">try</span> <span class="token punctuation">{</span>
+        <span class="token function">validate</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'image'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'fileSize:10240|fileExt:jpg|image:200,200,jpg'</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+            <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">check</span><span class="token punctuation">(</span>$files<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        $savename <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+        <span class="token function">foreach</span><span class="token punctuation">(</span>$files as $file<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            $savename<span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token operator">=</span> \think\facade\Filesystem<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">putFile</span><span class="token punctuation">(</span> <span class="token string">'topic'</span><span class="token punctuation">,</span> $file<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name"><span class="token punctuation">\</span>think<span class="token punctuation">\</span>exception<span class="token punctuation">\</span>ValidateException</span> $e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        echo $e<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">getMessage</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<table><thead><tr><th>验证参数</th><th>说明</th></tr></thead><tbody><tr><td>fileSize</td><td>上传文件的最大字节</td></tr><tr><td>fileExt</td><td>文件后缀，多个用逗号分割或者数组</td></tr><tr><td>fileMime</td><td>文件MIME类型，多个用逗号分割或者数组</td></tr><tr><td>image</td><td>验证图像文件的尺寸和类型</td></tr></tbody></table>
+<p>具体用法可以参考验证章节的内置规则-&gt; 上传验证。</p>
+<h2><a id="hash_144"></a>获取文件hash散列值</h2>
+<p>可以获取上传文件的哈希散列值，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 获取表单上传文件</span>
+$file <span class="token operator">=</span> <span class="token function">request</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">file</span><span class="token punctuation">(</span><span class="token string">'image'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// 获取上传文件的hash散列值</span>
+echo $file<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">md5</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+echo $file<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">sha1</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>可以统一使用hash方法获取文件散列值</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 获取表单上传文件</span>
+$file <span class="token operator">=</span> <span class="token function">request</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">file</span><span class="token punctuation">(</span><span class="token string">'image'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// 获取上传文件的hash散列值</span>
+echo $file<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">hash</span><span class="token punctuation">(</span><span class="token string">'sha1'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+echo $file<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">hash</span><span class="token punctuation">(</span><span class="token string">'md5'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

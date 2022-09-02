@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>启动内置服务器</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s-588088969"><h2><a id="_0"></a>启动内置服务器</h2>
+<p>命令行切换到应用根目录后，输入：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&gt;</span>php think run
+</code></pre></div>
+<p>如果启动成功，会输出下面信息，并显示<code>web</code>目录位置。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">ThinkPHP Development server is started On <span class="token operator">&lt;</span>http<span class="token punctuation">:</span><span class="token operator">/</span><span class="token operator">/</span><span class="token number">0.0</span><span class="token number">.0</span><span class="token number">.0</span><span class="token punctuation">:</span><span class="token number">8000</span><span class="token operator">/</span><span class="token operator">&gt;</span>
+You can exit with `CTRL<span class="token operator">-</span>C`
+Document root is<span class="token punctuation">:</span> D<span class="token punctuation">:</span>\WWW\tp6<span class="token operator">/</span>public
+</code></pre></div>
+<p>然后你可以直接在浏览器里面访问</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">http<span class="token punctuation">:</span><span class="token operator">/</span><span class="token operator">/</span><span class="token number">127.0</span><span class="token number">.0</span><span class="token number">.1</span><span class="token punctuation">:</span><span class="token number">8000</span><span class="token operator">/</span>
+</code></pre></div>
+<p>而无须设置<code>Vhost</code>，不过需要注意，这个只有web服务器，其它的例如数据库服务的需要自己单独管理。</p>
+<p>支持制定IP和端口访问</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&gt;</span>php think run <span class="token operator">-</span>H tp<span class="token punctuation">.</span>com <span class="token operator">-</span>p <span class="token number">80</span>
+</code></pre></div>
+<p>会显示</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">ThinkPHP Development server is started On <span class="token operator">&lt;</span>http<span class="token punctuation">:</span><span class="token operator">/</span><span class="token operator">/</span>tp<span class="token punctuation">.</span>com<span class="token punctuation">:</span><span class="token number">80</span><span class="token operator">/</span><span class="token operator">&gt;</span>
+You can exit with `CTRL<span class="token operator">-</span>C`
+Document root is<span class="token punctuation">:</span> D<span class="token punctuation">:</span>\WWW\tp6<span class="token operator">/</span>public
+</code></pre></div>
+<p>然后你可以直接在浏览器里面访问</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">http<span class="token punctuation">:</span><span class="token operator">/</span><span class="token operator">/</span>tp<span class="token punctuation">.</span>com<span class="token operator">/</span>
+</code></pre></div>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

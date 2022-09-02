@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>模型输出</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s-1724007606"><h2><a id="_0"></a>模型输出</h2>
+<p>模型数据的模板输出可以直接把模型对象实例赋值给模板变量，在模板中可以直接输出，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\controller<span class="token punctuation">;</span>
+
+use app\model\User<span class="token punctuation">;</span>
+use think\facade\View<span class="token punctuation">;</span>
+
+class <span class="token class-name">Index</span>
+<span class="token punctuation">{</span>
+    public <span class="token keyword">function</span> <span class="token function">index</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        $user <span class="token operator">=</span> User<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        View<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">assign</span><span class="token punctuation">(</span><span class="token string">'user'</span><span class="token punctuation">,</span> $user<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        
+        <span class="token keyword">return</span> View<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">fetch</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>在模板文件中可以使用</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token punctuation">{</span>$user<span class="token punctuation">.</span>name<span class="token punctuation">}</span>
+<span class="token punctuation">{</span>$user<span class="token punctuation">.</span>email<span class="token punctuation">}</span>
+</code></pre></div>
+<blockquote class="info"><p>模板中的模型数据输出一样会调用获取器。</p></blockquote>
+<h2><a id="_30"></a>数组转换</h2>
+<p>可以使用<code>toArray</code>方法将当前的模型实例输出为数组，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$user <span class="token operator">=</span> User<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">dump</span><span class="token punctuation">(</span>$user<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">toArray</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>支持设置不输出的字段属性：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$user <span class="token operator">=</span> User<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">dump</span><span class="token punctuation">(</span>$user<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">hidden</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'create_time'</span><span class="token punctuation">,</span><span class="token string">'update_time'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">toArray</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>数组输出的字段值会经过获取器的处理，也可以支持追加其它获取器定义（不在数据表字段列表中）的字段，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$user <span class="token operator">=</span> User<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">dump</span><span class="token punctuation">(</span>$user<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">append</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'status_text'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">toArray</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>支持设置允许输出的属性，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$user <span class="token operator">=</span> User<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">dump</span><span class="token punctuation">(</span>$user<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">visible</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'id'</span><span class="token punctuation">,</span><span class="token string">'name'</span><span class="token punctuation">,</span><span class="token string">'email'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">toArray</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>对于数据集结果一样可以直接使用（包括<code>append</code>、<code>visible</code>和<code>hidden</code>方法）</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$list <span class="token operator">=</span> User<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">select</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+$list <span class="token operator">=</span> $list<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">toArray</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>可以在查询之前定义<code>hidden</code>/<code>visible</code>/<code>append</code>方法，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token function">dump</span><span class="token punctuation">(</span>User<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">where</span><span class="token punctuation">(</span><span class="token string">'id'</span><span class="token punctuation">,</span><span class="token number">10</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">hidden</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'create_time'</span><span class="token punctuation">,</span><span class="token string">'update_time'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">append</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'status_text'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">toArray</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>注意，必须要首先调用一次Db类的方法后才能调用<code>hidden</code>/<code>visible</code>/<code>append</code>方法。</p>
+<h3><a id="_70"></a>追加关联属性</h3>
+<p>支持追加关联模型的属性到当前模型，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$user <span class="token operator">=</span> User<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">dump</span><span class="token punctuation">(</span>$user<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">append</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'profile'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token punctuation">[</span><span class="token string">'email'</span><span class="token punctuation">,</span> <span class="token string">'nickname'</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">toArray</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p><code>profile</code>是关联定义方法名，<code>email</code>和<code>nickname</code>是<code>Profile</code>模型的属性。</p>
+<p>模型的<code>visible</code>、<code>hidden</code>和<code>append</code>方法支持关联属性操作，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$user <span class="token operator">=</span> User<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">with</span><span class="token punctuation">(</span><span class="token string">'profile'</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// 隐藏profile关联属性的email属性</span>
+<span class="token function">dump</span><span class="token punctuation">(</span>$user<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">hidden</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'profile'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token punctuation">[</span><span class="token string">'email'</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">toArray</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// 或者使用</span>
+<span class="token function">dump</span><span class="token punctuation">(</span>$user<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">hidden</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'profile.email'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">toArray</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p><code>hidden</code>、<code>visible</code>和<code>append</code>方法同样支持数据集对象。</p>
+<h2><a id="JSON_91"></a>JSON序列化</h2>
+<p>可以调用模型的<code>toJson</code>方法进行<code>JSON</code>序列化，<code>toJson</code>方法的使用和<code>toArray</code>一样。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$user <span class="token operator">=</span> User<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+echo $user<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">toJson</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>可以设置需要隐藏的字段，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$user <span class="token operator">=</span> User<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+echo $user<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">hidden</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'create_time'</span><span class="token punctuation">,</span><span class="token string">'update_time'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">toJson</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>或者追加其它的字段（该字段必须有定义获取器）：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$user <span class="token operator">=</span> User<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+echo $user<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">append</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'status_text'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">toJson</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>设置允许输出的属性：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$user <span class="token operator">=</span> User<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+echo $user<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">visible</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'id'</span><span class="token punctuation">,</span><span class="token string">'name'</span><span class="token punctuation">,</span><span class="token string">'email'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">toJson</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>模型对象可以直接被JSON序列化，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">echo <span class="token function">json_encode</span><span class="token punctuation">(</span>User<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>输出结果类似于：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token punctuation">{</span><span class="token string">"id"</span><span class="token punctuation">:</span><span class="token string">"1"</span><span class="token punctuation">,</span><span class="token string">"name"</span><span class="token punctuation">:</span><span class="token string">""</span><span class="token punctuation">,</span><span class="token string">"title"</span><span class="token punctuation">:</span><span class="token string">""</span><span class="token punctuation">,</span><span class="token string">"status"</span><span class="token punctuation">:</span><span class="token string">"1"</span><span class="token punctuation">,</span><span class="token string">"update_time"</span><span class="token punctuation">:</span><span class="token string">"1430409600"</span><span class="token punctuation">,</span><span class="token string">"score"</span><span class="token punctuation">:</span><span class="token string">"90.5"</span><span class="token punctuation">}</span>
+</code></pre></div>
+<p>如果直接<code>echo</code> 一个模型对象会自动调用模型的<code>toJson</code>方法输出，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">echo User<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>输出的结果和上面是一样的。</p>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

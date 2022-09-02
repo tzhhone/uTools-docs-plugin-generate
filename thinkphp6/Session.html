@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Session</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s1116790880"><h2><a id="_0"></a>概述</h2>
+<p>可以直接使用<code>think\facade\Session</code>类操作<code>Session</code>。</p>
+<blockquote class="danger"><p>新版本不支持操作原生<code>$_SESSION</code>数组和所有<code>session_</code>开头的函数，只能通过<code>Session</code>类（或者助手函数）来操作。会话数据统一在当前请求结束的时候统一写入 所以不要在<code>session</code>写入操作之后执行<code>exit</code>等中断操作,否则会导致<code>Session</code>数据写入失败。</p></blockquote>
+<p><code>6.0</code>的<code>Session</code>类可以很好的支持诸如<code>Swoole</code>/<code>Workerman</code>等环境。</p>
+<h2><a id="Session_8"></a>开启Session</h2>
+<p><code>Session</code>功能默认是没有开启的（API应用通常不需要使用<code>Session</code>），如果你需要使用<code>Seesion</code>，需要在全局的中间件定义文件中加上下面的中间件定义：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'think\middleware\SessionInit'</span>
+</code></pre></div>
+<blockquote class="default"><p>如果是多应用模式，并且你只是用于部分应用，那么也可以在应用中间件定义文件中单独开启。</p></blockquote>
+<h2><a id="Session_18"></a>Session初始化</h2>
+<p>系统会自动按照<code>session.php</code>配置的参数自动初始化<code>Session</code>。</p>
+<p>默认支持的<code>session</code>设置参数包括：</p>
+<table><thead><tr><th>参数</th><th>描述</th></tr></thead><tbody><tr><td>type</td><td>session类型（<code>File</code>或者<code>Cache</code>）</td></tr><tr><td>store</td><td>当type设置为cache类型的时候指定存储标识</td></tr><tr><td>expire</td><td>session过期时间（秒）必须大于0</td></tr><tr><td>var_session_id</td><td>请求session_id变量名</td></tr><tr><td>name</td><td>session_name</td></tr><tr><td>prefix</td><td>session前缀</td></tr><tr><td>serialize</td><td>序列化方法</td></tr></tbody></table>
+<p>无需任何操作就可以直接调用<code>Session</code>类的相关方法，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Session<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">set</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">,</span> <span class="token string">'thinkphp'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+Session<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>会话数据保存（请求结束）的时候会自动序列化，并在读取的时候自动反序列化，默认使用<code>serialize</code>/<code>unserialize</code>进行序列化操作，你可以自定义序列化机制。</p>
+<p>例如在配置文件中设置为使用<code>JSON</code>序列化：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'serialize'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span>    <span class="token punctuation">[</span><span class="token string">'json_encode'</span><span class="token punctuation">,</span> <span class="token string">'json_decode'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+</code></pre></div>
+<blockquote class="danger"><p>尽量避免把对象保存到<code>Session</code>会话</p></blockquote>
+<h2><a id="_49"></a>基础用法</h2>
+<h3><a id="_51"></a>赋值</h3>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Session<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">set</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">,</span> <span class="token string">'thinkphp'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h3><a id="_56"></a>判断是否存在</h3>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Session<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">has</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h3><a id="_61"></a>取值</h3>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 如果值不存在，返回null</span>
+Session<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// 如果值不存在，返回空字符串</span>
+Session<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">,</span> <span class="token string">''</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// 获取全部数据</span>
+Session<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">all</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h3><a id="_71"></a>删除</h3>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Session<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">delete</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h3><a id="_76"></a>取值并删除</h3>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 取值并删除</span>
+Session<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">pull</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>如果name的值不存在，返回<code>Null</code>。</p>
+<h3><a id="_83"></a>清空</h3>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Session<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">clear</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h3><a id="_88"></a>闪存数据，下次请求之前有效</h3>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 设置session 并且在下一次请求之前有效</span>
+Session<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">flash</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">,</span><span class="token string">'value'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h3><a id="_94"></a>提前清除当前请求有效的数据</h3>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 清除当前请求有效的session</span>
+Session<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">flush</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<blockquote class="danger"><p>注意，<code>Session</code>写入数据的操作会在请求结束的时候统一进行本地化存储，所以不要在写入<code>Session</code>数据之后使用exit等中断操作，可能会导致<code>Session</code>没有正常写入。</p></blockquote>
+<h2><a id="_102"></a>多级数组</h2>
+<p>支持<code>session</code>的多级数组操作，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 赋值</span>
+Session<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">set</span><span class="token punctuation">(</span><span class="token string">'name.item'</span><span class="token punctuation">,</span><span class="token string">'thinkphp'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// 判断是否赋值</span>
+Session<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">has</span><span class="token punctuation">(</span><span class="token string">'name.item'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// 取值</span>
+Session<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'name.item'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// 删除</span>
+Session<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">delete</span><span class="token punctuation">(</span><span class="token string">'name.item'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>其中<code>set</code>和<code>delete</code>方法只能支持二级数组，其他方法支持任意级数组操作。</p>
+<h2><a id="_117"></a>助手函数</h2>
+<p>系统也提供了助手函数<code>session</code>完成相同的功能，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 赋值</span>
+<span class="token function">session</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">,</span> <span class="token string">'thinkphp'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// 判断是否赋值</span>
+<span class="token function">session</span><span class="token punctuation">(</span><span class="token string">'?name'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// 取值</span>
+<span class="token function">session</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// 删除</span>
+<span class="token function">session</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">,</span> <span class="token keyword">null</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// 清除session</span>
+<span class="token function">session</span><span class="token punctuation">(</span><span class="token keyword">null</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h2><a id="RequestSession_134"></a>Request对象中读取Session</h2>
+<p>可以在Request对象中读取Session数据</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">public <span class="token keyword">function</span> <span class="token function">index</span><span class="token punctuation">(</span>Request $request<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// 读取某个session数据</span>
+    $request<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">session</span><span class="token punctuation">(</span><span class="token string">'user.name'</span><span class="token punctuation">,</span> <span class="token string">''</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token comment">// 获取全部session数据</span>
+    $request<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">session</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>但<code>Request</code>类中不支持<code>Session</code>写入操作。</p>
+<h2><a id="_148"></a>应用独立会话</h2>
+<blockquote class="danger"><p>多应用情况下默认<code>Session</code>是跨应用的，也就是说多应用之间是共享会话数据的，如果不希望共享会话数据，可以给每个应用设置不同的前缀<code>prefix</code>。</p></blockquote>
+<p>如果是File类型的话，默认的<code>session</code>会话数据保存在<code>runtime/session</code>目录下面，你可以设置<code>path</code>改变存储路径。</p>
+<h2><a id="Session_154"></a>Session驱动</h2>
+<p>默认的<code>Session</code>驱动采用文件缓存方式记录，并且支持如下配置</p>
+<table><thead><tr><th>参数</th><th>描述</th></tr></thead><tbody><tr><td>path</td><td>session保存路径</td></tr><tr><td>data_compress</td><td>是否压缩数据</td></tr><tr><td>gc_divisor</td><td>GC回收概率</td></tr><tr><td>gc_probability</td><td>GC回收概率</td></tr></tbody></table>
+<p>除了文件类型之外，还可以支持直接使用缓存作为<code>Session</code>类型，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token keyword">return</span> <span class="token punctuation">[</span>
+    <span class="token string">'type'</span>       <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'cache'</span><span class="token punctuation">,</span>
+    <span class="token string">'store'</span>      <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'redis'</span><span class="token punctuation">,</span>
+    <span class="token string">'prefix'</span>     <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'think'</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span>
+</code></pre></div>
+<p>表示使用<code>redis</code>作为<code>session</code>类型。</p>
+<p>要以上的配置生效，请确保缓存配置文件<code>cache.php</code>中的<code>stores</code>中已经添加了<code>redis</code>缓存配置，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token keyword">return</span> <span class="token punctuation">[</span>
+    <span class="token string">'default'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span>    <span class="token string">'file'</span><span class="token punctuation">,</span>
+    <span class="token string">'stores'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span>    <span class="token punctuation">[</span>
+        <span class="token comment">// 文件缓存</span>
+        <span class="token string">'file'</span>   <span class="token operator">=</span><span class="token operator">&gt;</span>  <span class="token punctuation">[</span>
+            <span class="token comment">// 驱动方式</span>
+            <span class="token string">'type'</span>   <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'file'</span><span class="token punctuation">,</span>
+            <span class="token comment">// 设置不同的缓存保存目录</span>
+            <span class="token string">'path'</span>   <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'../runtime/file/'</span><span class="token punctuation">,</span>
+        <span class="token punctuation">]</span><span class="token punctuation">,</span>  
+        <span class="token comment">// redis缓存</span>
+        <span class="token string">'redis'</span>   <span class="token operator">=</span><span class="token operator">&gt;</span>  <span class="token punctuation">[</span>
+            <span class="token comment">// 驱动方式</span>
+            <span class="token string">'type'</span>   <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'redis'</span><span class="token punctuation">,</span>
+            <span class="token comment">// 服务器地址</span>
+            <span class="token string">'host'</span>       <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'127.0.0.1'</span><span class="token punctuation">,</span>
+        <span class="token punctuation">]</span><span class="token punctuation">,</span>  
+    <span class="token punctuation">]</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h2><a id="_199"></a>自定义驱动</h2>
+<p>如果需要自定义<code>Session</code>驱动，你的驱动类必须实现<code>think\contract\SessionHandlerInterface</code>接口，包含了三个方法。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">interface <span class="token class-name">SessionHandlerInterface</span>
+<span class="token punctuation">{</span>
+    public <span class="token keyword">function</span> <span class="token function">read</span><span class="token punctuation">(</span>string $sessionId<span class="token punctuation">)</span><span class="token punctuation">:</span> string<span class="token punctuation">;</span>
+    public <span class="token keyword">function</span> <span class="token function">delete</span><span class="token punctuation">(</span>string $sessionId<span class="token punctuation">)</span><span class="token punctuation">:</span> bool<span class="token punctuation">;</span>
+    public <span class="token keyword">function</span> <span class="token function">write</span><span class="token punctuation">(</span>string $sessionId<span class="token punctuation">,</span> string $data<span class="token punctuation">)</span><span class="token punctuation">:</span> bool<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p><code>read</code>方法是在调用<code>Session::start()</code>的时候执行，并且只会执行一次。<br><code>write</code>方法是在本地化会话数据的时候执行（调用<code>Session::save()</code>方法），系统会在每次请求结束的时候自动执行。<br><code>delete</code>方法是在销毁会话的时候执行（调用<code>Session::destroy()</code>方法）。</p>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

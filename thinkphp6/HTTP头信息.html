@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>HTTP头信息</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s283175682"><p>可以使用<code>Request</code>对象的<code>header</code>方法获取当前请求的<code>HTTP</code>请求头信息，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$info <span class="token operator">=</span> Request<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">header</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+echo $info<span class="token punctuation">[</span><span class="token string">'accept'</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+echo $info<span class="token punctuation">[</span><span class="token string">'accept-encoding'</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+echo $info<span class="token punctuation">[</span><span class="token string">'user-agent'</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>也可以直接获取某个请求头信息，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$agent <span class="token operator">=</span> Request<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">header</span><span class="token punctuation">(</span><span class="token string">'user-agent'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p><code>HTTP</code>请求头信息的名称不区分大小写，并且<code>_</code>会自动转换为<code>-</code>，所以下面的写法都是等效的：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$agent <span class="token operator">=</span> Request<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">header</span><span class="token punctuation">(</span><span class="token string">'user-agent'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+$agent <span class="token operator">=</span> Request<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">header</span><span class="token punctuation">(</span><span class="token string">'USER_AGENT'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>模型关联</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s162794349"><h2><a id="_0"></a>模型关联</h2>
+<p>通过模型关联操作把数据表的关联关系对象化，解决了大部分常用的关联场景，封装的关联操作比起常规的数据库联表操作更加智能和高效，并且直观。</p>
+<blockquote class="danger"><p>避免在模型内部使用复杂的<code>join</code>查询和视图查询。</p></blockquote>
+<p>从面向对象的角度来看关联的话，模型的关联其实应该是模型的某个属性，比如用户的档案关联，就应该是下面的情况：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 获取用户模型实例</span>
+$user <span class="token operator">=</span> User<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// 获取用户的档案</span>
+$user<span class="token operator">-</span><span class="token operator">&gt;</span>profile<span class="token punctuation">;</span>
+<span class="token comment">// 获取用户的档案中的手机资料</span>
+$user<span class="token operator">-</span><span class="token operator">&gt;</span>profile<span class="token operator">-</span><span class="token operator">&gt;</span>mobile<span class="token punctuation">;</span>
+</code></pre></div>
+<p>为了更方便和灵活的定义模型的关联关系，框架选择了方法定义而不是属性定义的方式，每个<strong>关联属性</strong>其实是对应了一个模型的（关联）方法，这个关联属性和模型的数据一样是动态的，并非模型类的实体属性。</p>
+<p>例如上面的关联属性就是在<code>User</code>模型类中定义了一个<code>profile</code>方法（<code>mobile</code>属性是<code>Profile</code>模型的属性）：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+
+namespace app\model<span class="token punctuation">;</span>
+
+use think\Model<span class="token punctuation">;</span>
+
+class <span class="token class-name">User</span> extends <span class="token class-name">Model</span>
+<span class="token punctuation">{</span>
+	public <span class="token keyword">function</span> <span class="token function">profile</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+    	<span class="token keyword">return</span> $this<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">hasOne</span><span class="token punctuation">(</span>Profile<span class="token punctuation">:</span><span class="token punctuation">:</span>class<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<blockquote class="danger"><p>一个模型可以定义多个不同的关联，增加不同的关联方法即可</p></blockquote>
+<p>同时，我们必须定义一个<code>Profile</code>模型（即使是一个空模型）。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+
+namespace app\model<span class="token punctuation">;</span>
+
+use think\Model<span class="token punctuation">;</span>
+
+class <span class="token class-name">Profile</span> extends <span class="token class-name">Model</span>
+<span class="token punctuation">{</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>关联方法返回的是不同的关联对象，例如这里的<code>profile</code>方法返回的是一个<code>HasOne</code>关联对象（<code>think\model\relation\HasOne</code>）实例。</p>
+<p>当我们访问<code>User</code>模型对象实例的<code>profile</code>属性的时候，其实就是调用了<code>profile</code>方法来完成关联查询。</p>
+<p>按照<code>PSR-2</code>规范，模型的方法名都是驼峰命名的，所以系统做了一个兼容处理，如果我们定义了一个<code>userProfile</code>的关联方法的时候，在获取关联属性的时候，下面两种方式都是有效的：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$user<span class="token operator">-</span><span class="token operator">&gt;</span>userProfile<span class="token punctuation">;</span>
+$user<span class="token operator">-</span><span class="token operator">&gt;</span>user_profile<span class="token punctuation">;</span> <span class="token comment">// 建议使用</span>
+</code></pre></div>
+<blockquote class="danger"><p>推荐关联属性统一使用后者，和数据表的字段命名规范一致，因此在很多时候系统自动获取关联属性的时候采用的也是后者。</p></blockquote>
+<p>可以简单的理解为关联定义就是在模型类中添加一个方法（注意不要和模型的对象属性以及其它业务逻辑方法冲突），一般情况下无需任何参数，并在方法中指定一种关联关系，比如上面的<code>hasOne</code>关联关系，<code>6.0</code>版本支持的关联关系包括下面8种，后面会给大家陆续介绍：</p>
+<table><thead><tr><th>模型方法</th><th>关联类型</th></tr></thead><tbody><tr><td><code>hasOne</code></td><td>一对一</td></tr><tr><td><code>belongsTo</code></td><td>一对一</td></tr><tr><td><code>hasMany</code></td><td>一对多</td></tr><tr><td><code>hasOneThrough</code></td><td>远程一对一</td></tr><tr><td><code>hasManyThrough</code></td><td>远程一对多</td></tr><tr><td><code>belongsToMany</code></td><td>多对多</td></tr><tr><td><code>morphMany</code></td><td>多态一对多</td></tr><tr><td><code>morphOne</code></td><td>多态一对一</td></tr><tr><td><code>morphTo</code></td><td>多态</td></tr></tbody></table>
+<p>关联方法的第一个参数就是要关联的模型名称，也就是说当前模型的关联模型必须也是已经定义好的一个模型。</p>
+<p>也可以使用完整命名空间定义，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+
+namespace app\model<span class="token punctuation">;</span>
+
+use think\Model<span class="token punctuation">;</span>
+
+class <span class="token class-name">User</span> extends <span class="token class-name">Model</span>
+<span class="token punctuation">{</span>
+	public <span class="token keyword">function</span> <span class="token function">profile</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+    	<span class="token keyword">return</span> $this<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">hasOne</span><span class="token punctuation">(</span>Profile<span class="token punctuation">:</span><span class="token punctuation">:</span>class<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>两个模型之间因为参照模型的不同就会产生相对的但不一定相同的关联关系，并且相对的关联关系只有在需要调用的时候才需要定义，下面是每个关联类型的相对关联关系对照：</p>
+<table><thead><tr><th>类型</th><th>关联关系</th><th>相对的关联关系</th></tr></thead><tbody><tr><td>一对一</td><td><code>hasOne</code></td><td><code>belongsTo</code></td></tr><tr><td>一对多</td><td><code>hasMany</code></td><td><code>belongsTo</code></td></tr><tr><td>多对多</td><td><code>belongsToMany</code></td><td><code>belongsToMany</code></td></tr><tr><td>远程一对多</td><td><code>hasManyThrough</code></td><td>不支持</td></tr><tr><td>多态一对一</td><td><code>morphOne</code></td><td><code>morphTo</code></td></tr><tr><td>多态一对多</td><td><code>morphMany</code></td><td><code>morphTo</code></td></tr></tbody></table>
+<p>例如，<code>Profile</code>模型中就可以定义一个相对的关联关系。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+
+namespace app\model<span class="token punctuation">;</span>
+
+use think\Model<span class="token punctuation">;</span>
+
+class <span class="token class-name">Profile</span> extends <span class="token class-name">Model</span>
+<span class="token punctuation">{</span>
+	public <span class="token keyword">function</span> <span class="token function">user</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+    	<span class="token keyword">return</span> $this<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">belongsTo</span><span class="token punctuation">(</span>User<span class="token punctuation">:</span><span class="token punctuation">:</span>class<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>在进行关联查询的时候，也是类似，只是当前模型不同。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 获取档案实例</span>
+$profile <span class="token operator">=</span> Profile<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// 获取档案所属的用户名称</span>
+echo $profile<span class="token operator">-</span><span class="token operator">&gt;</span>user<span class="token operator">-</span><span class="token operator">&gt;</span>name<span class="token punctuation">;</span>
+</code></pre></div>
+<p>如果是数据集查询的话，关联获取的用法如下：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 获取档案实例</span>
+$profiles <span class="token operator">=</span> Profile<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">where</span><span class="token punctuation">(</span><span class="token string">'id'</span><span class="token punctuation">,</span> <span class="token string">'&gt;'</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">select</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">foreach</span><span class="token punctuation">(</span>$profiles as $profile<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+	<span class="token comment">// 获取档案所属的用户名称</span>
+	echo $profile<span class="token operator">-</span><span class="token operator">&gt;</span>user<span class="token operator">-</span><span class="token operator">&gt;</span>name<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>如果你需要对关联模型进行更多的查询约束，可以在关联方法的定义方法后面追加额外的查询链式方法（但切忌不要滥用，并且不要使用实际的查询方法），例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+
+namespace app\model<span class="token punctuation">;</span>
+
+use think\Model<span class="token punctuation">;</span>
+
+class <span class="token class-name">User</span> extends <span class="token class-name">Model</span>
+<span class="token punctuation">{</span>
+	public <span class="token keyword">function</span> <span class="token function">book</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+    	<span class="token keyword">return</span> $this<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">hasMany</span><span class="token punctuation">(</span>Book<span class="token punctuation">:</span><span class="token punctuation">:</span>class<span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">order</span><span class="token punctuation">(</span><span class="token string">'pub_time'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<blockquote class="danger"><p>模型关联支持调用模型的方法</p></blockquote>
+<blockquote class="info"><p>具体不同的关联关系的详细使用，请继续参考后面的内容。</p></blockquote>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

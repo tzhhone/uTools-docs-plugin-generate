@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Swoole</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s313560470"><p>本篇内容主要讲述了最新的<code>think-swoole</code>扩展的使用。目前仅支持Linux环境或者MacOs下运行，要求<code>swoole</code>版本为<code>4.3.1+</code>。</p>
+<blockquote class="default"><p>由于 <code>think-swoole</code>是基于<code>swoole</code>的，要了解这个扩展如何使用，首先需要对<code>swoole</code>有一定的了解，这也是本文阅读的前提，具体可以参考 Swoole官方文档内容：<a href="https://wiki.swoole.com" target="_blank">https://wiki.swoole.com</a></p></blockquote>
+<h2><a id="_4"></a>安装</h2>
+<p>首先按照<code>Swoole</code>官网说明安装<code>swoole</code>扩展，然后使用</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">composer require topthink<span class="token operator">/</span>think<span class="token operator">-</span>swoole
+</code></pre></div>
+<p>安装<code>think-swoole</code>扩展。</p>
+<blockquote class="danger"><p>由于<code>Swoole</code>不支持<code>windows</code>环境，所以你无法在<code>windows</code>环境下测试，只能使用虚拟机或者<code>WSL</code>环境测试。</p></blockquote>
+<h2><a id="HTTP_16"></a><code>HTTP</code>服务</h2>
+<p>直接在命令行下启动HTTP服务端。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">php think swoole
+</code></pre></div>
+<p>启动完成后，默认会在<code>0.0.0.0:80</code>启动一个HTTP Server，可以直接访问当前的应用。相关配置参数可以在<code>config/swoole.php</code>里面配置（具体参考配置文件内容）。</p>
+<p>支持的其它操作包括：</p>
+<p>启动HTTP服务（默认）</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">php think swoole start
+</code></pre></div>
+<p>停止服务</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">php think swoole stop
+</code></pre></div>
+<p>重启服务</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">php think swoole restart
+</code></pre></div>
+<p><code>reload</code>服务</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">php think swoole reload
+</code></pre></div>
+<h3><a id="_48"></a>守护进程模式</h3>
+<p>如果需要使用守护进程方式运行，可以配置</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'options'</span>   <span class="token operator">=</span><span class="token operator">&gt;</span>  <span class="token punctuation">[</span>
+    <span class="token string">'daemonize'</span> <span class="token operator">=</span><span class="token operator">&gt;</span>  <span class="token boolean">true</span>
+<span class="token punctuation">]</span>
+</code></pre></div>
+<h2><a id="_58"></a>热更新</h2>
+<p>由于<code>Swoole</code>服务运行过程中PHP文件是常驻内存运行的，这样可以避免重复读取磁盘、重复解释编译PHP，以便达到最高性能。所以更改业务代码后必须手动<code>reload</code>或者<code>restart</code>才能生效。</p>
+<p><code>think-swoole</code>扩展提供了热更新功能，在检测到相关目录的文件有更新后会自动<code>reload</code>，从而不需要手动进行<code>reload</code>操作，方便开发调试。</p>
+<p>如果你的应用开启了调试模式，默认是开启热更新的。原则上，在部署模式下不建议开启文件监控，一方面有性能损耗，另外一方面对文件所做的任何修改都需要确认无误才能进行更新部署。</p>
+<p>热更新的默认配置如下：</p>
+<p><img src="https://img.kancloud.cn/52/18/52181406361448d118fe78f5777199e9_932x242.png" alt=""></p>
+<p>当我们在应用的根目录下定义一个特殊的<code>.env</code>环境变量文件，里面设置了<code>APP_DEBUG = true</code>会默认开启热更新，你也可以直接把<code>enable</code>设置为true。</p>
+<p>参数说明：</p>
+<table><thead><tr><th>参数</th><th>说明</th></tr></thead><tbody><tr><td>enable</td><td>是否开启热更新</td></tr><tr><td>name</td><td>简单点说就是监控那些类型的文件变动</td></tr><tr><td>include</td><td>简单点说就是监控那些路径下的文件变动</td></tr><tr><td>exclude</td><td>排除目录</td></tr></tbody></table>
+<h2><a id="_81"></a>连接池</h2>
+<p><code>think-swoole</code> 默认有实现数据库和缓存连接池功能，涵盖了日常开发的主要场景。</p>
+<p>最新的<code>swoole</code>版本支持<a href="https://wiki.swoole.com/#/runtime" target="_blank">一键协程</a>，比如<code>redis</code>、<code>mysql</code>等等，很方便。连接池是在这个基础上，解决一些问题和对性能的再一次提升。</p>
+<p>要开启一键协程，需要配置如下参数<br><img src="https://img.kancloud.cn/66/c5/66c57507adea3a39dbe4495abd2d2e29_546x168.png" alt=""></p>
+<p>这里需要设置为true，默认已经打开，flags默认即可。</p>
+<p>连接池的配置参数如下：</p>
+<p><img src="https://img.kancloud.cn/5c/93/5c93c3a94b9c5f3da44b4cb9563b3e8c_512x504.png" alt=""></p>
+<p>参数说明：</p>
+<table><thead><tr><th>参数</th><th>说明</th></tr></thead><tbody><tr><td>enable</td><td>开关，不需要设置false</td></tr><tr><td>max_active</td><td>最大连接数，超过将不再新建连接</td></tr><tr><td>max_wait_time</td><td>超时时间</td></tr></tbody></table>
+<p>其中的<code>max_active</code>和<code>max_wait_time</code>需要根据自身业务和环境进行适当调整，最大化提高系统负载。</p>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

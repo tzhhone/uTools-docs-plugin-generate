@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>自定义指令</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s-159219117"><h2><a id="_0"></a>创建自定义指令</h2>
+<p>第一步，创建一个自定义命令类文件，运行指令</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">php think make<span class="token punctuation">:</span>command Hello hello
+</code></pre></div>
+<p>会生成一个<code>app\command\Hello</code>命令行指令类，我们修改内容如下：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\command<span class="token punctuation">;</span>
+
+use think\console\Command<span class="token punctuation">;</span>
+use think\console\Input<span class="token punctuation">;</span>
+use think\console\input\Argument<span class="token punctuation">;</span>
+use think\console\input\Option<span class="token punctuation">;</span>
+use think\console\Output<span class="token punctuation">;</span>
+
+class <span class="token class-name">Hello</span> extends <span class="token class-name">Command</span>
+<span class="token punctuation">{</span>
+    protected <span class="token keyword">function</span> <span class="token function">configure</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        $this<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">setName</span><span class="token punctuation">(</span><span class="token string">'hello'</span><span class="token punctuation">)</span>
+        	<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">addArgument</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">,</span> Argument<span class="token punctuation">:</span><span class="token punctuation">:</span>OPTIONAL<span class="token punctuation">,</span> <span class="token string">"your name"</span><span class="token punctuation">)</span>
+            <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">addOption</span><span class="token punctuation">(</span><span class="token string">'city'</span><span class="token punctuation">,</span> <span class="token keyword">null</span><span class="token punctuation">,</span> Option<span class="token punctuation">:</span><span class="token punctuation">:</span>VALUE_REQUIRED<span class="token punctuation">,</span> <span class="token string">'city name'</span><span class="token punctuation">)</span>
+        	<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">setDescription</span><span class="token punctuation">(</span><span class="token string">'Say Hello'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    protected <span class="token keyword">function</span> <span class="token function">execute</span><span class="token punctuation">(</span>Input $input<span class="token punctuation">,</span> Output $output<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+    	$name <span class="token operator">=</span> <span class="token function">trim</span><span class="token punctuation">(</span>$input<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">getArgument</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+      	$name <span class="token operator">=</span> $name <span class="token operator">?</span><span class="token punctuation">:</span> <span class="token string">'thinkphp'</span><span class="token punctuation">;</span>
+
+		<span class="token keyword">if</span> <span class="token punctuation">(</span>$input<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">hasOption</span><span class="token punctuation">(</span><span class="token string">'city'</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        	$city <span class="token operator">=</span> PHP_EOL <span class="token punctuation">.</span> <span class="token string">'From '</span> <span class="token punctuation">.</span> $input<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">getOption</span><span class="token punctuation">(</span><span class="token string">'city'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+        	$city <span class="token operator">=</span> <span class="token string">''</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        
+        $output<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">writeln</span><span class="token punctuation">(</span><span class="token string">"Hello,"</span> <span class="token punctuation">.</span> $name <span class="token punctuation">.</span> <span class="token string">'!'</span> <span class="token punctuation">.</span> $city<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>这个文件定义了一个叫<code>hello</code>的命令，并设置了一个<code>name</code>参数和一个<code>city</code>选项。</p>
+<p>第二步，配置<code>config/console.php</code>文件</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+<span class="token keyword">return</span> <span class="token punctuation">[</span>
+    <span class="token string">'commands'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token punctuation">[</span>
+        <span class="token string">'hello'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'app\command\Hello'</span><span class="token punctuation">,</span>
+    <span class="token punctuation">]</span>
+<span class="token punctuation">]</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>第三步，测试-命令帮助-命令行下运行</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">php think
+</code></pre></div>
+<p>输出</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Think Console version <span class="token number">0.1</span>
+
+Usage<span class="token punctuation">:</span>
+  command <span class="token punctuation">[</span>options<span class="token punctuation">]</span> <span class="token punctuation">[</span>arguments<span class="token punctuation">]</span>
+
+Options<span class="token punctuation">:</span>
+  <span class="token operator">-</span>h<span class="token punctuation">,</span> <span class="token operator">--</span>help            Display this help message
+  <span class="token operator">-</span>V<span class="token punctuation">,</span> <span class="token operator">--</span>version         Display this console version
+  <span class="token operator">-</span>q<span class="token punctuation">,</span> <span class="token operator">--</span>quiet           Do not output any message
+      <span class="token operator">--</span>ansi            Force ANSI output
+      <span class="token operator">--</span>no<span class="token operator">-</span>ansi         Disable ANSI output
+  <span class="token operator">-</span>n<span class="token punctuation">,</span> <span class="token operator">--</span>no<span class="token operator">-</span>interaction  Do not ask any interactive question
+  <span class="token operator">-</span>v<span class="token operator">|</span>vv<span class="token operator">|</span>vvv<span class="token punctuation">,</span> <span class="token operator">--</span>verbose  Increase the verbosity of messages<span class="token punctuation">:</span> <span class="token number">1</span> <span class="token keyword">for</span> normal output<span class="token punctuation">,</span> <span class="token number">2</span> <span class="token keyword">for</span> more verbose output and <span class="token number">3</span> <span class="token keyword">for</span> debug
+
+Available commands<span class="token punctuation">:</span>
+  build              Build Application Dirs
+  clear              Clear runtime file
+  hello              Say Hello 
+  help               Displays help <span class="token keyword">for</span> a command
+  list               Lists commands
+ make
+  make<span class="token punctuation">:</span>controller    Create a <span class="token keyword">new</span> <span class="token class-name">resource</span> controller class
+  <span class="token class-name">make</span><span class="token punctuation">:</span>model         Create a <span class="token keyword">new</span> <span class="token class-name">model</span> class
+ <span class="token class-name">optimize</span>
+  optimize<span class="token punctuation">:</span>autoload  Optimizes PSR0 and PSR4 packages to be loaded with classmaps too<span class="token punctuation">,</span> good <span class="token keyword">for</span> production<span class="token punctuation">.</span>
+  optimize<span class="token punctuation">:</span>config    Build config and common file cache<span class="token punctuation">.</span>
+  optimize<span class="token punctuation">:</span>schema    Build database schema cache<span class="token punctuation">.</span>
+
+</code></pre></div>
+<p>第四步，运行<code>hello</code>命令</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">php think hello
+</code></pre></div>
+<p>输出</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Hello thinkphp<span class="token operator">!</span>
+</code></pre></div>
+<p>添加命令参数</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">php think hello kancloud
+</code></pre></div>
+<p>输出</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Hello kancloud<span class="token operator">!</span>
+</code></pre></div>
+<p>添加<code>city</code>选项</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">php think hello kancloud <span class="token operator">--</span>city shanghai
+</code></pre></div>
+<p>输出</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Hello kancloud<span class="token operator">!</span>
+From shanghai
+</code></pre></div>
+<blockquote class="danger"><p>注意看参数和选项的调用区别</p></blockquote>
+<p>如果需要生成一个指定的命名空间，可以使用：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">php think make<span class="token punctuation">:</span>command app\index\Command second
+</code></pre></div>
+<h2><a id="_129"></a>在控制器中调用命令</h2>
+<p>支持在控制器的操作方法中直接调用命令，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\index\controller<span class="token punctuation">;</span>
+
+use think\facade\Console<span class="token punctuation">;</span>
+
+class <span class="token class-name">Index</span>
+<span class="token punctuation">{</span>
+    public <span class="token keyword">function</span> <span class="token function">hello</span><span class="token punctuation">(</span>$name<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        $output <span class="token operator">=</span> Console<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">call</span><span class="token punctuation">(</span><span class="token string">'hello'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span>$name<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">return</span> $output<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">fetch</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>访问该操作方法后，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">http<span class="token punctuation">:</span><span class="token operator">/</span><span class="token operator">/</span>serverName<span class="token operator">/</span>index<span class="token operator">/</span>hello<span class="token operator">/</span>name<span class="token operator">/</span>thinkphp
+</code></pre></div>
+<p>页面会输出</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Hello thinkphp<span class="token operator">!</span>
+</code></pre></div>
+<h2><a id="_160"></a>命令行选项</h2>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">use think\\console\\input\\Option<span class="token punctuation">;</span>
+
+ <span class="token comment">// 无需传值</span>
+ Option<span class="token punctuation">:</span><span class="token punctuation">:</span>VALUE_NONE     <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span>
+ <span class="token comment">// 必须传值</span>
+ Option<span class="token punctuation">:</span><span class="token punctuation">:</span>VALUE_REQUIRED <span class="token operator">=</span> <span class="token number">2</span><span class="token punctuation">;</span>
+ <span class="token comment">// 可选传值</span>
+ Option<span class="token punctuation">:</span><span class="token punctuation">:</span>VALUE_OPTIONAL <span class="token operator">=</span> <span class="token number">4</span><span class="token punctuation">;</span>
+ <span class="token comment">// 传数组值</span>
+ Option<span class="token punctuation">:</span><span class="token punctuation">:</span>VALUE_IS_ARRAY <span class="token operator">=</span> <span class="token number">8</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h2><a id="addOption_175"></a>addOption</h2>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">/**
+* 添加选项
+* @param  string $name        选项名称
+* @param  string $shortcut    别名
+* @param  int $mode        类型
+* @param  string $description 描述
+* @param  mixed $default     默认值
+* @return  Command
+*/</span>
+ public <span class="token keyword">function</span> <span class="token function">addOption</span><span class="token punctuation">(</span>string  $name<span class="token punctuation">,</span> string  $shortcut <span class="token operator">=</span> <span class="token keyword">null</span><span class="token punctuation">,</span> int  $mode <span class="token operator">=</span> <span class="token keyword">null</span><span class="token punctuation">,</span> string  $description <span class="token operator">=</span> <span class="token string">''</span><span class="token punctuation">,</span> $default <span class="token operator">=</span> <span class="token keyword">null</span><span class="token punctuation">)</span>
+</code></pre></div>
+<h3><a id="_189"></a>示例</h3>
+<p>定义如下:</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">addOption</span><span class="token punctuation">(</span><span class="token string">'adminname'</span><span class="token punctuation">,</span> <span class="token string">'p'</span><span class="token punctuation">,</span> Option<span class="token punctuation">:</span><span class="token punctuation">:</span>VALUE_OPTIONAL<span class="token punctuation">,</span> <span class="token string">'管理员账号'</span><span class="token punctuation">)</span>
+</code></pre></div>
+<p>调用方式可以如下:</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 无需任何参数</span>
+php think install
+<span class="token comment">// 使用全名参数</span>
+php think install <span class="token operator">--</span>adminuser admin
+<span class="token comment">// 使用缩写</span>
+php think install <span class="token operator">-</span>u admin
+</code></pre></div>
+<p>指令逻辑中可以这样获取:</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$input<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">getOption</span><span class="token punctuation">(</span><span class="token string">'adminname'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

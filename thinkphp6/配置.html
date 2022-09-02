@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>配置</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s213911695"><h2><a id="_0"></a>配置目录</h2>
+<h3><a id="_2"></a>单应用模式</h3>
+<p>对于单应用模式来说，配置文件和目录很简单，根目录下的<code>config</code>目录下面就是所有的配置文件。每个配置文件对应不同的组件，当然你也可以增加自定义的配置文件。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">├─config（配置目录）
+│  ├─app<span class="token punctuation">.</span>php            应用配置
+│  ├─cache<span class="token punctuation">.</span>php          缓存配置
+│  ├─console<span class="token punctuation">.</span>php        控制台配置
+│  ├─cookie<span class="token punctuation">.</span>php         Cookie配置
+│  ├─database<span class="token punctuation">.</span>php       数据库配置
+│  ├─filesystem<span class="token punctuation">.</span>php     文件磁盘配置
+│  ├─lang<span class="token punctuation">.</span>php           多语言配置
+│  ├─log<span class="token punctuation">.</span>php            日志配置
+│  ├─middleware<span class="token punctuation">.</span>php     中间件配置
+│  ├─route<span class="token punctuation">.</span>php          URL和路由配置
+│  ├─session<span class="token punctuation">.</span>php        Session配置
+│  ├─trace<span class="token punctuation">.</span>php          Trace配置
+│  ├─view<span class="token punctuation">.</span>php           视图配置
+│  └─ <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>               更多配置文件
+│  
+</code></pre></div>
+<p>单应用模式的<code>config</code>目录下的所有配置文件系统都会自动读取，不需要手动加载。如果存在子目录，你可以通过<code>Config</code>类的<code>load</code>方法手动加载，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 加载config/extra/config.php 配置文件 读取到extra</span>
+\think\facade\Config<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">load</span><span class="token punctuation">(</span><span class="token string">'extra/config'</span><span class="token punctuation">,</span> <span class="token string">'extra'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h3><a id="_31"></a>多应用模式</h3>
+<p>在多应用模式下，配置分为全局配置和应用配置。</p>
+<ul><li><strong>全局配置</strong>：<code>config</code>目录下面的文件就是项目的全局配置文件，对所有应用有效。</li><li><strong>应用配置</strong>：每个应用可以有独立配置文件，相同的配置参数会覆盖全局配置。</li></ul>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">├─app（应用目录）
+│  ├─app1 （应用<span class="token number">1</span>）
+│  │   └─config（应用配置）
+│  │   	 ├─app<span class="token punctuation">.</span>php            应用配置
+│  │  	 ├─cache<span class="token punctuation">.</span>php          缓存配置
+│  │   	 ├─cookie<span class="token punctuation">.</span>php         Cookie配置
+│  │   	 ├─database<span class="token punctuation">.</span>php       数据库配置
+│  │  	 ├─lang<span class="token punctuation">.</span>php           多语言配置
+│  │  	 ├─log<span class="token punctuation">.</span>php            日志配置
+│  │     ├─route<span class="token punctuation">.</span>php          URL和路由配置
+│  │   	 ├─session<span class="token punctuation">.</span>php        Session配置
+│  │ 	 ├─view<span class="token punctuation">.</span>php           视图及模板引擎配置
+│  │   	 ├─trace<span class="token punctuation">.</span>php          Trace配置
+│  │ 	 └─ <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>               更多配置文件
+│  │ 
+│  └─ app2<span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span> （更多应用）
+│
+├─config（全局配置）
+│  ├─app<span class="token punctuation">.</span>php            应用配置
+│  ├─cache<span class="token punctuation">.</span>php          缓存配置
+│  ├─console<span class="token punctuation">.</span>php        控制台配置
+│  ├─cookie<span class="token punctuation">.</span>php         Cookie配置
+│  ├─database<span class="token punctuation">.</span>php       数据库配置
+│  ├─filesystem<span class="token punctuation">.</span>php     文件磁盘配置
+│  ├─lang<span class="token punctuation">.</span>php           多语言配置
+│  ├─log<span class="token punctuation">.</span>php            日志配置
+│  ├─middleware<span class="token punctuation">.</span>php     中间件配置
+│  ├─route<span class="token punctuation">.</span>php          URL和路由配置
+│  ├─session<span class="token punctuation">.</span>php        Session配置
+│  ├─trace<span class="token punctuation">.</span>php          Trace配置
+│  ├─view<span class="token punctuation">.</span>php           视图配置
+│  └─ <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>               更多配置文件
+│  
+</code></pre></div>
+<h2><a id="_74"></a>配置定义</h2>
+<p>可以直接在相应的全局或应用配置文件中修改或者增加配置参数，如果你要增加额外的配置文件，直接放入配置目录即可（文件名小写）。</p>
+<blockquote class="danger"><p>除了一级配置外，配置参数名严格区分大小写，建议是使用小写定义配置参数的规范。</p></blockquote>
+<p>由于架构设计原因，下面的配置只能在环境变量中修改。</p>
+<table><thead><tr><th>配置参数</th><th>描述</th></tr></thead><tbody><tr><td>app_debug</td><td>应用调试模式</td></tr><tr><td>config_ext</td><td>配置文件后缀</td></tr></tbody></table>
+<h3><a id="_88"></a>环境变量定义</h3>
+<p>可以在应用的根目录下定义一个特殊的<code>.env</code>环境变量文件，用于在开发过程中模拟环境变量配置（该文件建议在服务器部署的时候忽略），<code>.env</code>文件中的配置参数定义格式采用<code>ini</code>方式，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">APP_DEBUG <span class="token operator">=</span>  <span class="token boolean">true</span>
+</code></pre></div>
+<blockquote class="default"><p>默认安装后的根目录有一个<code>.example.env</code>环境变量示例文件，你可以直接改成<code>.env</code>文件后进行修改。</p></blockquote>
+<blockquote class="danger"><p>如果你的部署环境单独配置了环境变量（ 环境变量的前缀使用<code>PHP_</code>），那么请删除<code>.env</code>配置文件，避免冲突。</p></blockquote>
+<p>环境变量配置的参数会全部转换为大写，值为 <code>off</code>，<code>no</code> 和 <code>false</code> 等效于 布尔值<code>false</code>，值为 <code>yes</code> 、<code>on</code>和 <code>true</code> 等效于 布尔值的<code>true</code>。</p>
+<p>注意，环境变量不支持数组参数，如果需要使用数组参数可以，可以使用</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token punctuation">[</span>DATABASE<span class="token punctuation">]</span>
+USERNAME <span class="token operator">=</span>  root
+PASSWORD <span class="token operator">=</span>  <span class="token number">123456</span>
+</code></pre></div>
+<p>如果要设置一个没有键值的数组参数，可以使用</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">PATHINFO_PATH<span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token operator">=</span>  ORIG_PATH_INFO
+PATHINFO_PATH<span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token operator">=</span>  REDIRECT_PATH_INFO
+PATHINFO_PATH<span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token operator">=</span>  REDIRECT_URL
+</code></pre></div>
+<p>获取环境变量的值可以使用下面的方式获取：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Env<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'database.username'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+Env<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'database.password'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+Env<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'PATHINFO_PATH'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>要使用<code>Env</code>类，必须先引入<code>think\facade\Env</code>。</p>
+<blockquote class="danger"><p>环境变量的获取不区分大小写</p></blockquote>
+<p>可以支持默认值，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 获取环境变量 如果不存在则使用默认值root</span>
+Env<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'database.username'</span><span class="token punctuation">,</span> <span class="token string">'root'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>可以直接在配置文件中使用环境变量进行本地环境和服务器的自动配置，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token keyword">return</span> <span class="token punctuation">[</span>
+    <span class="token string">'hostname'</span>  <span class="token operator">=</span><span class="token operator">&gt;</span>  Env<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'hostname'</span><span class="token punctuation">,</span><span class="token string">'127.0.0.1'</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h3><a id="_143"></a>多环境变量配置支持</h3>
+<p><code>V6.0.8+</code>版本开始，可以支持定义多个环境变量配置文件，配置文件命名规范为</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token punctuation">.</span>env<span class="token punctuation">.</span>example
+<span class="token punctuation">.</span>env<span class="token punctuation">.</span>testing
+<span class="token punctuation">.</span>env<span class="token punctuation">.</span>develop
+</code></pre></div>
+<p>然后，需要在入口文件中指定部署使用的环境变量名称：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 执行HTTP应用并响应</span>
+$http <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">App</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">setEnvName</span><span class="token punctuation">(</span><span class="token string">'develop'</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span>http<span class="token punctuation">;</span>
+
+$response <span class="token operator">=</span> $http<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">run</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+$response<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">send</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+$http<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">end</span><span class="token punctuation">(</span>$response<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>或者你可以继承<code>App</code>类 然后重载<code>loadEnv</code>方法实现 动态切换环境变量配置。</p>
+<h3><a id="_165"></a>其它配置格式支持</h3>
+<p>默认的配置文件都是PHP数组方式，如果你需要使用其它格式的配置文件，你可以通过改变<code>CONFIG_EXT</code>环境变量的方式来更改配置类型。</p>
+<p>在应用根目录的<code>.env</code>或者系统环境变量中设置</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">CONFIG_EXT<span class="token operator">=</span><span class="token string">".ini"</span>
+</code></pre></div>
+<p>支持的配置类型包括<code>.ini</code>、<code>.xml</code>、<code>.json</code> 、<code>.yaml</code>和 <code>.php</code> 在内的格式支持，配置后全局或应用配置必须统一使用相同的配置类型。</p>
+<h2><a id="_177"></a>配置获取</h2>
+<p>要使用<code>Config</code>类，首先需要在你的类文件中引入</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">use think\facade\Config<span class="token punctuation">;</span>
+</code></pre></div>
+<p>然后就可以使用下面的方法读取某个配置参数的值：</p>
+<p>读取一级配置的所有参数（每个配置文件都是独立的一级配置）</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Config<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'app'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+Config<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'route'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>读取单个配置参数</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Config<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'app.app_name'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+Config<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'route.url_domain_root'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>读取数组配置（理论上支持无限级配置参数读取）</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Config<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'database.default.host'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>判断是否存在某个设置参数：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Config<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">has</span><span class="token punctuation">(</span><span class="token string">'template'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+Config<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">has</span><span class="token punctuation">(</span><span class="token string">'route.route_rule_merge'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h2><a id="_212"></a>参数批量设置</h2>
+<p><code>Config</code>类不再支持动态设置某个配置参数，但可以支持批量设置更新配置参数。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 批量设置参数</span>
+Config<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">set</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'name1'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'value1'</span><span class="token punctuation">,</span> <span class="token string">'name2'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'value2'</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token string">'config'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// 获取配置</span>
+Config<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'config'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h2><a id="_223"></a>系统配置文件</h2>
+<p>下面系统自带的配置文件列表及其作用：</p>
+<table><thead><tr><th>配置文件名</th><th>描述</th></tr></thead><tbody><tr><td>app.php</td><td>应用配置</td></tr><tr><td>cache.php</td><td>缓存配置</td></tr><tr><td>console.php</td><td>控制台配置</td></tr><tr><td>cookie.php</td><td>Cookie配置</td></tr><tr><td>database.php</td><td>数据库配置</td></tr><tr><td>filesystem.php</td><td>磁盘配置</td></tr><tr><td>lang.php</td><td>多语言配置</td></tr><tr><td>log.php</td><td>日志配置</td></tr><tr><td>middleware.php</td><td>中间件配置</td></tr><tr><td>route.php</td><td>路由和URL配置</td></tr><tr><td>session.php</td><td>Session配置</td></tr><tr><td>trace.php</td><td>页面Trace配置</td></tr><tr><td>view.php</td><td>视图配置</td></tr></tbody></table>
+<p>具体的配置参数及默认值可以直接查看应用<code>config</code>目录下面的相关文件内容。</p>
+<blockquote class="danger"><p>如果是多应用模式的话配置文件可能同时存在全局和应用配置文件两个同名文件</p></blockquote>
+<h2><a id="Yaconf_248"></a>使用<code>Yaconf</code>定义</h2>
+<p>可以支持使用<code>Yaconf</code>统一定义配置，但不支持动态设置。</p>
+<blockquote class="danger"><p>安装了<code>yaconf</code>扩展之后，项目里面的配置文件不再有效。而且不再区分全局和应用配置。</p></blockquote>
+<p>首先需要安装<code>topthink/think-yaconf</code>扩展，</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">composer require topthink<span class="token operator">/</span>think<span class="token operator">-</span>yaconf
+</code></pre></div>
+<p>然后在<code>app</code>目录下的<code>provider.php</code>文件中添加：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'think\Config'</span>	<span class="token operator">=</span><span class="token operator">&gt;</span>	<span class="token string">'think\Yaconf'</span><span class="token punctuation">,</span>
+</code></pre></div>
+<p>使用<code>setYaconf</code>方法指定<code>Yaconf</code>使用的独立配置文件，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 建议在应用的公共函数文件中进行设置</span>
+think\facade\Config<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">setYaconf</span><span class="token punctuation">(</span><span class="token string">'thinkphp'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>设置后，你只需要在<code>thinkphp.ini</code>一个文件里进行项目的配置，而无需分开多个文件，避免和其它项目冲突。</p>
+<blockquote class="default"><p>关于<code>Yaconf</code>的安装和配置用法可以<a href="http://www.laruence.com/2015/06/12/3051.html" target="_blank">参考这里</a>。</p></blockquote>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

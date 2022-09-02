@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>清除缓存文件</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s951548707"><h2><a id="clear_0"></a>清除缓存文件<code>clear</code></h2>
+<p>如果需要清除应用的缓存文件，可以使用下面的命令：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">php think clear
+</code></pre></div>
+<p>不带任何参数调用<code>clear</code>命令的话，会清除<code>runtime</code>目录（包括模板缓存、日志文件及其子目录）下面的所有的文件，但会保留目录。</p>
+<p>如果不需要保留空目录，可以使用</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">php think clear <span class="token operator">--</span>dir
+</code></pre></div>
+<p>清除日志目录</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">php think clear <span class="token operator">--</span>log
+</code></pre></div>
+<p>清除日志目录并删除空目录</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">php think clear <span class="token operator">--</span>log <span class="token operator">--</span>dir
+</code></pre></div>
+<p>清除数据缓存目录</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">php think clear <span class="token operator">--</span>cache
+</code></pre></div>
+<p>清除数据缓存目录并删除空目录</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">php think clear <span class="token operator">--</span>cache <span class="token operator">--</span>dir
+</code></pre></div>
+<p>如果需要清除某个指定目录下面的文件，可以使用：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">php think clear <span class="token operator">--</span>path d<span class="token punctuation">:</span>\www\tp\runtime\log\
+</code></pre></div>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

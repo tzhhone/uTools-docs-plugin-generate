@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>搜索器</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s-1185209767"><h2><a id="_0"></a>搜索器</h2>
+<p>搜索器的作用是用于封装字段（或者搜索标识）的查询条件表达式，一个搜索器对应一个特殊的方法（该方法必须是<code>public</code>类型），方法命名规范为：</p>
+<blockquote class="info"><h3><a id="searchFieldNameAttr_4"></a>search<code>FieldName</code>Attr</h3></blockquote>
+<p><code>FieldName</code>为数据表字段的驼峰转换，搜索器仅在调用<code>withSearch</code>方法的时候触发。</p>
+<p>搜索器的场景包括：</p>
+<ul><li>限制和规范表单的搜索条件；</li><li>预定义查询条件简化查询；</li></ul>
+<p>例如，我们需要给User模型定义<code>name</code>字段和时间字段的搜索器，可以使用：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\model<span class="token punctuation">;</span>
+
+use think\Model<span class="token punctuation">;</span>
+
+class <span class="token class-name">User</span> extends <span class="token class-name">Model</span> 
+<span class="token punctuation">{</span>
+    public <span class="token keyword">function</span> <span class="token function">searchNameAttr</span><span class="token punctuation">(</span>$query<span class="token punctuation">,</span> $value<span class="token punctuation">,</span> $data<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        $query<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">where</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">,</span><span class="token string">'like'</span><span class="token punctuation">,</span> $value <span class="token punctuation">.</span> <span class="token string">'%'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    
+    public <span class="token keyword">function</span> <span class="token function">searchCreateTimeAttr</span><span class="token punctuation">(</span>$query<span class="token punctuation">,</span> $value<span class="token punctuation">,</span> $data<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        $query<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">whereBetweenTime</span><span class="token punctuation">(</span><span class="token string">'create_time'</span><span class="token punctuation">,</span> $value<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">,</span> $value<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>    
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>然后，我们可以使用下面的查询</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">User<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">withSearch</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'name'</span><span class="token punctuation">,</span><span class="token string">'create_time'</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token punctuation">[</span>
+		<span class="token string">'name'</span>			<span class="token operator">=</span><span class="token operator">&gt;</span>	<span class="token string">'think'</span><span class="token punctuation">,</span>
+    	<span class="token string">'create_time'</span>	<span class="token operator">=</span><span class="token operator">&gt;</span>	<span class="token punctuation">[</span><span class="token string">'2018-8-1'</span><span class="token punctuation">,</span><span class="token string">'2018-8-5'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+        <span class="token string">'status'</span>		<span class="token operator">=</span><span class="token operator">&gt;</span>	<span class="token number">1</span>
+    <span class="token punctuation">]</span><span class="token punctuation">)</span>
+	<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">select</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>最终生成的SQL语句类似于</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">SELECT <span class="token operator">*</span> FROM `think_user` WHERE  `name` LIKE <span class="token string">'think%'</span> AND `create_time` BETWEEN <span class="token string">'2018-08-01 00:00:00'</span> AND <span class="token string">'2018-08-05 00:00:00'</span> 
+</code></pre></div>
+<p>可以看到查询条件中并没有<code>status</code>字段的数据，因此可以很好的避免表单的非法查询条件传入，在这个示例中仅能使用<code>name</code>和<code>create_time</code>条件进行查询。</p>
+<blockquote class="default"><p>事实上，除了在搜索器中使用查询表达式外，还可以使用其它的任何查询构造器以及链式操作。</p></blockquote>
+<p>例如，你需要通过表单定义的排序字段进行搜索结果的排序，可以使用</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\model<span class="token punctuation">;</span>
+
+use think\Model<span class="token punctuation">;</span>
+
+class <span class="token class-name">User</span> extends <span class="token class-name">Model</span> 
+<span class="token punctuation">{</span>
+    public <span class="token keyword">function</span> <span class="token function">searchNameAttr</span><span class="token punctuation">(</span>$query<span class="token punctuation">,</span> $value<span class="token punctuation">,</span> $data<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        $query<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">where</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">,</span><span class="token string">'like'</span><span class="token punctuation">,</span> $value <span class="token punctuation">.</span> <span class="token string">'%'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">isset</span><span class="token punctuation">(</span>$data<span class="token punctuation">[</span><span class="token string">'sort'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        	$query<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">order</span><span class="token punctuation">(</span>$data<span class="token punctuation">[</span><span class="token string">'sort'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>        
+    <span class="token punctuation">}</span>
+    
+    public <span class="token keyword">function</span> <span class="token function">searchCreateTimeAttr</span><span class="token punctuation">(</span>$query<span class="token punctuation">,</span> $value<span class="token punctuation">,</span> $data<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        $query<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">whereBetweenTime</span><span class="token punctuation">(</span><span class="token string">'create_time'</span><span class="token punctuation">,</span> $value<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">,</span> $value<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>      
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>然后，我们可以使用下面的查询</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">User<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">withSearch</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'name'</span><span class="token punctuation">,</span><span class="token string">'create_time'</span><span class="token punctuation">,</span> <span class="token string">'status'</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token punctuation">[</span>
+		<span class="token string">'name'</span>			<span class="token operator">=</span><span class="token operator">&gt;</span>	<span class="token string">'think'</span><span class="token punctuation">,</span>
+    	<span class="token string">'create_time'</span>	<span class="token operator">=</span><span class="token operator">&gt;</span>	<span class="token punctuation">[</span><span class="token string">'2018-8-1'</span><span class="token punctuation">,</span><span class="token string">'2018-8-5'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+        <span class="token string">'status'</span>		<span class="token operator">=</span><span class="token operator">&gt;</span>	<span class="token number">1</span><span class="token punctuation">,</span>
+        <span class="token string">'sort'</span>			<span class="token operator">=</span><span class="token operator">&gt;</span>	<span class="token punctuation">[</span><span class="token string">'status'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'desc'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token punctuation">]</span><span class="token punctuation">)</span>
+	<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">select</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>最终查询的SQL可能是</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">SELECT <span class="token operator">*</span> FROM `think_user` WHERE  `name` LIKE <span class="token string">'think%'</span> AND `create_time` BETWEEN <span class="token string">'2018-08-01 00:00:00'</span> AND <span class="token string">'2018-08-05 00:00:00'</span> ORDER BY `status` DESC
+</code></pre></div>
+<p>你可以给搜索器定义字段别名，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">User<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">withSearch</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'name'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'nickname'</span><span class="token punctuation">,</span><span class="token string">'create_time'</span><span class="token punctuation">,</span> <span class="token string">'status'</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token punctuation">[</span>
+		<span class="token string">'nickname'</span>		<span class="token operator">=</span><span class="token operator">&gt;</span>	<span class="token string">'think'</span><span class="token punctuation">,</span>
+    	<span class="token string">'create_time'</span>	<span class="token operator">=</span><span class="token operator">&gt;</span>	<span class="token punctuation">[</span><span class="token string">'2018-8-1'</span><span class="token punctuation">,</span><span class="token string">'2018-8-5'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+        <span class="token string">'status'</span>		<span class="token operator">=</span><span class="token operator">&gt;</span>	<span class="token number">1</span><span class="token punctuation">,</span>
+        <span class="token string">'sort'</span>			<span class="token operator">=</span><span class="token operator">&gt;</span>	<span class="token punctuation">[</span><span class="token string">'status'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'desc'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token punctuation">]</span><span class="token punctuation">)</span>
+	<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">select</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<blockquote class="danger"><p>搜索器通常会和查询范围进行比较，搜索器无论定义了多少，只需要一次调用，查询范围如果需要组合查询的时候就需要多次调用。</p></blockquote>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

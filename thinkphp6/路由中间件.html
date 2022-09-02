@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>路由中间件</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s-1285847846"><h2><a id="_0"></a>路由中间件</h2>
+<p>可以使用路由中间件，注册方式如下：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">rule</span><span class="token punctuation">(</span><span class="token string">'hello/:name'</span><span class="token punctuation">,</span><span class="token string">'hello'</span><span class="token punctuation">)</span>
+	<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">middleware</span><span class="token punctuation">(</span>\app\middleware\Auth<span class="token punctuation">:</span><span class="token punctuation">:</span>class<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>或者对路由分组注册中间件</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">group</span><span class="token punctuation">(</span><span class="token string">'hello'</span><span class="token punctuation">,</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+	Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">rule</span><span class="token punctuation">(</span><span class="token string">'hello/:name'</span><span class="token punctuation">,</span><span class="token string">'hello'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">middleware</span><span class="token punctuation">(</span>\app\middleware\Auth<span class="token punctuation">:</span><span class="token punctuation">:</span>class<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>如果需要传入额外参数给中间件，可以使用</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">rule</span><span class="token punctuation">(</span><span class="token string">'hello/:name'</span><span class="token punctuation">,</span><span class="token string">'hello'</span><span class="token punctuation">)</span>
+	<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">middleware</span><span class="token punctuation">(</span>\app\middleware\Auth<span class="token punctuation">:</span><span class="token punctuation">:</span>class<span class="token punctuation">,</span><span class="token string">'admin'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>如果需要定义多个中间件，使用数组方式</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">rule</span><span class="token punctuation">(</span><span class="token string">'hello/:name'</span><span class="token punctuation">,</span><span class="token string">'hello'</span><span class="token punctuation">)</span>
+	<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">middleware</span><span class="token punctuation">(</span><span class="token punctuation">[</span>\app\middleware\Auth<span class="token punctuation">:</span><span class="token punctuation">:</span>class<span class="token punctuation">,</span>\app\middleware\Check<span class="token punctuation">:</span><span class="token punctuation">:</span>class<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>可以统一传入同一个额外参数</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">rule</span><span class="token punctuation">(</span><span class="token string">'hello/:name'</span><span class="token punctuation">,</span><span class="token string">'hello'</span><span class="token punctuation">)</span>
+	<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">middleware</span><span class="token punctuation">(</span><span class="token punctuation">[</span>\app\middleware\Auth<span class="token punctuation">:</span><span class="token punctuation">:</span>class<span class="token punctuation">,</span> \app\middleware\Check<span class="token punctuation">:</span><span class="token punctuation">:</span>class<span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token string">'admin'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>如果你希望某个路由中间件是全局执行（不管路由是否匹配），可以不需要在路由里面定义，支持直接在路由配置文件中定义，例如在<code>config/route.php</code>配置文件中添加：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'middleware'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span>    <span class="token punctuation">[</span>
+    app\middleware\Auth<span class="token punctuation">:</span><span class="token punctuation">:</span>class<span class="token punctuation">,</span>
+    app\middleware\Check<span class="token punctuation">:</span><span class="token punctuation">:</span>class<span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">,</span>
+</code></pre></div>
+<p>这样，所有该应用下的请求都会执行<code>Auth</code>和<code>Check</code>中间件。</p>
+<p>更多中间件的用法参考架构章节的<a href="1037493">中间件</a>内容。</p>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

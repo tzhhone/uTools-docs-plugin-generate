@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>更新日志</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s-1934796869"><h1><a id="_0"></a>版本更新日志</h1>
+<div class="markdown-toc"><ul><li><a href="#V6013LTS2022715_4"><code>V6.0.13LTS</code>（2022年7月15日）</a></li><li><a href="#V6012LTS2022121_22"><code>V6.0.12LTS</code>（2022年1月21日）</a></li><li><a href="#V6011LTS202215_41"><code>V6.0.11LTS</code>（2022年1月5日）</a></li><li><a href="#V6010LTS20211231_45"><code>V6.0.10LTS</code>（2021年12月31日）</a></li><li><a href="#V60920210722_79"><code>V6.0.9</code>（2021年07月22日）</a></li><li><a href="#V60820210426_98"><code>V6.0.8</code>（2021年04月26日）</a></li><li><a href="#V60720210125_109"><code>V6.0.7</code>（2021年01月25日）</a></li><li><a href="#V60620210111_119"><code>V6.0.6</code>（2021年01月11日）</a></li><li><a href="#V60520201027_138"><code>V6.0.5</code>（2020年10月27日）</a></li><li><a href="#V6042020928_147"><code>V6.0.4</code>（2020年9月28日）</a></li><li><a href="#V6032020625_182"><code>V6.0.3</code>（2020年6月25日）</a></li><li><a href="#V6022020113_219"><code>V6.0.2</code>（2020年1月13日）</a></li><li><a href="#V60120191224_235"><code>V6.0.1</code>（2019年12月24日）</a></li><li><a href="#V60020191024_279"><code>V6.0.0</code>（2019年10月24日）</a></li><li><a href="#RC520191013_310">RC5（2019年10月13日）</a></li><li><a href="#RC42019816_362">RC4（2019年8月16日）</a></li><li><a href="#RC3201963_503">RC3（2019年6月3日）</a></li><li><a href="#RC22019422_612">RC2（2019年4月22日）</a></li><li><a href="#RC12019214_632">RC1（2019年2月14日）</a></li></ul></div><h2><a id="V6013LTS2022715_4"></a><code>V6.0.13LTS</code>（2022年7月15日）</h2>
+<p>本版本主要更新如下：</p>
+<ul><li>改进Request类<code>filterValue</code>方法的兼容性</li><li>更新 prettify.js 为新的 cdn 地址</li><li>FIX:remember缓存读取问题修复</li><li>优化IDE支持</li><li>Redirect remember 支持完整url设置</li><li>调整路由初始化位置</li><li>Bugfix: 修复 PSR-7 Response 用法</li><li>Fix switchLangSet missing setLangSet (<a href="https://github.com/top-think/framework/pull/2705" target="_blank">#2705</a>)</li><li>兼容 PHP 8.1</li><li>Windows环境下文件访问地址不正确</li><li>修复传空值被忽略的情况</li><li>优化 IDE 支持，忽略 zend studio 的无关文件</li><li>增加 HEAD 路由支持，可以用来做健康检测 head /health</li></ul>
+<h2><a id="V6012LTS2022121_22"></a><code>V6.0.12LTS</code>（2022年1月21日）</h2>
+<p>本版本主要完善了命令行对<code>PHP8.1</code>的支持，并增加了路由的闭包检测机制。</p>
+<h3><a id="_25"></a>主要更新</h3>
+<ul><li>改进缓存驱动<code>unserialize</code>方法参数类型限制</li><li>优化代码使IDE友好</li><li>修正命令行对<code>PHP8.1</code>的兼容性</li><li>路由增加闭包检测有效性</li></ul>
+<h3><a id="ThinkORM_31"></a><code>ThinkORM</code>主要更新包括：</h3>
+<ul><li>完善sqlite驱动</li><li>修正Fetch类</li><li>改进多对多关联</li><li>添加数据写入对对象值的判断处理</li><li>改进一对一关联写入</li><li>一对一关联查询绑定属性调整</li><li>改进远程一对多关联查询</li><li>优化模型数据处理</li></ul>
+<h2><a id="V6011LTS202215_41"></a><code>V6.0.11LTS</code>（2022年1月5日）</h2>
+<ul><li>修正ENV读取问题</li></ul>
+<h2><a id="V6010LTS20211231_45"></a><code>V6.0.10LTS</code>（2021年12月31日）</h2>
+<p>本版本主要添加了<code>PHP8.1</code>的兼容支持，以及<code>ThinkORM</code>的大量改进。</p>
+<h3><a id="_49"></a>主要更新：</h3>
+<ul><li>兼容PHP8.1</li><li>改进cookie跨域删除</li><li>改进多语言自动加载</li><li>改进url生成</li><li>Filesystem 增加url方法 获取文件访问地址</li><li>文件上传错误支持多语言</li><li>修正 make:controller 指令错误</li><li>发送cookie前先检查请求头是否已发送</li><li>改进多文件上传的文件hashName冲突问题</li><li>调整thinkPath路径赋值为真实绝对路径 以避免特殊环境潜在隐患</li><li>支持 psr7 response</li><li>控制器中间件支持动态参数</li><li>改进env文件解析</li></ul>
+<h3><a id="ThinkORM_66"></a><code>ThinkORM</code>主要更新包括：</h3>
+<ul><li>修正column方法</li><li>Db和模型增加filter数据处理机制</li><li>调整json处理</li><li>修正sqlite驱动lock</li><li>获取数据库字段类型不区分大小写</li><li>修正json方法</li><li>修正多对多关联中间表数据</li><li>修正多对多模型</li><li>改进db类hidden visible append 方法处理机制</li><li>改进关联的软删除查询</li><li>完善获取sql时的字符转义</li></ul>
+<h2><a id="V60920210722_79"></a><code>V6.0.9</code>（2021年07月22日）</h2>
+<p>本版本主要添加了事件监听的通配符支持，并修正了框架的一处可能的序列化漏洞，同时对模型做了一些改进和优化。</p>
+<ul><li>更新<code>league/flysystem</code>版本</li><li>事件监听支持通配符</li><li>支持时间字段的统一配置</li><li>改进<code>Request</code>类<code>all</code>方法</li></ul>
+<blockquote class="danger"><p>由于<code>league/flysystem</code>低版本存在漏洞，官方进行了安全升级，该修正使得框架的PHP版本依赖也提升到<code>7.2+</code>。</p></blockquote>
+<p><code>ThinkORM</code>主要更新如下：</p>
+<ul><li>强化虚拟模型支持</li><li>改进模型事件和数据库事件</li><li>改进动态获取器处理</li><li>优化分页查询</li><li>改进聚合查询</li><li>关联增加<code>withoutField</code>方法</li><li>软删除<code>destroy</code>方法优化</li></ul>
+<h2><a id="V60820210426_98"></a><code>V6.0.8</code>（2021年04月26日）</h2>
+<p>本版本主要添加了多环境变量配置文件支持</p>
+<ul><li>增加<code>LogRecord</code>事件</li><li>消除<code>Validate</code>类某处类型声明警告</li><li>路由分组增加<code>dispatcher</code>方法，支持设置分组的调度</li><li><code>Request</code>类增加<code>all</code>方法支持获取包括<code>File</code>在内的所有参数</li><li>改进环境变量定义支持多<code>env</code>文件读取</li></ul>
+<h2><a id="V60720210125_109"></a><code>V6.0.7</code>（2021年01月25日）</h2>
+<p>本版本主要针对上个版本做了一些路由修正，还意外收获了一些性能提升，是一个建议更新的版本。</p>
+<ul><li>修正<code>Validate</code>类的PHP8兼容性</li><li>改进<code>redis</code>驱动的<code>append</code>方法</li><li>修正路由匹配检测问题</li><li>优化路由变量正则规则生成</li><li>改进<code>responseView</code>的内容渲染</li></ul>
+<h2><a id="V60620210111_119"></a><code>V6.0.6</code>（2021年01月11日）</h2>
+<p>本版本更新为兼容PHP8.0版本，并做了一些的改进和优化。</p>
+<ul><li>兼容<code>composer2</code>生成配置文件</li><li>优化<code>optimize:schema</code>指令</li><li>增加<code>socket-log</code> 的 curl 超时设置</li><li>修正路由匹配</li><li>增加兼容<code>PHP8</code>处理</li><li>增加汉字识别匹配范围 支持部分生僻字正则</li><li>改进响应文件请求时的缓冲清除</li><li>资源路由支持设置变量规则</li><li><code>$request-&gt;ip()</code> 方法兼容PHP8</li><li>修复验证器<code>in</code>、<code>between</code>方法,使用数组,功能异常</li><li>修正含有<code>__make</code>的类实例化后未执行<code>invokeAfter</code>的问题</li><li>修复命令行创建中间件命名空间无效 bug</li></ul>
+<h2><a id="V60520201027_138"></a><code>V6.0.5</code>（2020年10月27日）</h2>
+<p>本次更新为兼容Composer2.0做的特别更新版本，主要包含：</p>
+<ul><li>修正验证类append方法</li><li>改进缓存标签机制</li><li>改进闭包路由内使用request对象</li><li>改进文件缓存驱动</li></ul>
+<h2><a id="V6042020928_147"></a><code>V6.0.4</code>（2020年9月28日）</h2>
+<p>本次更新为常规更新，主要包含：</p>
+<h3><a id="_151"></a>新增</h3>
+<ul><li>[新增] 多语言支持解析<code>json</code>文件</li><li>[新增] 增加<code>app.url</code>配置 用于命令行下构建<code>request</code></li><li>[新增] 模型类增加<code>convertNameToCamel</code>属性，支持数据格式转为驼峰命名输出</li><li>[新增] <code>Relation</code>类增加<code>getForeignKey</code>和<code>getLocalKey</code>方法</li></ul>
+<h3><a id="_158"></a>修正</h3>
+<ul><li>[修正] 修复规则为空的bug</li><li>[修正] 修正请求缓存中间件</li><li>[修正] 改进验证的<code>append</code>方法处理造成多次验证的情况</li><li>[修正] 改进资源路由对路由到类的支持</li><li>[修正] 修正重定向路由的传参</li><li>[修正] 调整<code>http</code>初始化位置 防止容器绑定自身造成死循环</li><li>[修正] 改进Redis驱动<code>select</code>参数处理</li><li>[修正] 改进多对多关联查询</li></ul>
+<h3><a id="_169"></a>优化</h3>
+<ul><li>[优化] 优化<code>session</code>文件缓存 <code>path</code>获取</li><li>[优化] 改进路由参数检测</li><li>[优化] 改进路由参数获取和变量检查</li><li>[优化] 路由的请求缓存可以通过<code>request_cache_key</code>配置参数关闭 便于开发模式</li><li>[优化] 调整路由配置载入位置</li><li>[优化] 改进路由缓存指令 取消<code>opis/closure</code>依赖</li><li>[优化] 改进路由的额外参数检测</li><li>[优化] 改进<code>Config</code>类的<code>has</code>方法判断</li><li>[优化] 改进参数绑定对Null值的支持</li><li>[优化] 改进<code>when</code>条件查询的闭包处理</li><li>[优化] 改进一对一关联查询对<code>order</code>排序的支持</li></ul>
+<h2><a id="V6032020625_182"></a><code>V6.0.3</code>（2020年6月25日）</h2>
+<p>本次更新包含一个调试模式的系统信息安全隐患修正，建议更新。</p>
+<h3><a id="_186"></a>主要更新：</h3>
+<ul><li>异常提取<code>session</code>数据时先判断是否使用了<code>session</code></li><li>修正文件上传类</li><li>取消<code>Event</code>类<code>withEvent</code>方法</li><li><code>FileResponse</code>支持是否强制下载设置</li><li><code>Request</code>对象支持<code>ArrayAccess</code>接口</li><li>日志的时间记录增加微秒数据支持</li><li>调整 <code>Validate</code>场景执行优先级</li><li>优化App类<code>getDefaultRootPath</code>方法</li><li>修正全局中间件获取<code>param</code>参数的BUG</li><li>clear命令支持多层级目录</li><li>修正日志记录时区问题</li><li>修复助手函数<code>public_path</code></li><li>中间件支持多个参数</li><li>路由检测严格按照路由定义的顺序执行</li><li><code>FileResponse</code>增加是否强制下载文件选项</li><li>修复自定义命令别名比系统别名长导致报错问题</li><li>改进路由到视图的变量传递</li><li>允许路由到一个自定义调度类</li><li>完善路由单元测试</li><li>默认路由也支持自动<code>OPTIONS</code>请求</li><li>改进路由调度</li><li>改进host和port的获取支持代理</li><li><code>Request-&gt;port</code> 的返回类型转化</li><li>改进模型生成模板</li><li>简化默认异常页面信息显示</li><li>数据库支持设置缓存store</li><li>改进<code>optimize:schema</code>指令</li><li>为清理指令添加仅删除过期文件的选项</li><li>请求缓存增加预检缓存配置 默认有效期1800秒</li><li>支持<code>header</code>方式自动侦测多语言</li></ul>
+<h2><a id="V6022020113_219"></a><code>V6.0.2</code>（2020年1月13日）</h2>
+<p>本次更新包含一个可能的<code>Session</code>安全隐患修正，建议更新。</p>
+<h3><a id="_223"></a>主要更新：</h3>
+<ul><li>改进设置方法后缀后的操作名获取问题</li><li>修正<code>optimize:schema</code>指令</li><li>修正<code>Request</code>类<code>inputData</code>处理</li><li>改进中间件方法支持传多个参数</li><li>修正<code>sessionid</code>检查的一处隐患</li><li>完善对15位身份证号码的校验</li><li>增加远程多对多关联支持</li><li>增加<code>MongoDb</code>的事务支持（<code>mongodb</code>版本V4.0+）</li><li>改进<code>insertAll</code>的<code>replace</code>支持</li></ul>
+<h2><a id="V60120191224_235"></a><code>V6.0.1</code>（2019年12月24日）</h2>
+<h3><a id="_237"></a>主要更新：</h3>
+<ul><li>完善<code>Request::withInput</code></li><li>修正Content-Type获取途径</li><li>改进 SocketLog 驱动</li><li>修正 ClientArg 获取途径</li><li>修复FileResponse的cookie空对象异常</li><li>支持渲染完整的异常链信息</li><li>异常页面支持折叠调用堆栈信息</li><li>改进异常响应时内容的一致性</li><li>改进Error控制器对数字访问的支持</li><li>修正redirect助手函数</li><li>memcached delete 支持 timeout</li><li>修正redis驱动</li><li>改进memcache驱动</li><li>改进容器类<code>invokeMethod</code>方法</li><li>使用新的数组语法替代list</li><li>缓存默认的序列化方法改为serialize/unserialize</li><li>Add Cookie SameSite(PHP&gt;7.3)</li><li>扩展<code>Socket</code>驱动</li><li>修正异常页面的模板文件</li><li>事件监听去重</li><li>取消视图日志</li><li>修正验证jpg结尾的图片报错问题</li><li>改进Url生成</li><li>改进Url生成伪静态后缀设置false的情况</li><li>改进File类型session读取<code>gzcompress</code>问题</li><li>修复使用路由验证后路由变量丢失的问题</li><li>修正多应用下路由目录路径</li><li>修复 <code>expand_level</code>选项异常</li><li>改进Cache类<code>remember</code>方法对依赖注入的支持</li><li>防止因日志配置异常时陷入死循环</li><li>模型支持动态设置数据库连接</li><li>修正<code>column</code>方法的查询缓存问题</li><li>改进Query类的<code>getAutoInc</code>方法</li><li>改进模型更新条件获取</li><li>修正使用模型对象更改数据时忽略自定义的<code>suffix</code>和 <code>connection</code>参数</li><li>修正XA事务</li><li>规范<code>column</code>方法的查询</li></ul>
+<h2><a id="V60020191024_279"></a><code>V6.0.0</code>（2019年10月24日）</h2>
+<h3><a id="_281"></a>主要更新日志</h3>
+<ul><li>mobile 验证简化</li><li>控制器中间件支持传参</li><li>增强中间件CheckRequestCache的实用性</li><li>改进容器invokeClass方法异常处理</li><li>控制器中间件过滤条件支持字符串</li><li>改进Route类getDomainBind方法</li><li>防止路由标识生成URL时生成空字符串</li><li>让中间件CheckRequestCache只访问一次临界区</li><li>完善命中判断</li><li>修正Request::port返回类型</li><li>增强高并发下session_id生成的唯一性</li><li>取消路由缓存功能及相关指令</li><li>修正 Request::remotePort 返回类型</li><li>完善跨域中间件的响应头部</li><li>改进容器异常处理</li><li>改进生成文件模板</li><li>移除build指令纳入扩展</li><li>改进Response增加cookie方法用于设置Cookie</li><li>修正生成URL不传参数时，方法名为空</li><li>修复中间件CheckRequestCache使用过期数据</li><li>修复memcache驱动inc函数重复添加前缀问题</li><li>删除Resonse类setCookie方法</li><li>使用session_create_id生成id，保证唯一性</li><li>修复中间件FormTokenCheck无法启用问题</li><li>修正halt助手函数</li></ul>
+<h2><a id="RC520191013_310"></a>RC5（2019年10月13日）</h2>
+<p><code>RC5</code>版本主要改进包括多应用模式独立，以及中间件机制调整。</p>
+<h3><a id="_314"></a>主要新特性</h3>
+<ul><li>多应用模式独立为扩展</li><li>中间件分组执行</li><li>增加路由配置文件的全局中间件定义</li><li>中间件支持优先级定义</li><li>中间件支持请求结束回调</li><li>中间件执行去重</li><li>模板根目录免配置自动识别</li><li>改进智能事件订阅</li><li>页面Trace独立为扩展</li></ul>
+<h3><a id="_326"></a>更新日志</h3>
+<ul><li>修正request类isJson方法</li><li>提升swoole下多应用的性能</li><li>修正Cookie保存</li><li>改进字段缓存指令</li><li>修正路由正则生成</li><li>改进模板变量的全局赋值</li><li>改进filesystem</li><li>改进View 增加单元测试</li><li>修正php模板驱动</li><li>取消view_base配置，增加view_dir_name配置</li><li>完善Session及其单元测试</li><li>改进session助手函数支持获取所有数据</li><li>完善中间件及其单元测试</li><li>改进事件智能订阅</li><li>验证错误信息支持数组</li><li>改进多语言自动侦测</li><li>改进自动多语言</li><li>改进事件观察者支持事件前缀</li><li>去除Cache返回类型限制</li><li>多应用配置读取优先级调整</li><li>多应用路由改进</li><li>改进批量验证的错误信息返回</li><li>页面Trace中间件移除 改为扩展</li><li>改进session初始化中间件</li><li>修正默认URL访问</li><li>修正url生成对域名绑定的支持</li><li>改进中间件机制 全局、路由和控制器中间件分开</li></ul>
+<h3><a id="_356"></a>调整</h3>
+<ul><li>获取当前应用名改为<code>app('http')-&gt;getName()</code></li></ul>
+<h2><a id="RC42019816_362"></a>RC4（2019年8月16日）</h2>
+<p><code>RC4</code>版本主要改进包括<code>ORM</code>库独立，日志系统增加多通道支持，缓存、日志、数据库的配置文件统一调整为多通道模式，并作了大量的改进和修正。</p>
+<h3><a id="_366"></a>主要新特性</h3>
+<ul><li>数据库和模型改为独立的<code>think-orm</code>库</li><li>模型关联功能增强</li><li>日志支持多通道、并统一命令行和WEB日志格式</li><li>增加<code>Filesystem</code>组件</li><li>增加容器对象实例化回调机制</li><li>路由注解独立为<code>think-annotation</code>库</li><li>多应用模式下路由定义支持纳入应用目录</li></ul>
+<h3><a id="_377"></a>功能改进</h3>
+<ul><li>改进路由类的配置读取</li><li>改进<code>parseLike</code>查询</li><li>改进<code>ViewResponse</code>类增加内容渲染输出支持</li><li>增加<code>display</code>助手函数</li><li>验证类<code>maker</code>方法支持注入扩展验证规则</li><li>改进事件触发的对象传入</li><li>改进<code>Console/Table</code>类</li><li>改进关联定义对查询构造器的支持</li><li>关联类增加<code>withField</code>和<code>withLimit</code>方法，并取消<code>Query</code>类<code>withField</code>方法</li><li>增加延迟关联查询对<code>withLimit</code>的支持</li><li>改进模型<code>toArray</code>方法</li><li>改进Url生成的域名参数</li><li>改进 <code>make:command</code>指令生成</li><li>缓存有效期支持<code>DateInterval</code></li><li>改进Query类find方法</li><li>改进<code>json</code>查询</li><li>改进查询缓存</li><li>增加<code>filesystem</code>组件</li><li>改进跨域请求</li><li>改进路由检测缓存配置</li><li>改进注解路由的文件写入</li><li>路由注册支持注册<code>options</code>请求类型</li><li>改进重定向路由检测</li><li>改进模型的<code>hasWhere</code>方法对闭包查询条件的支持完善</li><li>增加<code>time_query_rule</code>数据库配置参数 用于自定义时间查询规则</li><li>改进时间字段类型的自动识别</li><li>改进<code>redis</code>驱动</li><li>容器对象增加<code>invoke</code>回调机制</li><li>改进多对多关联</li><li>资源路由增加<code>withModel</code>和<code>withValidate</code>对各个路由设置不同的模型绑定和验证</li><li>改进<code>getLastInsID</code>方法</li><li>日志类调整 支持多通道写入</li><li>改进模型输出</li><li>支持单独关闭某个通道的日志写入</li><li>取消部署模式下 不写入调试日志的功能 用调试级别设置单独的日志渠道来替代</li><li>改进日志记录格式</li><li>支持日志输出格式化</li><li>改进资源路由</li><li>改进命令行日志实时写入</li><li>日志通道支持单独设置level配置参数</li><li>Log类调整优化</li><li>增加<code>paginateX</code>查询用于大数据分页查询</li><li>数据集增加<code>first</code>和<code>last</code>方法</li><li>改进<code>response/View</code>类的<code>assign</code>方法</li><li>改进请求参数获取问题</li><li>改进<code>pathinfo</code>方法</li><li>增加一些路径助手函数</li><li>改进多级控制器访问</li><li>Log类支持<code>__call</code>方法</li><li>多应用模式的路由定义支持放入单独的应用目录</li><li>模型增加依赖注入支持</li><li>改进模型事件</li><li>改进页面<code>Trace</code>机制</li><li>改进<code>validate</code>助手函数,支持设置验证失败后是否抛出异常</li><li>改进容器<code>bind</code>方法</li><li>改进Redis Session驱动</li><li>改进日志记录的空行问题</li><li>改进<code>RedirectResponse</code></li><li>改进缓存驱动</li><li>改进<code>think optimize:schema</code> 指令</li><li>Url类增加https方法</li><li>改进<code>isPjax</code>判断</li><li>改进Db类配置获取</li></ul>
+<h3><a id="_445"></a>问题修正</h3>
+<ul><li>修正模型属性获取</li><li>修正Request类的过滤功能</li><li>修正<code>subDomain</code>方法</li><li>修正<code>input</code>助手函数</li><li>修正模型<code>refresh</code>方法</li><li>修正关联统计不使用子查询的方式</li><li>修正Request类<code>root</code>方法</li><li>修正缓存有效期处理</li><li>修正<code>MorphTo</code>关联</li><li>修正缓存标签</li><li>修正mysql驱动<code>insert</code>方法</li><li>修正Db类<code>connect</code>方法</li><li>修正<code>allowCrossDomain</code>方法</li><li>修正Query类<code>chunk</code>方法</li><li>修正分组跨域</li><li>修正关联预载入查询</li><li>修正时间字段写入</li><li>修正验证类<code>checkSize</code></li><li>修正多对多关联闭包</li><li>修正RuleName类<code>setRule</code>方法</li><li>修正<code>whereTime</code>查询</li><li>修正<code>request</code>助手函数</li><li>修正日志关闭配置</li><li>修复对多字节字符的兼容性</li></ul>
+<h3><a id="_474"></a>用法调整</h3>
+<ul><li>模型切换后缀方法<code>switch</code>更改为<code>suffix</code></li><li>取消Query类的<code>fetchArray</code>方法</li><li><code>select</code>查询方法默认返回数据集对象</li><li>取消<code>optimize:config</code>指令</li><li>调整数据库和缓存配置文件格式 默认采用多类型支持 方便切换</li><li>Cache类的<code>init</code>和<code>connect</code>方法取消 并入<code>store</code>方法</li><li><code>cache</code>助手函数调整</li><li><code>cache</code>助手函数取消初始化用法</li><li><code>cache</code>助手函数留空返回Cache对象</li><li>调整调试模式检测位置</li><li>默认时间字段类型改为<code>timestamp</code></li><li>取消Model类<code>getConnection</code>和<code>setConnection</code>方法</li><li>注解路由移出核心，注解相关功能使用<code>topthink/think-annotation</code></li><li>改进路由 取消<code>url_convert</code>配置参数</li><li>取消<code>route:build</code>指令</li><li>调整默认模板目录为根目录<code>view</code></li><li>取消默认的请求日志记录 在项目里面自己添加</li><li>统一<code>find</code>查询必须使用查询条件</li><li>扩展的service配置文件默认放到vendor目录下</li><li>废除<code>LogLevel</code>事件</li><li>取消App类的序列化方法</li><li>控制台的<code>user</code>配置改为通过静态方法设置当前执行用户</li></ul>
+<h2><a id="RC3201963_503"></a>RC3（2019年6月3日）</h2>
+<p>RC3版本主要改进和优化了系统内置中间件，改进了一些用法和体验，并且把不常用的驱动移出核心改为扩展方式提供。</p>
+<h3><a id="_508"></a>主要新特性</h3>
+<ul><li>增加<code>whereWeek</code>日期查询</li><li>自增ID获取支持类型自动转换</li><li>当前请求记录匹配路由规则</li><li>增加<code>requireWithout</code>验证规则</li><li>优化路由ext和name方法以及URL生成</li><li>增加项目自定义类</li><li>URL生成使用对象方式操作</li><li>修改器改进</li><li><code>dump</code>/<code>halt</code>助手函数调整支持输出多个变量</li><li>关联自动更新</li><li>模型数据集增加<code>delete</code>和<code>update</code>方法</li><li>模型支持表后缀以及动态切换</li><li>注解路由支持给某个路由指定所属分组</li><li>多语言支持分组定义</li><li>支持自定义加载语言文件</li><li>多语言定义支持YML格式</li><li>缓存标签改进</li><li>缓存类增加<code>push</code>方法</li><li>Cookie保存时间支持DateTimeInterface</li><li>增加表单令牌中间件</li><li>控制器支持__call方法</li><li>增加<code>deny_app_list</code>配置参数</li><li>控制器中间件only和except定义不区分大小写</li><li><code>app_map</code>支持指定泛应用映射</li></ul>
+<h3><a id="_535"></a>问题修正</h3>
+<ul><li>修正参数绑定的浮点型精度问题</li><li>修正软删除</li><li>修正模型的数据库连接</li><li>修正<code>RedirectResponse</code></li><li>修正Session类<code>flush</code>方法</li><li>修正JSON字段参数绑定</li><li>修正<code>make:controller</code>指令生成</li><li>修正Cache类的<code>get</code>方法默认值</li><li>修正域名绑定</li><li>修正关联模型的动态获取器</li><li>修正模型<code>dateFormat</code>属性方法</li><li>修正url生成对多入口的支持</li><li>修正ini配置文件格式的布尔值转换问题</li><li>修正路由延迟解析全局配置无效的问题</li><li>修正路由缓存问题</li><li>修正关联<code>update</code>操作</li><li>修正<code>Relation::$selfRelation</code>默认为<code>null</code>，导致<code>Relation::isSelfRelation()</code>方法报错</li><li>修正<code>redis</code>缓存驱动</li><li>修正事件智能订阅<code>observe</code>方法</li><li>修正模型字段定义对日期查询无效的问题</li><li>修正Console类<code>getNamespaces</code>方法</li><li>修正<code>where</code>查询方法传入Query对象的时候缺少<code>bind</code>数据的问题</li><li>修正request类<code>method</code>方法</li><li>修正<code>route:list</code>指令</li><li>修正<code>Collection</code>类<code>load</code>方法</li><li>修正<code>redis</code>驱动的端口类型</li><li>修正<code>session</code>数据序列化使用JSON处理的问题</li><li>修正分组路由合并解析</li><li>修正模型的<code>hidden</code>方法隐藏关联模型的问题</li><li>修正关联查询关联键为空的错误</li><li>修正返回204状态码的响应判断</li><li>修正<code>Request</code>类<code>has</code>方法对<code>env</code>和<code>session</code>的支持</li><li>修正<code>provider.php</code>文件无效问题</li><li>修正关联查询的部分问题</li><li>修正validate助手函数支持指定验证器类</li><li>修正验证类<code>getValidateType</code>方法</li><li>修正入口单独开启调试模式</li><li>修正加载Composer应用</li></ul>
+<h3><a id="_577"></a>用法调整</h3>
+<ul><li>页面trace中间件仅在调试模式有效</li><li><code>Socket</code>日志驱动移出核心</li><li><code>PostgreSQL</code>、<code>Sqlite</code>和<code>SqlServer</code>驱动移出核心<br>
+，改为扩展</li><li>取消内置<code>think\Controller</code>基类</li><li><code>Yaconf</code>支持移出核心 纳入扩展<code>think-yaconf</code></li><li>字段排除改为<code>withoutField</code>方法</li><li>取消<code>useGlobalScope</code>方法增加<code>withoutGlobalScope</code>方法</li><li>更改默认生成的中间件位置</li><li>加载默认语言包无需开启多语言中间件</li><li><code>Cookie</code>类恢复<code>get</code>和<code>has</code>方法支持</li><li><code>token</code>助手函数调整</li><li>全局请求缓存参数调整</li><li>统一中间件调用传参，不支持<code>:</code>分割传参</li><li>缓存数据统一进行序列化后存储</li><li>Cache类rm方法更改为delete方法</li><li>validate助手函数返回Validate对象实例，参数改变</li></ul>
+<h3><a id="_597"></a>废弃用法</h3>
+<ul><li>取消多语言的<code>auto_detect</code>配置</li><li>取消<code>session</code>类的<code>auto_start</code>配置参数和<code>boot</code>方法</li><li>废弃<code>Where</code>数组对象查询</li><li>取消模型事件观察者</li><li>取消<code>JumpResponse</code>及<code>success</code>/<code>error</code>/<code>result</code>等方法和助手函数</li><li>取消表达式查询解析扩展及<code>think\db\Expression</code>类</li><li>废弃模型自动完成功能，使用模型事件替代</li><li>取消<code>cookie</code>的<code>prefix</code>参数</li><li>取消一系列不推荐使用的助手函数</li><li>取消<code>optimize:facade</code><code>optimize:model</code>指令 改为扩展方式</li><li>取消命令行执行URL</li><li>删除<code>Config</code>类<code>__get</code> 和 <code>__isset</code> 方法</li></ul>
+<h2><a id="RC22019422_612"></a>RC2（2019年4月22日）</h2>
+<p>相比较<code>RC1</code>版本更新调整较大，主要更新如下：</p>
+<ul><li>底层架构针对协程做优化调整</li><li>增加WEB应用管理类<code>Http</code></li><li>增加应用初始化服务和服务注册机制</li><li>查询事件和模型事件使用事件系统接管</li><li><code>Session</code>类重构，不再使用PHP内置会话</li><li><code>Cookie</code>类仅支持设置和写入，不再支持读取</li><li>取消<code>Config</code>类的动态设置功能</li><li>部分核心功能中间件化（页面Trace、多语言、请求缓存和Session初始化）</li><li>取消惯例配置文件</li><li>增加驱动接口规范驱动开发</li><li>改进Db类和查询类</li><li>精简一些不必要的类库</li><li>改进路由注册</li><li>由于异常的需要<code>View</code>类改为内置，但默认仅支持原生PHP模板</li><li>大量细节改进和修正</li></ul>
+<h2><a id="RC12019214_632"></a>RC1（2019年2月14日）</h2>
+<ul><li>改进Url类<code>build</code>方法</li><li>修复获取当前页码数据类型</li><li>修正<code>parseKey</code>方法传入数值的情况</li><li>改进<code>optimize:config</code>指令对<code>declare</code>申明的支持</li><li>取消URL参数模式配置</li><li>增加<code>optimize:facade</code>指令用于生成<code>facade</code>类的方法注释</li><li>取消<code>Query</code>类的<code>extend</code>方法</li><li>原来的<code>Expression</code>类更改为<code>Raw</code>类</li><li>增加新的<code>Expression</code>类用于表达式查询扩展</li><li><code>Collection</code>类增加<code>whereLike</code>/<code>whereNotLike</code>/<code>whereIn</code>/<code>whereNotIn</code>/<code>whereBetween</code>/<code>whereNotBetween</code>等快捷方法</li><li>Query类的<code>raw</code>方法移动到Db类</li><li>取消<code>Request</code>类的<code>hook</code>方法</li><li>修正<code>Route::view</code>方法</li><li>优化模型获取器方法</li><li>多对多关联的<code>pivotDataName</code>方法更名为<code>name</code>方法</li><li>Query类增加<code>partition</code>/<code>duplicate</code>/<code>extra</code>方法</li><li>改进mysql驱动支持分区和<code>duplicate</code>以及额外参数</li><li>mysql驱动的<code>insert</code>方法改用更清晰的<code>insert set</code>语法</li><li>修正<code>Event</code>类<code>bind</code>属性定义</li><li>修正验证类的<code>append</code>一处bug</li><li>改进<code>Query</code>类<code>update</code>方法支持读取模型的更新条件</li><li>取消模型类的<code>getUpdateWhere</code>方法统一使用<code>getWhere</code>方法</li><li>改进query类的<code>fetchArray</code>方法处理</li><li>改进路由类取消<code>app</code>属性</li><li>增加<code>think\facade\RuleName</code>类</li><li>增加<code>whereFieldRaw</code>查询方法</li><li>改进自动多应用名称获取</li><li>App类增加<code>withEvent</code>方法支持关闭事件机制</li><li>改进<code>Dispatch</code>类对<code>var_dump</code>的支持</li><li>改进<code>hasMany</code>的<code>withCount</code>自关联</li><li>修正纯数字检测参数类型转换问题</li><li>修正<code>raw</code>助手函数</li><li><code>mysql</code>支持<code>find_in_set</code>查询</li><li>改进<code>url</code>方法对自动多应用的支持</li></ul>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

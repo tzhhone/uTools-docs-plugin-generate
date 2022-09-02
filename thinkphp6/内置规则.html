@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>内置规则</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s-1537225763"><p>系统内置了一些常用的验证规则，可以完成大部分场景的验证需求，包括：</p>
+<div class="markdown-toc"><ul><li><a href="#_6">格式验证类</a></li><li><a href="#_232">长度和区间验证类</a></li><li><a href="#_333">字段比较类</a></li><li><a href="#filter_403">filter验证</a></li><li><a href="#_409">正则验证</a></li><li><a href="#_444">上传验证</a></li><li><a href="#_466">其它验证</a></li></ul></div><blockquote class="danger"><p>验证规则严格区分大小写</p></blockquote>
+<h2><a id="_6"></a>格式验证类</h2>
+<p>格式验证类的验证规则如果在使用静态方法调用的时候需要加上<code>is</code>（以<code>number</code>验证为例，需要使用 <code>isNumber()</code>）。</p>
+<blockquote class="info"><h3><a id="require_10"></a>require</h3></blockquote>
+<p>验证某个字段必须，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'name'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'require'</span>
+</code></pre></div>
+<blockquote class="danger"><p>如果验证规则没有添加<code>require</code>就表示没有值的话不进行验证</p></blockquote>
+<blockquote class="danger"><p>由于<code>require</code>属于PHP保留字，所以在使用方法验证的时候必须使用<code>isRequire</code>或者<code>must</code>方法调用。</p></blockquote>
+<blockquote class="info"><h3><a id="number_20"></a>number</h3></blockquote>
+<p>验证某个字段的值是否为纯数字（采用<code>ctype_digit</code>验证，不包含负数和小数点），例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'num'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'number'</span>
+</code></pre></div>
+<blockquote class="info"><h3><a id="integer_27"></a>integer</h3></blockquote>
+<p>验证某个字段的值是否为整数（采用<code>filter_var</code>验证），例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'num'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'integer'</span>
+</code></pre></div>
+<blockquote class="info"><h3><a id="float_34"></a>float</h3></blockquote>
+<p>验证某个字段的值是否为浮点数字（采用<code>filter_var</code>验证），例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'num'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'float'</span>
+</code></pre></div>
+<blockquote class="info"><h3><a id="boolean__bool_41"></a>boolean 或者 bool</h3></blockquote>
+<p>验证某个字段的值是否为布尔值（采用<code>filter_var</code>验证），例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'num'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'boolean'</span>
+</code></pre></div>
+<blockquote class="info"><h3><a id="email_48"></a>email</h3></blockquote>
+<p>验证某个字段的值是否为email地址（采用<code>filter_var</code>验证），例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'email'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'email'</span>
+</code></pre></div>
+<blockquote class="info"><h3><a id="array_55"></a>array</h3></blockquote>
+<p>验证某个字段的值是否为数组，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'info'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'array'</span>
+</code></pre></div>
+<blockquote class="info"><h3><a id="accepted_62"></a>accepted</h3></blockquote>
+<p>验证某个字段是否为为 yes, on, 或是 1。这在确认"服务条款"是否同意时很有用，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'accept'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'accepted'</span>
+</code></pre></div>
+<blockquote class="info"><h3><a id="date_69"></a>date</h3></blockquote>
+<p>验证值是否为有效的日期，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'date'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'date'</span>
+</code></pre></div>
+<p>会对日期值进行<code>strtotime</code>后进行判断。</p>
+<blockquote class="info"><h3><a id="alpha_77"></a>alpha</h3></blockquote>
+<p>验证某个字段的值是否为纯字母，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'name'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'alpha'</span>
+</code></pre></div>
+<blockquote class="info"><h3><a id="alphaNum_84"></a>alphaNum</h3></blockquote>
+<p>验证某个字段的值是否为字母和数字，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'name'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'alphaNum'</span>
+</code></pre></div>
+<blockquote class="info"><h3><a id="alphaDash_91"></a>alphaDash</h3></blockquote>
+<p>验证某个字段的值是否为字母和数字，下划线<code>_</code>及破折号<code>-</code>，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'name'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'alphaDash'</span>
+</code></pre></div>
+<blockquote class="info"><h3><a id="chs_98"></a>chs</h3></blockquote>
+<p>验证某个字段的值只能是汉字，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'name'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'chs'</span>
+</code></pre></div>
+<blockquote class="info"><h3><a id="chsAlpha_105"></a>chsAlpha</h3></blockquote>
+<p>验证某个字段的值只能是汉字、字母，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'name'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'chsAlpha'</span>
+</code></pre></div>
+<blockquote class="info"><h3><a id="chsAlphaNum_112"></a>chsAlphaNum</h3></blockquote>
+<p>验证某个字段的值只能是汉字、字母和数字，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'name'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'chsAlphaNum'</span>
+</code></pre></div>
+<blockquote class="info"><h3><a id="chsDash_119"></a>chsDash</h3></blockquote>
+<p>验证某个字段的值只能是汉字、字母、数字和下划线_及破折号-，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'name'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'chsDash'</span>
+</code></pre></div>
+<blockquote class="info"><h3><a id="cntrl_126"></a>cntrl</h3></blockquote>
+<p>验证某个字段的值只能是控制字符（换行、缩进、空格），例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'name'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'cntrl'</span>
+</code></pre></div>
+<blockquote class="info"><h3><a id="graph_133"></a>graph</h3></blockquote>
+<p>验证某个字段的值只能是可打印字符（空格除外），例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'name'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'graph'</span>
+</code></pre></div>
+<blockquote class="info"><h3><a id="print_140"></a>print</h3></blockquote>
+<p>验证某个字段的值只能是可打印字符（包括空格），例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'name'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'print'</span>
+</code></pre></div>
+<blockquote class="info"><h3><a id="lower_147"></a>lower</h3></blockquote>
+<p>验证某个字段的值只能是小写字符，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'name'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'lower'</span>
+</code></pre></div>
+<blockquote class="info"><h3><a id="upper_154"></a>upper</h3></blockquote>
+<p>验证某个字段的值只能是大写字符，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'name'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'upper'</span>
+</code></pre></div>
+<blockquote class="info"><h3><a id="space_161"></a>space</h3></blockquote>
+<p>验证某个字段的值只能是空白字符（包括缩进，垂直制表符，换行符，回车和换页字符），例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'name'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'space'</span>
+</code></pre></div>
+<blockquote class="info"><h3><a id="xdigit_168"></a>xdigit</h3></blockquote>
+<p>验证某个字段的值只能是十六进制字符串，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'name'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'xdigit'</span>
+</code></pre></div>
+<blockquote class="info"><h3><a id="activeUrl_175"></a>activeUrl</h3></blockquote>
+<p>验证某个字段的值是否为有效的域名或者IP，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'host'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'activeUrl'</span>
+</code></pre></div>
+<blockquote class="info"><h3><a id="url_182"></a>url</h3></blockquote>
+<p>验证某个字段的值是否为有效的URL地址（采用<code>filter_var</code>验证），例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'url'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'url'</span>
+</code></pre></div>
+<blockquote class="info"><h3><a id="ip_189"></a>ip</h3></blockquote>
+<p>验证某个字段的值是否为有效的IP地址（采用<code>filter_var</code>验证），例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'ip'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'ip'</span>
+</code></pre></div>
+<p>支持验证ipv4和ipv6格式的IP地址。</p>
+<blockquote class="info"><h3><a id="dateFormatformat_197"></a>dateFormat:format</h3></blockquote>
+<p>验证某个字段的值是否为指定格式的日期，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'create_time'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'dateFormat:y-m-d'</span>
+</code></pre></div>
+<blockquote class="info"><h3><a id="mobile_204"></a>mobile</h3></blockquote>
+<p>验证某个字段的值是否为有效的手机，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'mobile'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'mobile'</span>
+</code></pre></div>
+<blockquote class="info"><h3><a id="idCard_211"></a>idCard</h3></blockquote>
+<p>验证某个字段的值是否为有效的身份证格式，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'id_card'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'idCard'</span>
+</code></pre></div>
+<blockquote class="info"><h3><a id="macAddr_218"></a>macAddr</h3></blockquote>
+<p>验证某个字段的值是否为有效的MAC地址，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'mac'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'macAddr'</span>
+</code></pre></div>
+<blockquote class="info"><h3><a id="zip_225"></a>zip</h3></blockquote>
+<p>验证某个字段的值是否为有效的邮政编码，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'zip'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'zip'</span>
+</code></pre></div>
+<h2><a id="_232"></a>长度和区间验证类</h2>
+<blockquote class="info"><h3><a id="in_234"></a>in</h3></blockquote>
+<p>验证某个字段的值是否在某个范围，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'num'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'in:1,2,3'</span>
+</code></pre></div>
+<blockquote class="info"><h3><a id="notIn_241"></a>notIn</h3></blockquote>
+<p>验证某个字段的值不在某个范围，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'num'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'notIn:1,2,3'</span>
+</code></pre></div>
+<blockquote class="info"><h3><a id="between_248"></a>between</h3></blockquote>
+<p>验证某个字段的值是否在某个区间，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'num'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'between:1,10'</span>
+</code></pre></div>
+<blockquote class="info"><h3><a id="notBetween_255"></a>notBetween</h3></blockquote>
+<p>验证某个字段的值不在某个范围，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'num'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'notBetween:1,10'</span>
+</code></pre></div>
+<blockquote class="info"><h3><a id="lengthnum1num2_262"></a>length:num1,num2</h3></blockquote>
+<p>验证某个字段的值的长度是否在某个范围，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'name'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'length:4,25'</span>
+</code></pre></div>
+<p>或者指定长度</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'name'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'length:4'</span>
+</code></pre></div>
+<blockquote class="default"><p>如果验证的数据是数组，则判断数组的长度。<br>
+如果验证的数据是File对象，则判断文件的大小。</p></blockquote>
+<blockquote class="info"><h3><a id="maxnumber_276"></a>max:number</h3></blockquote>
+<p>验证某个字段的值的最大长度，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'name'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'max:25'</span>
+</code></pre></div>
+<blockquote class="default"><p>如果验证的数据是数组，则判断数组的长度。<br>
+如果验证的数据是File对象，则判断文件的大小。</p></blockquote>
+<blockquote class="info"><h3><a id="minnumber_286"></a>min:number</h3></blockquote>
+<p>验证某个字段的值的最小长度，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'name'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'min:5'</span>
+</code></pre></div>
+<blockquote class="default"><p>如果验证的数据是数组，则判断数组的长度。<br>
+如果验证的数据是File对象，则判断文件的大小。</p></blockquote>
+<blockquote class="info"><h3><a id="after_296"></a>after:日期</h3></blockquote>
+<p>验证某个字段的值是否在某个日期之后，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'begin_time'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'after:2016-3-18'</span><span class="token punctuation">,</span>
+</code></pre></div>
+<blockquote class="info"><h3><a id="before_303"></a>before:日期</h3></blockquote>
+<p>验证某个字段的值是否在某个日期之前，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'end_time'</span>   <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'before:2016-10-01'</span><span class="token punctuation">,</span>
+</code></pre></div>
+<blockquote class="info"><h3><a id="expire_310"></a>expire:开始时间,结束时间</h3></blockquote>
+<p>验证当前操作（注意不是某个值）是否在某个有效日期之内，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'expire_time'</span>   <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'expire:2016-2-1,2016-10-01'</span><span class="token punctuation">,</span>
+</code></pre></div>
+<blockquote class="info"><h3><a id="allowIpallow1allow2_317"></a>allowIp:allow1,allow2,...</h3></blockquote>
+<p>验证当前请求的IP是否在某个范围，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'name'</span>   <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'allowIp:114.45.4.55'</span><span class="token punctuation">,</span>
+</code></pre></div>
+<p>该规则可以用于某个后台的访问权限，多个IP用逗号分隔</p>
+<blockquote class="info"><h3><a id="denyIpallow1allow2_325"></a>denyIp:allow1,allow2,...</h3></blockquote>
+<p>验证当前请求的IP是否禁止访问，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'name'</span>   <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'denyIp:114.45.4.55'</span><span class="token punctuation">,</span>
+</code></pre></div>
+<p>多个IP用逗号分隔</p>
+<h2><a id="_333"></a>字段比较类</h2>
+<blockquote class="info"><h3><a id="confirm_334"></a>confirm</h3></blockquote>
+<p>验证某个字段是否和另外一个字段的值一致，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'repassword'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'require|confirm:password'</span>
+</code></pre></div>
+<p>支持字段自动匹配验证规则，如<code>password</code>和<code>password_confirm</code>是自动相互验证的，只需要使用</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'password'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'require|confirm'</span>
+</code></pre></div>
+<p>会自动验证和<code>password_confirm</code>进行字段比较是否一致，反之亦然。</p>
+<blockquote class="info"><h3><a id="different_347"></a>different</h3></blockquote>
+<p>验证某个字段是否和另外一个字段的值不一致，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'name'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'require|different:account'</span>
+</code></pre></div>
+<blockquote class="info"><h3><a id="eq____same_354"></a>eq 或者 = 或者 same</h3></blockquote>
+<p>验证是否等于某个值，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'score'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'eq:100'</span>
+<span class="token string">'num'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'=:100'</span>
+<span class="token string">'num'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'same:100'</span>
+</code></pre></div>
+<blockquote class="info"><h3><a id="egt___363"></a>egt 或者 &gt;=</h3></blockquote>
+<p>验证是否大于等于某个值，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'score'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'egt:60'</span>
+<span class="token string">'num'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'&gt;=:100'</span>
+</code></pre></div>
+<blockquote class="info"><h3><a id="gt___371"></a>gt 或者 &gt;</h3></blockquote>
+<p>验证是否大于某个值，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'score'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'gt:60'</span>
+<span class="token string">'num'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'&gt;:100'</span>
+</code></pre></div>
+<blockquote class="info"><h3><a id="elt___379"></a>elt 或者 &lt;=</h3></blockquote>
+<p>验证是否小于等于某个值，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'score'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'elt:100'</span>
+<span class="token string">'num'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'&lt;=:100'</span>
+</code></pre></div>
+<blockquote class="info"><h3><a id="lt___387"></a>lt 或者 &lt;</h3></blockquote>
+<p>验证是否小于某个值，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'score'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'lt:100'</span>
+<span class="token string">'num'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'&lt;:100'</span>
+</code></pre></div>
+<blockquote class="info"><h3><a id="_395"></a>字段比较</h3></blockquote>
+<p>验证对比其他字段大小（数值大小对比），例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'price'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'lt:market_price'</span>
+<span class="token string">'price'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'&lt;:market_price'</span>
+</code></pre></div>
+<h2><a id="filter_403"></a>filter验证</h2>
+<p>支持使用<code>filter_var</code>进行验证，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'ip'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'filter:validate_ip'</span>
+</code></pre></div>
+<h2><a id="_409"></a>正则验证</h2>
+<p>支持直接使用正则验证，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'zip'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'\d{6}'</span><span class="token punctuation">,</span>
+<span class="token comment">// 或者</span>
+<span class="token string">'zip'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'regex:\d{6}'</span><span class="token punctuation">,</span>
+</code></pre></div>
+<p>如果你的正则表达式中包含有<code>|</code>符号的话，必须使用数组方式定义。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'accepted'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token punctuation">[</span><span class="token string">'regex'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'/^(yes|on|1)$/i'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+</code></pre></div>
+<p>也可以实现预定义正则表达式后直接调用，例如在验证器类中定义regex属性</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">namespace app\index\validate<span class="token punctuation">;</span>
+
+use think\Validate<span class="token punctuation">;</span>
+
+class <span class="token class-name">User</span> extends <span class="token class-name">Validate</span>
+<span class="token punctuation">{</span>
+    protected $regex <span class="token operator">=</span> <span class="token punctuation">[</span> <span class="token string">'zip'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'\d{6}'</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+    
+    protected $rule <span class="token operator">=</span> <span class="token punctuation">[</span>
+        <span class="token string">'name'</span>  <span class="token operator">=</span><span class="token operator">&gt;</span>  <span class="token string">'require|max:25'</span><span class="token punctuation">,</span>
+        <span class="token string">'email'</span> <span class="token operator">=</span><span class="token operator">&gt;</span>  <span class="token string">'email'</span><span class="token punctuation">,</span>
+    <span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>然后就可以使用</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'zip'</span>	<span class="token operator">=</span><span class="token operator">&gt;</span>	<span class="token string">'regex:zip'</span><span class="token punctuation">,</span>
+</code></pre></div>
+<h2><a id="_444"></a>上传验证</h2>
+<blockquote class="info"><h3><a id="file_446"></a>file</h3></blockquote>
+<p>验证是否是一个上传文件</p>
+<blockquote class="info"><h3><a id="imagewidthheighttype_450"></a>image:width,height,type</h3></blockquote>
+<p>验证是否是一个图像文件，width height和type都是可选，width和height必须同时定义。</p>
+<blockquote class="info"><h3><a id="fileExt_454"></a>fileExt:允许的文件后缀</h3></blockquote>
+<p>验证上传文件后缀</p>
+<blockquote class="info"><h3><a id="fileMime_458"></a>fileMime:允许的文件类型</h3></blockquote>
+<p>验证上传文件类型</p>
+<blockquote class="info"><h3><a id="fileSize_462"></a>fileSize:允许的文件字节大小</h3></blockquote>
+<p>验证上传文件大小</p>
+<h2><a id="_466"></a>其它验证</h2>
+<blockquote class="info"><h3><a id="token_468"></a>token:表单令牌名称</h3></blockquote>
+<p>表单令牌验证</p>
+<blockquote class="info"><h3><a id="uniquetablefieldexceptpk_472"></a>unique:table,field,except,pk</h3></blockquote>
+<p>验证当前请求的字段值是否为唯一的，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 表示验证name字段的值是否在user表（不包含前缀）中唯一</span>
+<span class="token string">'name'</span>   <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'unique:user'</span><span class="token punctuation">,</span>
+<span class="token comment">// 验证其他字段</span>
+<span class="token string">'name'</span>   <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'unique:user,account'</span><span class="token punctuation">,</span>
+<span class="token comment">// 排除某个主键值</span>
+<span class="token string">'name'</span>   <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'unique:user,account,10'</span><span class="token punctuation">,</span>
+<span class="token comment">// 指定某个主键值排除</span>
+<span class="token string">'name'</span>   <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'unique:user,account,10,user_id'</span><span class="token punctuation">,</span>
+</code></pre></div>
+<p>如果需要对复杂的条件验证唯一，可以使用下面的方式：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 多个字段验证唯一验证条件</span>
+<span class="token string">'name'</span>   <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'unique:user,status^account'</span><span class="token punctuation">,</span>
+<span class="token comment">// 复杂验证条件</span>
+<span class="token string">'name'</span>   <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'unique:user,status=1&amp;account='</span><span class="token punctuation">.</span>$data<span class="token punctuation">[</span><span class="token string">'account'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+</code></pre></div>
+<blockquote class="info"><h3><a id="requireIffieldvalue_493"></a>requireIf:field,value</h3></blockquote>
+<p>验证某个字段的值等于某个值的时候必须，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 当account的值等于1的时候 password必须</span>
+<span class="token string">'password'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'requireIf:account,1'</span>
+</code></pre></div>
+<blockquote class="info"><h3><a id="requireWithfield_501"></a>requireWith:field</h3></blockquote>
+<p>验证某个字段有值的时候必须，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 当account有值的时候password字段必须</span>
+<span class="token string">'password'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'requireWith:account'</span>
+</code></pre></div>
+<blockquote class="info"><h3><a id="requireWithoutfield_509"></a>requireWithout:field</h3></blockquote>
+<p>验证某个字段没有值的时候必须，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// mobile和phone必须输入一个</span>
+<span class="token string">'mobile'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'requireWithout:phone'</span><span class="token punctuation">,</span>
+<span class="token string">'phone'</span>  <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'requireWithout:mobile'</span>
+</code></pre></div>
+<blockquote class="info"><h3><a id="requireCallbackcallable_518"></a>requireCallback:callable</h3></blockquote>
+<p>验证当某个callable为真的时候字段必须，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 使用check_require方法检查是否需要验证age字段必须</span>
+<span class="token string">'age'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'requireCallback:check_require|number'</span>
+</code></pre></div>
+<p>用于检查是否需要验证的方法支持两个参数，第一个参数是当前字段的值，第二个参数则是所有的数据。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token keyword">function</span> <span class="token function">check_require</span><span class="token punctuation">(</span>$value<span class="token punctuation">,</span> $data<span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token function">empty</span><span class="token punctuation">(</span>$data<span class="token punctuation">[</span><span class="token string">'birthday'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+    	<span class="token keyword">return</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>只有check_require函数返回true的时候age字段是必须的，并且会进行后续的其它验证。</p>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

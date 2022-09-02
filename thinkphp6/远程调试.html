@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>远程调试</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s803203738"><p><code>ThinkPHP</code>提供了<code>Socket</code>日志驱动用于本地和远程调试。</p>
+<p>首先需要安装<code>think-socketlog</code>扩展</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">composer require topthink<span class="token operator">/</span>think<span class="token operator">-</span>socketlog
+</code></pre></div>
+<h2><a id="Socket_7"></a><code>Socket</code>调试</h2>
+<p>只需要在<code>log.php</code>配置文件中设置如下：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token keyword">return</span> <span class="token punctuation">[</span>
+    <span class="token string">'type'</span>                <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'SocketLog'</span><span class="token punctuation">,</span>
+    <span class="token string">'host'</span>                <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'slog.thinkphp.cn'</span><span class="token punctuation">,</span>
+    <span class="token comment">//日志强制记录到配置的client_id</span>
+    <span class="token string">'force_client_ids'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token comment">//限制允许读取日志的client_id</span>
+    <span class="token string">'allow_client_ids'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span>
+</code></pre></div>
+<blockquote class="default"><p>上面的host配置地址是官方提供的公用服务端，首先需要去<a href="http://slog.thinkphp.cn" target="_blank">申请client_id</a> 。</p></blockquote>
+<p>使用Chrome浏览器运行后，打开<code>审查元素-&gt;Console</code>，可以看到如下所示：<br><img src="https://box.kancloud.cn/70ece7a35e9c818533ae5f0252ebe1e9_878x131.png" alt=""></p>
+<p><code>SocketLog</code>通过<code>websocket</code>将调试日志打印到浏览器的<code>console</code>中。你还可以用它来分析开源程序，分析SQL性能，结合taint分析程序漏洞。</p>
+<h3><a id="Chrome_28"></a>安装Chrome插件</h3>
+<p><code>SocketLog</code>首先需要安装<code>chrome</code>插件，Chrome<a href="https://chrome.google.com/webstore/detail/socketlog/apkmbfpihjhongonfcgdagliaglghcod" target="_blank">插件安装页面</a> （需翻墙）</p>
+<h3><a id="_32"></a>使用方法</h3>
+<ul><li>首先，请在chrome浏览器上安装好插件。</li><li>安装服务端<code>npm install -g socketlog-server</code>&nbsp;, 运行命令&nbsp;<code>socketlog-server</code>&nbsp;即可启动服务。 将会在本地起一个websocket服务 ，监听端口是1229 。</li><li>如果想服务后台运行：&nbsp;<code>socketlog-server &gt; /dev/null &amp;</code></li></ul>
+<h3><a id="_38"></a>参数</h3>
+<ul><li><p><code>client_id</code>: 在chrome浏览器中，可以设置插件的<code>Client_ID</code> ，<strong>Client_ID</strong>是你任意指定的字符串。&nbsp;<br><img src="https://box.kancloud.cn/2016-05-20_573eb7a0a6855.png" alt=""></p></li><li><p>设置<code>client_id</code>后能实现以下功能：</p></li><li><p>1，配置<code>allow_client_ids</code> 配置项，让指定的浏览器才能获得日志，这样就可以把调试代码带上线。 普通用户访问不会触发调试，不会发送日志。 开发人员访问就能看的调试日志， 这样利于找线上bug。 <strong>Client_ID</strong> 建议设置为姓名拼音加上随机字符串，这样如果有员工离职可以将其对应的<code>client_id</code>从配置项<code>allow_client_ids</code>中移除。 <code>client_id</code>除了姓名拼音，加上随机字符串的目的，以防别人根据你公司员工姓名猜测出<code>client_id</code>,获取线上的调试日志。</p></li><li><p>设置<code>allow_client_ids</code>示例代码：</p><div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'allow_client_ids'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token punctuation">[</span><span class="token string">'thinkphp_zfH5NbLn'</span><span class="token punctuation">,</span><span class="token string">'luofei_DJq0z80H'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+</code></pre></div></li><li><p>2, 设置<code>force_client_ids</code>配置项，让后台脚本也能输出日志到chrome。 网站有可能用了队列，一些业务逻辑通过后台脚本处理， 如果后台脚本需要调试，你也可以将日志打印到浏览器的console中， 当然后台脚本不和浏览器接触，不知道当前触发程序的是哪个浏览器，所以我们需要强制将日志打印到指定<code>client_id</code>的浏览器上面。 我们在后台脚本中使用SocketLog时设置<code>force_client_ids</code> 配置项指定要强制输出浏览器的<code>client_id</code> 即可。</p></li></ul>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

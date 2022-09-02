@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>伪静态</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s-1761070700"><p>URL伪静态通常是为了满足更好的SEO效果，ThinkPHP支持伪静态URL设置，可以通过设置<code>url_html_suffix</code>参数随意在URL的最后增加你想要的静态后缀，而不会影响当前操作的正常执行。例如，我们在<code>route.php</code>中设置</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'url_html_suffix'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'shtml'</span>
+</code></pre></div>
+<p>的话，我们可以把下面的URL</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">http<span class="token punctuation">:</span><span class="token operator">/</span><span class="token operator">/</span>serverName<span class="token operator">/</span>blog<span class="token operator">/</span>read<span class="token operator">/</span>id<span class="token operator">/</span><span class="token number">1</span>
+</code></pre></div>
+<p>变成</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">http<span class="token punctuation">:</span><span class="token operator">/</span><span class="token operator">/</span>serverName<span class="token operator">/</span>blog<span class="token operator">/</span>read<span class="token operator">/</span>id<span class="token operator">/</span><span class="token number">1.</span>shtml
+</code></pre></div>
+<p>后者更具有静态页面的URL特征，但是具有和前面的URL相同的执行效果，并且不会影响原来参数的使用。</p>
+<p>默认情况下，伪静态的设置为<code>html</code>，如果我们设置伪静态后缀为空字符串，</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'url_html_suffix'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">''</span>
+</code></pre></div>
+<p>则支持所有的静态后缀访问，如果要获取当前的伪静态后缀，可以使用<code>Request</code>对象的<code>ext</code>方法。</p>
+<p>例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">http<span class="token punctuation">:</span><span class="token operator">/</span><span class="token operator">/</span>serverName<span class="token operator">/</span>blog<span class="token operator">/</span><span class="token number">3.</span>html
+http<span class="token punctuation">:</span><span class="token operator">/</span><span class="token operator">/</span>serverName<span class="token operator">/</span>blog<span class="token operator">/</span><span class="token number">3.</span>shtml
+http<span class="token punctuation">:</span><span class="token operator">/</span><span class="token operator">/</span>serverName<span class="token operator">/</span>blog<span class="token operator">/</span><span class="token number">3.</span>xml
+http<span class="token punctuation">:</span><span class="token operator">/</span><span class="token operator">/</span>serverName<span class="token operator">/</span>blog<span class="token operator">/</span><span class="token number">3.</span>pdf
+</code></pre></div>
+<p>都可以正常访问。</p>
+<p>我们可以在控制器的操作方法中获取当前访问的伪静态后缀，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$ext <span class="token operator">=</span> Request<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">ext</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>如果希望支持多个伪静态后缀，可以直接设置如下：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 多个伪静态后缀设置 用|分割</span>
+<span class="token string">'url_html_suffix'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'html|shtml|xml'</span>
+</code></pre></div>
+<p>那么，当访问 <code>http://serverName/blog/3.pdf</code> 的时候会报系统错误。</p>
+<p>如果要关闭伪静态访问，可以设置</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 关闭伪静态后缀访问</span>
+<span class="token string">'url_html_suffix'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+</code></pre></div>
+<p>关闭伪静态访问后，不再支持伪静态方式的URL访问，并且伪静态后缀将会被解析为最后一个参数的值，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">http<span class="token punctuation">:</span><span class="token operator">/</span><span class="token operator">/</span>serverName<span class="token operator">/</span>blog<span class="token operator">/</span>read<span class="token operator">/</span>id<span class="token operator">/</span><span class="token number">3.</span>html
+</code></pre></div>
+<p>最终的id参数的值将会变成 <code>3.html</code>。</p>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

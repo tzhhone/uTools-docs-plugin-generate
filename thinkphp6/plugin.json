@@ -1,0 +1,16 @@
+{
+    "version": "1.0.1",
+    "pluginName": "thinkphp6 文档",
+    "description": "thinkphp6 文档速查",
+    "author": "tzhhone",
+    "homepage": "https://blog.tzhhone.cn",
+    "preload": "preload.js",
+    "logo": "logo.png",
+    "features": [
+        {
+            "code": "thinkphp6",
+            "explain": "thinkphp6 文档速查",
+            "cmds": ["thinkphp","tp"]
+         }
+    ]
+}

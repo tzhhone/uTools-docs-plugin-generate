@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>创建类库文件</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s862884555"><h2><a id="_0"></a>快速生成控制器</h2>
+<p>执行下面的指令可以生成<code>index</code>应用的<code>Blog</code>控制器类库文件</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&gt;</span>php think make<span class="token punctuation">:</span>controller index@Blog
+</code></pre></div>
+<p>如果是单应用模式，则无需传入应用名</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&gt;</span>php think make<span class="token punctuation">:</span>controller Blog
+</code></pre></div>
+<p>默认生成的是一个资源控制器，类文件如下：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+
+namespace app\index\controller<span class="token punctuation">;</span>
+use think\Controller<span class="token punctuation">;</span>
+use think\Request<span class="token punctuation">;</span>
+
+class <span class="token class-name">Blog</span>
+<span class="token punctuation">{</span>
+    <span class="token comment">/**
+     * 显示资源列表
+     *
+     * @return \think\Response
+     */</span>
+    public <span class="token keyword">function</span> <span class="token function">index</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token comment">//</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">/**
+     * 显示创建资源表单页.
+     *
+     * @return \think\Response
+     */</span>
+    public <span class="token keyword">function</span> <span class="token function">create</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token comment">//</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">/**
+     * 保存新建的资源
+     *
+     * @param  \think\Request  $request
+     * @return \think\Response
+     */</span>
+    public <span class="token keyword">function</span> <span class="token function">save</span><span class="token punctuation">(</span>Request $request<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token comment">//</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">/**
+     * 显示指定的资源
+     *
+     * @param  int  $id
+     * @return \think\Response
+     */</span>
+    public <span class="token keyword">function</span> <span class="token function">read</span><span class="token punctuation">(</span>$id<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token comment">//</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">/**
+     * 显示编辑资源表单页.
+     *
+     * @param  int  $id
+     * @return \think\Response
+     */</span>
+    public <span class="token keyword">function</span> <span class="token function">edit</span><span class="token punctuation">(</span>$id<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token comment">//</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">/**
+     * 保存更新的资源
+     *
+     * @param  \think\Request  $request
+     * @param  int  $id
+     * @return \think\Response
+     */</span>
+    public <span class="token keyword">function</span> <span class="token function">update</span><span class="token punctuation">(</span>Request $request<span class="token punctuation">,</span> $id<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token comment">//</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">/**
+     * 删除指定资源
+     *
+     * @param  int  $id
+     * @return \think\Response
+     */</span>
+    public <span class="token keyword">function</span> <span class="token function">delete</span><span class="token punctuation">(</span>$id<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token comment">//</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>默认生成的控制器类生成了资源操作方法，如果仅仅生成空的控制器则可以使用：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&gt;</span>php think make<span class="token punctuation">:</span>controller index@Blog <span class="token operator">--</span>plain
+</code></pre></div>
+<p>生成的控制器类文件如下：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+
+namespace app\index\controller<span class="token punctuation">;</span>
+
+
+class <span class="token class-name">Blog</span>
+<span class="token punctuation">{</span>
+    <span class="token comment">//</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>如果需要生成多级控制器，可以使用</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&gt;</span>php think make<span class="token punctuation">:</span>controller index@test<span class="token operator">/</span>Blog <span class="token operator">--</span>plain
+</code></pre></div>
+<p>会生成一个 <code>app\index\controller\test\Blog</code> 控制器类。</p>
+<p>可以支持 --api 参数生成用于API接口的资源控制器。</p>
+<h2><a id="_128"></a>快速生成模型</h2>
+<p>和生成控制器类似，执行下面的指令可以生成<code>index</code>应用的<code>Blog</code>模型类库文件</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&gt;</span>php think make<span class="token punctuation">:</span>model index@Blog
+</code></pre></div>
+<p>如果是单应用模式，无需传入应用名</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&gt;</span>php think make<span class="token punctuation">:</span>model Blog
+</code></pre></div>
+<p>生成的模型类文件如下：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\index\model<span class="token punctuation">;</span>
+
+use think\Model<span class="token punctuation">;</span>
+
+class <span class="token class-name">Blog</span> extends <span class="token class-name">Model</span>
+<span class="token punctuation">{</span>
+    <span class="token comment">//</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<h2><a id="_154"></a>生成带后缀的类库</h2>
+<p>如果要生成带后缀的类库，可以直接使用：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&gt;</span>php think make<span class="token punctuation">:</span>controller index@BlogController
+</code></pre></div>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&gt;</span>php think make<span class="token punctuation">:</span>model BlogModel
+</code></pre></div>
+<h2><a id="_166"></a>快速生成中间件</h2>
+<p>可以使用下面的指令生成一个中间件类。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&gt;</span>php think make<span class="token punctuation">:</span>middleware Auth
+</code></pre></div>
+<p>会自动生成一个 <code>app\middleware\Auth</code>类文件。</p>
+<h2><a id="_176"></a>创建验证器类</h2>
+<p>可以使用</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&gt;</span>php think make<span class="token punctuation">:</span>validate index@User
+</code></pre></div>
+<p>生成一个 <code>app\index\validate\User</code> 验证器类，然后添加自己的验证规则和错误信息。</p>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

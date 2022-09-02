@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>模板引擎</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s363377927"><h2><a id="thinkTemplate_0"></a>使用<code>thinkTemplate</code>模板引擎</h2>
+<p>新版框架默认只能支持PHP原生模板，如果需要使用<code>thinkTemplate</code>模板引擎，需要安装<code>think-view</code>扩展（该扩展会自动安装<code>think-template</code>依赖库）。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">composer require topthink<span class="token operator">/</span>think<span class="token operator">-</span>view
+</code></pre></div>
+<h3><a id="_8"></a>配置文件</h3>
+<p>安装完成后，在配置目录的<code>view.php</code>文件中进行模板引擎相关参数的配置，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token keyword">return</span> <span class="token punctuation">[</span>
+    <span class="token comment">// 模板引擎类型</span>
+    <span class="token string">'type'</span>         <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'Think'</span><span class="token punctuation">,</span>
+    <span class="token comment">// 模板路径</span>
+    <span class="token string">'view_path'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'./template/'</span><span class="token punctuation">,</span>
+    <span class="token comment">// 模板后缀</span>
+    <span class="token string">'view_suffix'</span>  <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'html'</span><span class="token punctuation">,</span>
+    <span class="token comment">// 模板文件名分隔符</span>
+    <span class="token string">'view_depr'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'/'</span><span class="token punctuation">,</span>
+    <span class="token comment">// 模板引擎普通标签开始标记</span>
+    <span class="token string">'tpl_begin'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'{'</span><span class="token punctuation">,</span>
+    <span class="token comment">// 模板引擎普通标签结束标记</span>
+    <span class="token string">'tpl_end'</span>      <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'}'</span><span class="token punctuation">,</span>
+    <span class="token comment">// 标签库标签开始标记</span>
+    <span class="token string">'taglib_begin'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'{'</span><span class="token punctuation">,</span>
+    <span class="token comment">// 标签库标签结束标记</span>
+    <span class="token string">'taglib_end'</span>   <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'}'</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h3><a id="engine_32"></a>调用<code>engine</code>方法初始化</h3>
+<p>视图类也提供了<code>engine</code>方法对模板解析引擎进行初始化或者切换不同的模板引擎，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\index\controller<span class="token punctuation">;</span>
+
+use think\facade\View<span class="token punctuation">;</span>
+
+class <span class="token class-name">Index</span>
+<span class="token punctuation">{</span>
+    public <span class="token keyword">function</span> <span class="token function">index</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token comment">// 使用内置PHP模板引擎渲染模板输出</span>
+        <span class="token keyword">return</span> View<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">engine</span><span class="token punctuation">(</span><span class="token string">'php'</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">fetch</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>表示当前视图的模板文件使用原生php进行解析。</p>
+<blockquote class="danger"><p>如果你需要动态改变模板引擎的参数，请使用视图类提供的<code>config</code>方法进行动态设置，而不要使用改变配置类参数的方式。</p></blockquote>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\index\controller<span class="token punctuation">;</span>
+
+use think\facade\View<span class="token punctuation">;</span>
+
+class <span class="token class-name">Index</span> 
+<span class="token punctuation">{</span>
+    public <span class="token keyword">function</span> <span class="token function">index</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token comment">// 改变当前操作的模板路径</span>
+        View<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">config</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'view_path'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'mypath'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> View<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">fetch</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>关于模板引擎的标签用法，可以<a href="https://www.kancloud.cn/manual/think-template/content" target="_blank">参考这里</a>。</p>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

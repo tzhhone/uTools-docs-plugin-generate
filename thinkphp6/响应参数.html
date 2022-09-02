@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>响应参数</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s887911250"><p><code>Response</code>对象提供了一系列方法用于设置响应参数，包括设置输出内容、状态码及<code>header</code>信息等，并且支持链式调用以及多次调用。</p>
+<h2><a id="_2"></a>设置数据</h2>
+<p><code>Response</code>基类提供了<code>data</code>方法用于设置响应数据。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token function">response</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">data</span><span class="token punctuation">(</span>$data<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">json</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">data</span><span class="token punctuation">(</span>$data<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>不过需要注意的是<code>data</code>方法设置的只是原始数据，并不一定是最终的输出数据，最终的响应输出数据是会根据当前的<code>Response</code>响应类型做自动转换的，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token function">json</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">data</span><span class="token punctuation">(</span>$data<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>最终的输出数据就是<code>json_encode($data)</code>转换后的数据。</p>
+<blockquote class="default"><p>如果要获取当前响应对象实例的实际输出数据可以使用<code>getContent</code>方法。</p></blockquote>
+<h2><a id="_21"></a>设置状态码</h2>
+<p><code>Response</code>基类提供了<code>code</code>方法用于设置响应数据，但大部分情况一般我们是直接在调用助手函数的时候直接传入状态码，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token function">json</span><span class="token punctuation">(</span>$data<span class="token punctuation">,</span><span class="token number">201</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">view</span><span class="token punctuation">(</span>$data<span class="token punctuation">,</span><span class="token number">401</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>或者在后面链式调用<code>code</code>方法是等效的：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token function">json</span><span class="token punctuation">(</span>$data<span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">code</span><span class="token punctuation">(</span><span class="token number">201</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<blockquote class="info"><p>除了<code>redirect</code>函数的默认返回状态码是<code>302</code>之外，其它方法没有指定状态码都是返回<code>200</code>状态码。</p></blockquote>
+<p>如果要获取当前响应对象实例的状态码的值，可以使用<code>getCode</code>方法。</p>
+<h2><a id="_40"></a>设置头信息</h2>
+<p>可以使用<code>Response</code>类的<code>header</code>设置响应的头信息</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token function">json</span><span class="token punctuation">(</span>$data<span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">code</span><span class="token punctuation">(</span><span class="token number">201</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">header</span><span class="token punctuation">(</span><span class="token punctuation">[</span>
+    <span class="token string">'Cache-control'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'no-cache,must-revalidate'</span>
+<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>除了<code>header</code>方法之外，<code>Response</code>基类还提供了常用头信息的快捷设置方法：</p>
+<table><thead><tr><th>方法名</th><th>作用</th></tr></thead><tbody><tr><td><code>lastModified</code></td><td>设置<code>Last-Modified</code>头信息</td></tr><tr><td><code>expires</code></td><td>设置<code>Expires</code>头信息</td></tr><tr><td><code>eTag</code></td><td>设置<code>ETag</code>头信息</td></tr><tr><td><code>cacheControl</code></td><td>设置<code>Cache-control</code>头信息</td></tr><tr><td><code>contentType</code></td><td>设置<code>Content-Type</code>头信息</td></tr></tbody></table>
+<p>除非你要清楚自己在做什么，否则不要随便更改这些头信息，每个<code>Response</code>子类都有默认的<code>contentType</code>信息，一般无需设置。</p>
+<p>你可以使用<code>getHeader</code>方法获取当前响应对象实例的头信息。</p>
+<h2><a id="Cookie_64"></a>写入Cookie</h2>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token function">response</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">cookie</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">,</span> <span class="token string">'value'</span><span class="token punctuation">,</span> <span class="token number">600</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h2><a id="_70"></a>设置额外参数</h2>
+<p>有些时候，响应输出需要设置一些额外的参数，例如：<br>
+在进行<code>json</code>输出的时候需要设置<code>json_encode</code>方法的额外参数，<code>jsonp</code>输出的时候需要设置<code>jsonp_handler</code>等参数，这些都可以使用<code>options</code>方法来进行处理，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token function">jsonp</span><span class="token punctuation">(</span>$data<span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">options</span><span class="token punctuation">(</span><span class="token punctuation">[</span>
+    <span class="token string">'var_jsonp_handler'</span>     <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'callback'</span><span class="token punctuation">,</span>
+    <span class="token string">'default_jsonp_handler'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'jsonpReturn'</span><span class="token punctuation">,</span>
+    <span class="token string">'json_encode_param'</span>     <span class="token operator">=</span><span class="token operator">&gt;</span> JSON_PRETTY_PRINT<span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h2><a id="_83"></a>关闭当前的请求缓存</h2>
+<p>支持使用<code>allowCache</code>方法动态控制是否需要使用请求缓存。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 关闭当前页面的请求缓存</span>
+<span class="token function">json</span><span class="token punctuation">(</span>$data<span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">code</span><span class="token punctuation">(</span><span class="token number">201</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">allowCache</span><span class="token punctuation">(</span><span class="token boolean">false</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h2><a id="_92"></a>自定义响应</h2>
+<p>如果需要特别的自定义响应输出，可以自定义一个<code>Response</code>子类，并且在控制器的操作方法中直接返回。又或者通过设置响应参数的方式进行响应设置输出。</p>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

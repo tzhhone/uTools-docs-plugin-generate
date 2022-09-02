@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>think助手工具库</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s-620127519"><h3><a id="_0"></a>常用的一些扩展类库</h3>
+<p>目前已有字符串操作,数组操作.</p>
+<p>安装</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">composer require topthink<span class="token operator">/</span>think<span class="token operator">-</span>helper
+</code></pre></div>
+<blockquote class="default"><p>更新完善中</p></blockquote>
+<blockquote class="default"><p>以下类库都在<code>\think\helper</code>命名空间下</p></blockquote>
+<h2><a id="Str_13"></a>Str</h2>
+<blockquote class="default"><p>字符串操作</p></blockquote>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">use think\\helper\\Str<span class="token punctuation">;</span>
+
+<span class="token comment">// 检查字符串中是否包含某些字符串</span>
+Str<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">contains</span><span class="token punctuation">(</span>$haystack<span class="token punctuation">,</span> $needles<span class="token punctuation">)</span>
+
+<span class="token comment">// 检查字符串是否以某些字符串结尾</span>
+Str<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">endsWith</span><span class="token punctuation">(</span>$haystack<span class="token punctuation">,</span> $needles<span class="token punctuation">)</span>
+
+<span class="token comment">// 获取指定长度的随机字母数字组合的字符串</span>
+Str<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">random</span><span class="token punctuation">(</span>$length <span class="token operator">=</span> <span class="token number">16</span><span class="token punctuation">)</span>
+
+<span class="token comment">// 字符串转小写</span>
+Str<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">lower</span><span class="token punctuation">(</span>$value<span class="token punctuation">)</span>
+
+<span class="token comment">// 字符串转大写</span>
+Str<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">upper</span><span class="token punctuation">(</span>$value<span class="token punctuation">)</span>
+
+<span class="token comment">// 获取字符串的长度</span>
+Str<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">length</span><span class="token punctuation">(</span>$value<span class="token punctuation">)</span>
+
+<span class="token comment">// 截取字符串</span>
+Str<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">substr</span><span class="token punctuation">(</span>$string<span class="token punctuation">,</span> $start<span class="token punctuation">,</span> $length <span class="token operator">=</span> <span class="token keyword">null</span><span class="token punctuation">)</span>
+
+<span class="token comment">//驼峰转下划线</span>
+Str<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">snake</span><span class="token punctuation">(</span>$value<span class="token punctuation">,</span> $delimiter  <span class="token operator">=</span>  <span class="token string">'_'</span><span class="token punctuation">)</span>
+
+<span class="token comment">//下划线转驼峰(首字母小写)</span>
+Str<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">camel</span><span class="token punctuation">(</span>$value<span class="token punctuation">)</span>
+
+<span class="token comment">//下划线转驼峰(首字母大写)</span>
+Str<span class="token punctuation">:</span><span class="token punctuation">:</span>studly
+
+<span class="token comment">//转为首字母大写的标题格式</span>
+Str<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">title</span><span class="token punctuation">(</span>$value<span class="token punctuation">)</span>
+</code></pre></div>
+<h2><a id="Arr_54"></a>Arr</h2>
+<blockquote class="default"><p>数组操作</p></blockquote>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">use think\\helper\\Arr<span class="token punctuation">;</span>
+</code></pre></div>
+<h4><a id="_60"></a>判断能否当做数组一样访问</h4>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">//数组返回真</span>
+<span class="token comment">//模型查询的结果也为真</span>
+Arr<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">accessible</span><span class="token punctuation">(</span>$value<span class="token punctuation">)</span>
+</code></pre></div>
+<h4><a id="_67"></a>向数组添加一个元素,支持"点"分割</h4>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Arr<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">add</span><span class="token punctuation">(</span>$array<span class="token punctuation">,</span> $key<span class="token punctuation">,</span> $value<span class="token punctuation">)</span>
+<span class="token comment">//如下操作</span>
+$arr  <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+$arr <span class="token operator">=</span> Arr<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">add</span><span class="token punctuation">(</span>$arr<span class="token punctuation">,</span><span class="token string">'name.3.ss'</span><span class="token punctuation">,</span><span class="token string">'thinkphp'</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">//本行结果$arr['name'][3]['ss'] = 'thinkphp'</span>
+Arr<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">add</span><span class="token punctuation">(</span>$arr<span class="token punctuation">,</span><span class="token string">'name'</span><span class="token punctuation">,</span><span class="token string">'thinkphp2'</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//本行不会产生影响,因为'name'已存在.</span>
+</code></pre></div>
+<h4><a id="_75"></a>将数据集管理类转换为数组</h4>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Arr<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">collapse</span><span class="token punctuation">(</span>$array<span class="token punctuation">)</span>
+</code></pre></div>
+<h4><a id="_80"></a>排列数组组合</h4>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$arr  <span class="token operator">=</span>  Arr<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">crossJoin</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'dd'</span><span class="token punctuation">]</span><span class="token punctuation">,</span><span class="token punctuation">[</span><span class="token string">'ff'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'gg'</span><span class="token punctuation">]</span><span class="token punctuation">,</span><span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">,</span><span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token string">'a'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'mm'</span><span class="token punctuation">,</span><span class="token string">'kk'</span><span class="token punctuation">]</span><span class="token punctuation">,</span><span class="token string">'5'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">//上面行没有什么意义,但是可以看到该函数的作用,数组索引被忽略,数组得值被全部组合</span>
+$arr  <span class="token operator">=</span>  Arr<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">crossJoin</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'a'</span><span class="token punctuation">,</span><span class="token string">'b'</span><span class="token punctuation">,</span><span class="token string">'c'</span><span class="token punctuation">]</span><span class="token punctuation">,</span><span class="token punctuation">[</span><span class="token string">'aa'</span><span class="token punctuation">,</span><span class="token string">'bb'</span><span class="token punctuation">,</span><span class="token string">'cc'</span><span class="token punctuation">,</span><span class="token string">'dd'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">//这一行可以看到组合的效果,返回一个二维数组,第二维每个数组是的给定值排列,比如(a,aa),(a,bb),(a,cc)...直到(c,dd)</span>
+</code></pre></div>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

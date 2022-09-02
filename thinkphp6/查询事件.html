@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>查询事件</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s1587985954"><h2><a id="_0"></a>查询事件</h2>
+<p>数据库操作的回调也称为查询事件，是针对数据库的CURD操作而设计的回调方法，主要包括：</p>
+<table><thead><tr><th>事件</th><th>描述</th></tr></thead><tbody><tr><td>before_select</td><td><code>select</code>查询前回调</td></tr><tr><td>before_find</td><td><code>find</code>查询前回调</td></tr><tr><td>after_insert</td><td><code>insert</code>操作成功后回调</td></tr><tr><td>after_update</td><td><code>update</code>操作成功后回调</td></tr><tr><td>after_delete</td><td><code>delete</code>操作成功后回调</td></tr></tbody></table>
+<p>使用下面的方法注册数据库查询事件</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">\think\facade\Db<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">event</span><span class="token punctuation">(</span><span class="token string">'before_select'</span><span class="token punctuation">,</span> <span class="token keyword">function</span> <span class="token punctuation">(</span>$query<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// 事件处理</span>
+    <span class="token comment">// 在这里可以对$query进行操作</span>
+    $query<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">where</span><span class="token punctuation">(</span><span class="token string">'site_id'</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">order</span><span class="token punctuation">(</span><span class="token string">'update_time desc'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    
+    $model <span class="token operator">=</span> $query<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">getModel</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>        <span class="token comment">// 实例化的模型对象,可以给模型自定义一些属性,在这里读取,相当于传参.</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<blockquote class="default"><p>不需要在事件中返回任何东西,不要在事件中进行select操作</p></blockquote>
+<p>同一个查询事件可以注册多个响应执行。查询事件在新版里面也已经被事件系统接管了，因此如果你注册了一个<code>before_select</code>查询事件监听，底层其实是向标识为<code>db.before_select</code>的事件注册了一个监听。</p>
+<blockquote class="danger"><p>查询事件的方法参数只有一个：当前的查询对象。但你可以通过依赖注入的方式添加额外的参数。</p></blockquote>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

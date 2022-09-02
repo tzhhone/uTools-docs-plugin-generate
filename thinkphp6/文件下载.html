@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>文件下载</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s1770177747"><h2><a id="_0"></a>文件下载</h2>
+<p>支持文件下载功能，可以更简单的读取文件进行下载操作，支持直接下载输出内容。</p>
+<p>你可以在控制器的操作方法中添加如下代码：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">public <span class="token keyword">function</span> <span class="token function">download</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+    	<span class="token comment">// download是系统封装的一个助手函数</span>
+        <span class="token keyword">return</span> <span class="token function">download</span><span class="token punctuation">(</span><span class="token string">'image.jpg'</span><span class="token punctuation">,</span> <span class="token string">'my.jpg'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+</code></pre></div>
+<p>访问<code>download</code>操作就会下载命名为<code>my.jpg</code>的图像文件。</p>
+<blockquote class="danger"><p>下载文件的路径是服务器路径而不是URL路径，如果要下载的文件不存在，系统会抛出异常。</p></blockquote>
+<p>下载文件名可以省略后缀，会自动判断（后面的代码都以助手函数为例）</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">public <span class="token keyword">function</span> <span class="token function">download</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+    	<span class="token comment">// 和上面的下载文件名是一样的效果</span>
+        <span class="token keyword">return</span> <span class="token function">download</span><span class="token punctuation">(</span><span class="token string">'image.jpg'</span><span class="token punctuation">,</span> <span class="token string">'my'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+</code></pre></div>
+<p>如果需要设置文件下载的有效期，可以使用</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">public <span class="token keyword">function</span> <span class="token function">download</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+    	<span class="token comment">// 设置300秒有效期</span>
+        <span class="token keyword">return</span> <span class="token function">download</span><span class="token punctuation">(</span><span class="token string">'image.jpg'</span><span class="token punctuation">,</span> <span class="token string">'my'</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">expire</span><span class="token punctuation">(</span><span class="token number">300</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+</code></pre></div>
+<p>除了<code>expire</code>方法外，还支持下面的方法：</p>
+<table><thead><tr><th>方法</th><th>描述</th></tr></thead><tbody><tr><td>name</td><td>命名下载文件</td></tr><tr><td>expire</td><td>下载有效期</td></tr><tr><td>isContent</td><td>是否为内容下载</td></tr><tr><td>mimeType</td><td>设置文件的mimeType类型</td></tr><tr><td>force</td><td>是否强制下载（<code>V6.0.3+</code>）</td></tr></tbody></table>
+<p>助手函数提供了内容下载的参数，如果需要直接下载内容，可以在第三个参数传入<code>true</code>：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">public <span class="token keyword">function</span> <span class="token function">download</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    $data <span class="token operator">=</span> <span class="token string">'这是一个测试文件'</span><span class="token punctuation">;</span>
+    <span class="token keyword">return</span> <span class="token function">download</span><span class="token punctuation">(</span>$data<span class="token punctuation">,</span> <span class="token string">'test.txt'</span><span class="token punctuation">,</span> <span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p><code>V6.0.3+</code>版本开始，支持设置是否强制下载，例如需要打开图像文件而不是浏览器下载的话，可以使用：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">public <span class="token keyword">function</span> <span class="token function">download</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token function">download</span><span class="token punctuation">(</span><span class="token string">'image.jpg'</span><span class="token punctuation">,</span> <span class="token string">'my.jpg'</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">force</span><span class="token punctuation">(</span><span class="token boolean">false</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

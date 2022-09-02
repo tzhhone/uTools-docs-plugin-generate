@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>模板渲染</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s868579882"><h2><a id="_0"></a>模板路径</h2>
+<p>默认情况下，框架会自动定位你的模板文件路径，优先定位应用目录下的<code>view</code>目录，这种方式的视图目录下就是应用的控制器目录。</p>
+<h3><a id="_4"></a>单应用模式</h3>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">├─app
+│   └─view（视图目录）
+│     ├─index            index控制器目录
+│     │  └─index<span class="token punctuation">.</span>html    index模板文件
+│     └─ <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>             更多控制器目录
+</code></pre></div>
+<h3><a id="_12"></a>多应用模式</h3>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">├─app
+│  ├─app1 （应用<span class="token number">1</span>）
+│  │   └─view（应用视图目录）
+│  │   	 ├─index            index控制器目录
+│  │     │  └─index<span class="token punctuation">.</span>html    index模板文件
+│  │ 	 └─ <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>             更多控制器目录
+│  │ 
+│  └─ app2<span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span> （更多应用）
+</code></pre></div>
+<p>第二种方式是视图文件和应用类库文件完全分离，统一放置在根目录下的<code>view</code>目录。</p>
+<h3><a id="_26"></a>单应用模式</h3>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">├─view                 视图文件目录
+│   ├─index            index控制器目录
+│   │  └─index<span class="token punctuation">.</span>html    index模板文件
+│   └─ <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>             更多控制器目录
+</code></pre></div>
+<h3><a id="_34"></a>多应用模式</h3>
+<p>如果是多应用模式的话，这种方式下<code>view</code>目录下面首先是应用子目录。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">├─view                 视图文件目录
+│  ├─index（应用视图目录）
+│  │   ├─index            index控制器目录
+│  │   │  └─index<span class="token punctuation">.</span>html    index模板文件
+│  │   └─ <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>             更多控制器目录
+</code></pre></div>
+<p>如果你需要自定义<code>view</code>目录名称，可以通过设置<code>view_dir_name</code>配置参数。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'view_dir_name'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span>    <span class="token string">'template'</span><span class="token punctuation">,</span>
+</code></pre></div>
+<h2><a id="_52"></a>模板渲染</h2>
+<p>模板渲染的最典型用法是直接使用<code>fetch</code>方法，不带任何参数：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\index\controller<span class="token punctuation">;</span>
+
+use think\facade\View<span class="token punctuation">;</span>
+
+class <span class="token class-name">Index</span>
+<span class="token punctuation">{</span>
+    public <span class="token keyword">function</span> <span class="token function">index</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token comment">// 不带任何参数 自动定位当前操作的模板文件</span>
+        <span class="token keyword">return</span> View<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">fetch</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>表示系统会按照默认规则自动定位视图目录下的模板文件，其规则是：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">控制器名（小写<span class="token operator">+</span>下划线）<span class="token operator">/</span>操作名<span class="token punctuation">.</span>html
+</code></pre></div>
+<p>默认的模板文件名规则改为实际操作方法名的小写+下划线写法。但可以配置<code>auto_rule</code>参数的值来改变当前操作的自动渲染规则。</p>
+<table><thead><tr><th>auto_rule配置</th><th>自动定位规则</th></tr></thead><tbody><tr><td>1</td><td>操作方法的小写+下划线</td></tr><tr><td>2</td><td>操作方法全部转换小写</td></tr><tr><td>3</td><td>保持和操作方法一致</td></tr></tbody></table>
+<p>如果有更改模板引擎的<code>view_depr</code>设置（假设 <code>'view_depr'=&gt;'_'</code>）的话，则上面的自动定位规则变成：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">控制器（小写<span class="token operator">+</span>下划线）_操作<span class="token punctuation">.</span>html
+</code></pre></div>
+<p>如果没有按照模板定义规则来定义模板文件（或者需要调用其他控制器下面的某个模板），可以使用：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 指定模板输出</span>
+<span class="token keyword">return</span> View<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">fetch</span><span class="token punctuation">(</span><span class="token string">'edit'</span><span class="token punctuation">)</span><span class="token punctuation">;</span> 
+</code></pre></div>
+<p>表示调用当前控制器下面的edit模板</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token keyword">return</span> View<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">fetch</span><span class="token punctuation">(</span><span class="token string">'member/read'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>表示调用Member控制器下面的read模板。</p>
+<p>跨应用渲染模板</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token keyword">return</span> View<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">fetch</span><span class="token punctuation">(</span><span class="token string">'admin@member/edit'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>渲染输出不需要写模板文件的路径和后缀。这里面的控制器和操作并不一定需要有实际对应的控制器和操作，只是一个目录名称和文件名称而已，例如，你的项目里面可能根本没有Public控制器，更没有Public控制器的menu操作，但是一样可以使用</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token keyword">return</span> View<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">fetch</span><span class="token punctuation">(</span><span class="token string">'public/menu'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>输出这个模板文件。理解了这个，模板输出就清晰了。</p>
+<p>支持从视图根目录开始读取模板，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token keyword">return</span> View<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">fetch</span><span class="token punctuation">(</span><span class="token string">'/menu'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>表示读取的模板是</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">menu<span class="token punctuation">.</span>html
+</code></pre></div>
+<p>如果你的模板文件位置比较特殊或者需要自定义模板文件的位置，可以采用下面的方式处理。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token keyword">return</span> View<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">fetch</span><span class="token punctuation">(</span><span class="token string">'../template/public/menu.html'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>这种方式需要带模板路径和后缀指定一个完整的模板文件位置，这里的<code>../template/public</code>目录是相对于当前项目入口文件位置。如果是其他的后缀文件，也支持直接输出，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token keyword">return</span> View<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">fetch</span><span class="token punctuation">(</span><span class="token string">'../template/public/menu.tpl'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>只要<code>../template/public/menu.tpl</code>是一个实际存在的模板文件。</p>
+<blockquote class="danger"><p>要注意模板文件位置是相对于应用的入口文件，而不是模板目录。</p></blockquote>
+<h2><a id="_141"></a>助手函数</h2>
+<p>可以使用系统提供的助手函数<code>view</code>，可以完成相同的功能：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">namespace app\index\controller<span class="token punctuation">;</span>
+
+class <span class="token class-name">Index</span> 
+<span class="token punctuation">{</span>
+    public <span class="token keyword">function</span> <span class="token function">index</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token comment">// 渲染模板输出</span>
+        <span class="token keyword">return</span> <span class="token function">view</span><span class="token punctuation">(</span><span class="token string">'hello'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token string">'name'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'thinkphp'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<h2><a id="_158"></a>渲染内容</h2>
+<p>如果希望直接解析内容而不通过模板文件的话，可以使用<code>display</code>方法：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">namespace app\index\controller<span class="token punctuation">;</span>
+
+use think\facade\View<span class="token punctuation">;</span>
+
+class <span class="token class-name">Index</span> 
+<span class="token punctuation">{</span>
+    public <span class="token keyword">function</span> <span class="token function">index</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token comment">// 直接渲染内容</span>
+        $content <span class="token operator">=</span> <span class="token string">'{$name}-{$email}'</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> View<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">display</span><span class="token punctuation">(</span>$content<span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token string">'name'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'thinkphp'</span><span class="token punctuation">,</span> <span class="token string">'email'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'thinkphp@qq.com'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>渲染的内容中一样可以使用模板引擎的相关标签。</p>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

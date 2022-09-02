@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>事件</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s756015206"><p>新版的事件系统可以看成是<code>5.1</code>版本行为系统的升级版，事件系统相比行为系统强大的地方在于事件本身可以是一个类，并且可以更好的支持事件订阅者。</p>
+<p>事件相比较中间件的优势是事件比中间件更加精准定位（或者说粒度更细），并且更适合一些业务场景的扩展。例如，我们通常会遇到用户注册或者登录后需要做一系列操作，通过事件系统可以做到不侵入原有代码完成登录的操作扩展，降低系统的耦合性的同时，也降低了BUG的可能性。</p>
+<blockquote class="danger"><p>事件系统的所有操作都通过<code>think\facade\Event</code>类进行静态调用</p></blockquote>
+<blockquote class="danger"><p><code>V6.0.3+</code>版本开始，事件机制不能关闭</p></blockquote>
+<h2><a id="_8"></a>定义事件</h2>
+<p>事件系统使用了观察者模式，提供了解耦应用的更好方式。在你需要监听事件的位置，例如下面我们在用户完成登录操作之后添加如下事件触发代码：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 触发UserLogin事件 用于执行用户登录后的一系列操作</span>
+Event<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">trigger</span><span class="token punctuation">(</span><span class="token string">'UserLogin'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>或者使用助手函数</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token function">event</span><span class="token punctuation">(</span><span class="token string">'UserLogin'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>这里<code>UserLogin</code>表示一个事件标识，如果你定义了单独的事件类，你可以使用事件类名（甚至可以传入一个事件类实例）。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 直接使用事件类触发</span>
+<span class="token function">event</span><span class="token punctuation">(</span><span class="token string">'app\event\UserLogin'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>事件类可以通过命令行快速生成</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">php think make<span class="token punctuation">:</span>event UserLogin
+</code></pre></div>
+<p>默认会生成一个<code>app\event\UserLogin</code>事件类，也可以指定完整类名生成。</p>
+<p>我们可以给事件类添加方法</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">namespace app\event<span class="token punctuation">;</span>
+
+use app\model\User<span class="token punctuation">;</span>
+
+class <span class="token class-name">UserLogin</span>
+<span class="token punctuation">{</span>
+    public $user<span class="token punctuation">;</span>
+
+    public <span class="token keyword">function</span> <span class="token function">__construct</span><span class="token punctuation">(</span>User $user<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        $this<span class="token operator">-</span><span class="token operator">&gt;</span>user <span class="token operator">=</span> $user<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>一般事件类无需继承任何其它类。</p>
+<p>你可以给事件类绑定一个事件标识，一般建议直接在应用的<code>event.php</code>事件定义文件中批量绑定。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token keyword">return</span> <span class="token punctuation">[</span>
+    <span class="token string">'bind'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span>    <span class="token punctuation">[</span>
+        <span class="token string">'UserLogin'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'app\event\UserLogin'</span><span class="token punctuation">,</span>
+        <span class="token comment">// 更多事件绑定</span>
+    <span class="token punctuation">]</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>如果你需要动态绑定，可以使用</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Event<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">bind</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'UserLogin'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'app\event\UserLogin'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<blockquote class="danger"><p>ThinkPHP的事件系统不依赖事件类，如果没有额外的需求，仅通过事件标识也可以使用，省去定义事件类的麻烦。</p></blockquote>
+<p>如果你没有定义事件类的话，则无需绑定。对于大部分的场景，可能确实不需要定义事件类。</p>
+<p>你可以在<code>event</code>方法中传入一个事件参数</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// user是当前登录用户对象实例</span>
+<span class="token function">event</span><span class="token punctuation">(</span><span class="token string">'UserLogin'</span><span class="token punctuation">,</span> $user<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>如果是定义了事件类，可以直接传入事件对象实例</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// user是当前登录用户对象实例</span>
+<span class="token function">event</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">UserLogin</span><span class="token punctuation">(</span>$user<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h2><a id="_87"></a>事件监听</h2>
+<p>你可以手动注册一个事件监听</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Event<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">listen</span><span class="token punctuation">(</span><span class="token string">'UserLogin'</span><span class="token punctuation">,</span> <span class="token keyword">function</span><span class="token punctuation">(</span>$user<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// </span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>或者使用监听类来执行监听</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Event<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">listen</span><span class="token punctuation">(</span><span class="token string">'UserLogin'</span><span class="token punctuation">,</span> <span class="token string">'app\listener\UserLogin'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>可以通过命令行快速生成一个事件监听类</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">php think make<span class="token punctuation">:</span>listener UserLogin
+</code></pre></div>
+<p>默认会生成一个<code>app\listener\UserLogin</code>事件监听类，也可以指定完整类名生成。</p>
+<p>事件监听类只需要定义一个<code>handle</code>方法，支持依赖注入。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\listener<span class="token punctuation">;</span>
+
+class <span class="token class-name">UserLogin</span>
+<span class="token punctuation">{</span>
+    public <span class="token keyword">function</span> <span class="token function">handle</span><span class="token punctuation">(</span>$user<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token comment">// 事件监听处理</span>
+    <span class="token punctuation">}</span>   
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>在<code>handle</code>方法中如果返回了<code>false</code>，则表示监听中止，将不再执行该事件后面的监听。</p>
+<p>一般建议直接在事件定义文件中定义对应事件的监听。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token keyword">return</span> <span class="token punctuation">[</span>
+    <span class="token string">'bind'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span>    <span class="token punctuation">[</span>
+        <span class="token string">'UserLogin'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'app\event\UserLogin'</span><span class="token punctuation">,</span>
+        <span class="token comment">// 更多事件绑定</span>
+    <span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token string">'listen'</span>  <span class="token operator">=</span><span class="token operator">&gt;</span>    <span class="token punctuation">[</span>
+        <span class="token string">'UserLogin'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span>    <span class="token punctuation">[</span><span class="token string">'app\listener\UserLogin'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+        <span class="token comment">// 更多事件监听</span>
+    <span class="token punctuation">]</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p><code>V6.0.9+</code>版本开始，事件监听可以支持通配符，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 监听所有的模型事件</span>
+Event<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">listen</span><span class="token punctuation">(</span><span class="token string">'model.*'</span><span class="token punctuation">,</span> <span class="token string">'app\listener\ModelListen'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h2><a id="_148"></a>事件订阅</h2>
+<p>可以通过事件订阅机制，在一个监听器中监听多个事件，例如通过命令行生成一个事件订阅者类，</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">php think make<span class="token punctuation">:</span>subscribe User
+</code></pre></div>
+<p>默认会生成<code>app\subscribe\User</code>类，或者你可以指定完整类名生成。</p>
+<p>然后你可以在事件订阅类中添加不同事件的监听方法，例如。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\subscribe<span class="token punctuation">;</span>
+
+class <span class="token class-name">User</span>
+<span class="token punctuation">{</span>
+    public <span class="token keyword">function</span> <span class="token function">onUserLogin</span><span class="token punctuation">(</span>$user<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token comment">// UserLogin事件响应处理</span>
+    <span class="token punctuation">}</span>
+
+    public <span class="token keyword">function</span> <span class="token function">onUserLogout</span><span class="token punctuation">(</span>$user<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token comment">// UserLogout事件响应处理</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>监听事件的方法命名规范是<code>on</code>+事件标识（驼峰命名），如果希望统一添加事件前缀标识，可以定义<code>eventPrefix</code>属性。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\subscribe<span class="token punctuation">;</span>
+
+class <span class="token class-name">User</span>
+<span class="token punctuation">{</span>
+    protected $eventPrefix <span class="token operator">=</span> <span class="token string">'User'</span><span class="token punctuation">;</span>
+
+    public <span class="token keyword">function</span> <span class="token function">onLogin</span><span class="token punctuation">(</span>$user<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token comment">// UserLogin事件响应处理</span>
+    <span class="token punctuation">}</span>
+
+    public <span class="token keyword">function</span> <span class="token function">onLogout</span><span class="token punctuation">(</span>$user<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token comment">// UserLogout事件响应处理</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>如果希望自定义订阅方式（或者方法规范），可以定义<code>subscribe</code>方法实现。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\subscribe<span class="token punctuation">;</span>
+
+use think\Event<span class="token punctuation">;</span>
+
+class <span class="token class-name">User</span>
+<span class="token punctuation">{</span>
+    public <span class="token keyword">function</span> <span class="token function">onUserLogin</span><span class="token punctuation">(</span>$user<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token comment">// UserLogin事件响应处理</span>
+    <span class="token punctuation">}</span>
+
+    public <span class="token keyword">function</span> <span class="token function">onUserLogout</span><span class="token punctuation">(</span>$user<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token comment">// UserLogout事件响应处理</span>
+    <span class="token punctuation">}</span>
+
+    public <span class="token keyword">function</span> <span class="token function">subscribe</span><span class="token punctuation">(</span>Event $event<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        $event<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">listen</span><span class="token punctuation">(</span><span class="token string">'UserLogin'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span>$this<span class="token punctuation">,</span><span class="token string">'onUserLogin'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        $event<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">listen</span><span class="token punctuation">(</span><span class="token string">'UserLogout'</span><span class="token punctuation">,</span><span class="token punctuation">[</span>$this<span class="token punctuation">,</span><span class="token string">'onUserLogout'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>然后在事件定义文件注册事件订阅者</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token keyword">return</span> <span class="token punctuation">[</span>
+    <span class="token string">'bind'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span>    <span class="token punctuation">[</span>
+        <span class="token string">'UserLogin'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'app\event\UserLogin'</span><span class="token punctuation">,</span>
+        <span class="token comment">// 更多事件绑定</span>
+    <span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token string">'listen'</span>  <span class="token operator">=</span><span class="token operator">&gt;</span>    <span class="token punctuation">[</span>
+        <span class="token string">'UserLogin'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span>    <span class="token punctuation">[</span><span class="token string">'app\listener\UserLogin'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+        <span class="token comment">// 更多事件监听</span>
+    <span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token string">'subscribe'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span>    <span class="token punctuation">[</span>
+       <span class="token string">'app\subscribe\User'</span><span class="token punctuation">,</span>
+        <span class="token comment">// 更多事件订阅</span>
+    <span class="token punctuation">]</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>如果需要动态注册，可以使用</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Event<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">subscribe</span><span class="token punctuation">(</span><span class="token string">'app\subscribe\User'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h2><a id="_250"></a>内置事件</h2>
+<p>内置的系统事件包括：</p>
+<table><thead><tr><th>事件</th><th>描述</th><th>参数</th></tr></thead><tbody><tr><td>AppInit</td><td>应用初始化标签位</td><td>无</td></tr><tr><td>HttpRun</td><td>应用开始标签位</td><td>无</td></tr><tr><td>HttpEnd</td><td>应用结束标签位</td><td>当前响应对象实例</td></tr><tr><td>LogWrite</td><td>日志write方法标签位</td><td>当前写入的日志信息</td></tr><tr><td>RouteLoaded</td><td>路由加载完成</td><td>无</td></tr><tr><td>LogRecord</td><td>日志记录<code>V6.0.8+</code></td><td>无</td></tr></tbody></table>
+<blockquote class="danger"><p><code>AppInit</code>事件定义必须在全局事件定义文件中定义，其它事件支持在应用的事件定义文件中定义。</p></blockquote>
+<p>原来<code>5.1</code>的一些行为标签已经废弃，所有取消的标签都可以使用中间件更好的替代。可以把中间件看成处理请求以及响应输出相关的特殊事件。事实上，中间件的<code>handler</code>方法只是具有特殊的参数以及返回值而已。</p>
+<p>数据库操作的回调也称为查询事件，是针对数据库的CURD操作而设计的回调方法，主要包括：</p>
+<table><thead><tr><th>事件</th><th>描述</th></tr></thead><tbody><tr><td>before_select</td><td><code>select</code>查询前回调</td></tr><tr><td>before_find</td><td><code>find</code>查询前回调</td></tr><tr><td>after_insert</td><td><code>insert</code>操作成功后回调</td></tr><tr><td>after_update</td><td><code>update</code>操作成功后回调</td></tr><tr><td>after_delete</td><td><code>delete</code>操作成功后回调</td></tr></tbody></table>
+<blockquote class="default"><p>查询事件的参数就是当前的查询对象实例。</p></blockquote>
+<p>模型事件包含：</p>
+<table><thead><tr><th>钩子</th><th>对应操作</th></tr></thead><tbody><tr><td>after_read</td><td>查询后</td></tr><tr><td>before_insert</td><td>新增前</td></tr><tr><td>after_insert</td><td>新增后</td></tr><tr><td>before_update</td><td>更新前</td></tr><tr><td>after_update</td><td>更新后</td></tr><tr><td>before_write</td><td>写入前</td></tr><tr><td>after_write</td><td>写入后</td></tr><tr><td>before_delete</td><td>删除前</td></tr><tr><td>after_delete</td><td>删除后</td></tr></tbody></table>
+<p><code>before_write</code>和<code>after_write</code>事件无论是新增还是更新都会执行。</p>
+<blockquote class="default"><p>模型事件方法的参数就是当前的模型对象实例。</p></blockquote>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

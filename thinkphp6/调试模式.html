@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>调试模式</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s1472108531"><p>ThinkPHP有专门为开发过程而设置的调试模式，开启调试模式后，会牺牲一定的执行效率，但带来的方便和除错功能非常值得。</p>
+<blockquote class="danger"><p>强烈建议在开发阶段始终开启调试模式（直到正式部署后关闭调试模式），方便及时发现隐患问题和分析、解决问题。</p></blockquote>
+<p>应用默认是部署模式，在开发阶段，可以修改环境变量<code>APP_DEBUG</code>开启调试模式，上线部署后切换到部署模式。</p>
+<p>本地开发的时候可以在应用根目录下面定义<code>.env</code>文件。</p>
+<blockquote class="default"><p>通过<code>create-project</code>默认安装的话， 会在根目录自带一个<code>.example..env</code>文件，你可以直接更名为<code>.env</code>文件。</p></blockquote>
+<p><code>.env</code>文件的定义格式如下：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 设置开启调试模式</span>
+APP_DEBUG <span class="token operator">=</span>  <span class="token boolean">true</span>
+<span class="token comment">// 其它的环境变量设置</span>
+<span class="token comment">// ...</span>
+</code></pre></div>
+<p>调试模式的优势在于：</p>
+<ul><li>开启日志记录，任何错误信息和调试信息都会详细记录，便于调试；</li><li>会详细记录整个执行过程；</li><li>模板修改可以即时生效；</li><li>通过Trace功能更好的调试和发现错误；</li><li>发生异常的时候会显示详细的异常信息；</li></ul>
+<blockquote class="danger"><p>由于调试模式没有任何缓存，因此涉及到较多的文件IO操作和模板实时编译，所以在开启调试模式的情况下，性能会有一定的下降，但不会影响部署模式的性能。</p></blockquote>
+<p>一旦关闭调试模式，发生错误后不会提示具体的错误信息，如果你仍然希望看到具体的错误信息，那么可以在<code>app.php</code>文件中如下设置：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 显示错误信息</span>
+<span class="token string">'show_error_msg'</span>        <span class="token operator">=</span><span class="token operator">&gt;</span>  <span class="token boolean">true</span><span class="token punctuation">,</span>    
+</code></pre></div>
+<blockquote class="danger"><p>出于安全考虑，<code>V6.0.3+</code>版本开始已经取消了调试模式的默认异常页面中的环境变量显示。</p></blockquote>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

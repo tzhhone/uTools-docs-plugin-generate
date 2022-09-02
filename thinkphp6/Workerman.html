@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Workerman</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s-1173930079"><h2><a id="Workerman_0"></a>Workerman</h2>
+<blockquote class="default"><p>Workerman是一款纯PHP开发的开源高性能的PHP socket 服务器框架。被广泛的用于手机app、手游服务端、网络游戏服务器、聊天室服务器、硬件通讯服务器、智能家居、车联网、物联网等领域的开发。 支持TCP长连接，支持Websocket、HTTP等协议，支持自定义协议。基于workerman开发者可以更专注于业务逻辑开发，不必再为PHP Socket底层开发而烦恼。</p></blockquote>
+<h2><a id="_4"></a>安装</h2>
+<p>首先通过 composer 安装</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">composer require topthink<span class="token operator">/</span>think<span class="token operator">-</span>worker
+</code></pre></div>
+<h2><a id="_12"></a>使用</h2>
+<h3><a id="WorkermanHttpServer_14"></a>使用<code>Workerman</code>作为<code>HttpServer</code></h3>
+<p>在命令行启动服务端</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">php think worker
+</code></pre></div>
+<p>然后就可以通过浏览器直接访问当前应用</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">http<span class="token punctuation">:</span><span class="token operator">/</span><span class="token operator">/</span>localhost<span class="token punctuation">:</span><span class="token number">2346</span>
+</code></pre></div>
+<p>linux下面可以支持下面指令</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">php think worker <span class="token punctuation">[</span>start<span class="token operator">|</span>stop<span class="token operator">|</span>reload<span class="token operator">|</span>restart<span class="token operator">|</span>status<span class="token punctuation">]</span>
+</code></pre></div>
+<p><code>workerman</code>的参数可以在应用配置目录下的<code>worker.php</code>里面配置。</p>
+<blockquote class="default"><p>由于<code>onWorkerStart</code>运行的时候没有<code>HTTP_HOST</code>，因此最好在应用配置文件中设置<code>app_host</code></p></blockquote>
+<h3><a id="SocketServer_38"></a>SocketServer</h3>
+<p>在命令行启动服务端（需要<code>2.0.5+</code>版本）</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">php think worker<span class="token punctuation">:</span>server
+</code></pre></div>
+<p>默认会在0.0.0.0:2345开启一个<code>websocket</code>服务。</p>
+<p>如果需要自定义参数，可以在<code>config/worker_server.php</code>中进行配置，包括：</p>
+<table><thead><tr><th>配置参数</th><th>描述</th></tr></thead><tbody><tr><td>protocol</td><td>协议</td></tr><tr><td>host</td><td>监听地址</td></tr><tr><td>port</td><td>监听端口</td></tr><tr><td>socket</td><td>完整的socket地址</td></tr></tbody></table>
+<p>并且支持<code>workerman</code>所有的参数（包括全局静态参数）。<br>
+也支持使用闭包方式定义相关事件回调。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token keyword">return</span> <span class="token punctuation">[</span>
+	<span class="token string">'socket'</span> 	<span class="token operator">=</span><span class="token operator">&gt;</span>	<span class="token string">'http://127.0.0.1:8000'</span><span class="token punctuation">,</span>
+	<span class="token string">'name'</span>		<span class="token operator">=</span><span class="token operator">&gt;</span>	<span class="token string">'thinkphp'</span><span class="token punctuation">,</span>
+	<span class="token string">'count'</span>		<span class="token operator">=</span><span class="token operator">&gt;</span>	<span class="token number">4</span><span class="token punctuation">,</span>
+	<span class="token string">'onMessage'</span>	<span class="token operator">=</span><span class="token operator">&gt;</span>	<span class="token keyword">function</span><span class="token punctuation">(</span>$connection<span class="token punctuation">,</span> $data<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+		$connection<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">send</span><span class="token punctuation">(</span><span class="token function">json_encode</span><span class="token punctuation">(</span>$data<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>也支持使用自定义类作为<code>Worker</code>服务入口文件类。例如，我们可以创建一个服务类（必须要继承 <code>think\worker\Server</code>），然后设置属性和添加回调方法</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\http<span class="token punctuation">;</span>
+
+use think\worker\Server<span class="token punctuation">;</span>
+
+class <span class="token class-name">Worker</span> extends <span class="token class-name">Server</span>
+<span class="token punctuation">{</span>
+	protected $socket <span class="token operator">=</span> <span class="token string">'http://0.0.0.0:2346'</span><span class="token punctuation">;</span>
+
+	public <span class="token keyword">function</span> <span class="token function">onMessage</span><span class="token punctuation">(</span>$connection<span class="token punctuation">,</span>$data<span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		$connection<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">send</span><span class="token punctuation">(</span><span class="token function">json_encode</span><span class="token punctuation">(</span>$data<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>支持<code>workerman</code>所有的回调方法定义（回调方法必须是public类型）</p>
+<p>然后在<code>worker_server.php</code>中增加配置参数：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token keyword">return</span> <span class="token punctuation">[</span>
+	<span class="token string">'worker_class'</span>	<span class="token operator">=</span><span class="token operator">&gt;</span>	<span class="token string">'app\http\Worker'</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>定义该参数后，其它配置参数均不再有效。</p>
+<p>在命令行启动服务端</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">php think worker<span class="token punctuation">:</span>server
+</code></pre></div>
+<p>然后在浏览器里面访问</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">http<span class="token punctuation">:</span><span class="token operator">/</span><span class="token operator">/</span>localhost<span class="token punctuation">:</span><span class="token number">2346</span>
+</code></pre></div>
+<p>如果在Linux下面，同样支持reload|restart|stop|status 操作</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">php think worker<span class="token punctuation">:</span>server reload
+</code></pre></div>
+<blockquote class="default"><p>注意:使用默认worker做服务器时,<code>dump</code>会打印到命令行.</p></blockquote>
+<h3><a id="_123"></a>关于上传文件</h3>
+<p>当按照默认的worker做http服务器时,并不能直接使用<code>request()-&gt;file('image')</code>来获得上传的文件,具体可以参考<a href="http://doc.workerman.net/web-server.html" target="_blank">workerman的上传文件第6点</a>.因此只能迂回的使用<code>Filesystem</code>.无论怎样,不影响其<code>getMime()</code>等方法的正确性.</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// $file = request()-&gt;file('image');</span>
+$file_data  <span class="token operator">=</span>  $_FILES<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token string">'file_data'</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+<span class="token comment">//$tmp_file  = tempnam('','tm_');  这种写法最终保存时扩展名为.tmp</span>
+$tmp_file  <span class="token operator">=</span> <span class="token function">sys_get_temp_dir</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token string">'/'</span><span class="token punctuation">.</span><span class="token function">uniqid</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token string">'.'</span><span class="token punctuation">.</span><span class="token function">explode</span><span class="token punctuation">(</span><span class="token string">'/'</span><span class="token punctuation">,</span>$_FILES<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token string">'file_type'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+<span class="token function">file_put_contents</span><span class="token punctuation">(</span>$tmp_file<span class="token punctuation">,</span>$file<span class="token punctuation">)</span><span class="token punctuation">;</span>
+$file  <span class="token operator">=</span>  <span class="token keyword">new</span>  <span class="token class-name">File</span><span class="token punctuation">(</span>$tmp_file<span class="token punctuation">)</span><span class="token punctuation">;</span>
+$savename  <span class="token operator">=</span>  Filesystem<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">putFile</span><span class="token punctuation">(</span><span class="token string">'upload'</span><span class="token punctuation">,</span>$file<span class="token punctuation">)</span><span class="token punctuation">;</span>
+echo  $savename<span class="token punctuation">;</span>
+</code></pre></div>
+<h3><a id="workerman_138"></a>自定义workerman指令</h3>
+<p>有时候我们希望使用think的命令行运行workerman,这里做一个介绍,<br>
+1:先新建一个指令,参考文档:<a href="https://www.kancloud.cn/manual/thinkphp6_0/1037651" target="_blank">自定义指令</a>,比如新建命令:</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">php think make<span class="token punctuation">:</span>command Hello hello
+</code></pre></div>
+<p>2:复制下面的代码到指令里,覆盖原始的<code>configure</code>和<code>execute</code>方法</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">  protected <span class="token keyword">function</span> <span class="token function">configure</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+  <span class="token punctuation">{</span>
+    <span class="token comment">// 指令配置</span>
+    $this<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">setName</span><span class="token punctuation">(</span><span class="token string">'convert'</span><span class="token punctuation">)</span>
+      <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">addArgument</span><span class="token punctuation">(</span><span class="token string">'action'</span><span class="token punctuation">,</span> Argument<span class="token punctuation">:</span><span class="token punctuation">:</span>OPTIONAL<span class="token punctuation">,</span> <span class="token string">"start|stop|restart|reload|status|connections"</span><span class="token punctuation">,</span> <span class="token string">'start'</span><span class="token punctuation">)</span>
+      <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">addOption</span><span class="token punctuation">(</span><span class="token string">'mode'</span><span class="token punctuation">,</span> <span class="token string">'m'</span><span class="token punctuation">,</span> Option<span class="token punctuation">:</span><span class="token punctuation">:</span>VALUE_OPTIONAL<span class="token punctuation">,</span> <span class="token string">'Run the workerman server in daemon mode.'</span><span class="token punctuation">)</span>
+      <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">setDescription</span><span class="token punctuation">(</span><span class="token string">'the workerman command'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  protected <span class="token keyword">function</span> <span class="token function">execute</span><span class="token punctuation">(</span>Input $input<span class="token punctuation">,</span> Output $output<span class="token punctuation">)</span>
+  <span class="token punctuation">{</span>
+    <span class="token comment">// 指令输出</span>
+    $output<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">writeln</span><span class="token punctuation">(</span><span class="token string">'convert start'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    $action <span class="token operator">=</span> $input<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">getArgument</span><span class="token punctuation">(</span><span class="token string">'action'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    $mode <span class="token operator">=</span> $input<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">getOption</span><span class="token punctuation">(</span><span class="token string">'mode'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+
+    <span class="token comment">// 重新构造命令行参数,以便兼容workerman的命令</span>
+    global $argv<span class="token punctuation">;</span>
+
+    $argv <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+    <span class="token function">array_unshift</span><span class="token punctuation">(</span>$argv<span class="token punctuation">,</span> <span class="token string">'think'</span><span class="token punctuation">,</span> $action<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>$mode <span class="token operator">==</span> <span class="token string">'d'</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      $argv<span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token string">'-d'</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span>$mode <span class="token operator">==</span> <span class="token string">'g'</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      $argv<span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token string">'-g'</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">// 在这里放心的实例化worker,</span>
+    <span class="token comment">// 就像参照workerman文档写一样,</span>
+    <span class="token comment">// 无非在workerman的文档里,代码是新建纯php文件,但在这里,写到了一个方法里.</span>
+    $worker_1 <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Worker</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    $worker_2 <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Worker</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    Worker<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">runAll</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+</code></pre></div>
+<p>3:运行的时候,使用如下命令:</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">//临时运行</span>
+php think hello start
+<span class="token comment">//后台运行</span>
+php think hello start <span class="token operator">--</span>mode d
+</code></pre></div>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

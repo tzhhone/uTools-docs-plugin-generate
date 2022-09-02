@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>生成数据表字段缓存</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s-820318053"><h2><a id="optimizeschema_0"></a>生成数据表字段缓存<code>optimize:schema</code></h2>
+<blockquote class="danger"><p>字段缓存仅在部署模式下生效，并且仅适用于使用<code>think-orm</code>的情况，如果你使用了其它的ORM库，则不支持生成。</p></blockquote>
+<p>可以通过生成数据表字段信息缓存，提升数据库查询的性能，避免多余的查询。命令如下：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">php think optimize<span class="token punctuation">:</span>schema
+</code></pre></div>
+<p>如果是多应用模式，你可以使用下面的指令生成<code>admin</code>应用的字段缓存。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">php think optimize<span class="token punctuation">:</span>schema admin
+</code></pre></div>
+<p>会自动生成当前数据库配置文件中定义的数据表字段缓存，也可以指定数据库生成字段缓存（必须有用户权限），例如，下面指定生成<code>demo</code>数据库下面的所有数据表的字段缓存信息。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">php think optimize<span class="token punctuation">:</span>schema <span class="token operator">--</span>db demo
+</code></pre></div>
+<blockquote class="danger"><p><code>V6.0.3+</code>版本开始，取消了<code>--db</code>选项，改用<code>--connection</code>选项指定使用的数据库连接来生成，并且缓存用内置的缓存机制替代之前的文件方式。</p></blockquote>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">php think optimize<span class="token punctuation">:</span>schema <span class="token operator">--</span>connection mysql
+</code></pre></div>
+<blockquote class="danger"><p>没有继承think\Model类的（抽象）模型类不会生成。如果定义了公共模型类，最好把公共模型类定义为抽象类（<code>abstract</code>）。</p></blockquote>
+<p>更新数据表字段缓存也是同样的方式，每次执行都会重新生成缓存。如果需要单独更新某个数据表的缓存，可以使用：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">php think optimize<span class="token punctuation">:</span>schema <span class="token operator">--</span>table think_user
+</code></pre></div>
+<p>支持指定数据库名称</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">php think optimize<span class="token punctuation">:</span>schema <span class="token operator">--</span>table demo<span class="token punctuation">.</span>think_user
+</code></pre></div>
+<blockquote class="default"><p>需要在数据库配置中设置<code>fields_cache</code>为<code>true</code>才能生成缓存</p></blockquote>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

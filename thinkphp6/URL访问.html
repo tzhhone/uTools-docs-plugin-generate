@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>URL访问</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s-1566124572"><h2><a id="URL_0"></a>URL设计</h2>
+<p><code>6.0</code>的URL访问受路由影响，如果在没有定义或匹配路由的情况下（并且没有开启强制路由模式的话），则是基于：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">http<span class="token punctuation">:</span><span class="token operator">/</span><span class="token operator">/</span>serverName<span class="token operator">/</span>index<span class="token punctuation">.</span>php（或者其它入口文件）<span class="token operator">/</span>控制器<span class="token operator">/</span>操作<span class="token operator">/</span>参数<span class="token operator">/</span>值…
+</code></pre></div>
+<p>如果使用自动多应用模式的话，URL一般是</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">http<span class="token punctuation">:</span><span class="token operator">/</span><span class="token operator">/</span>serverName<span class="token operator">/</span>index<span class="token punctuation">.</span>php<span class="token operator">/</span>应用<span class="token operator">/</span>控制器<span class="token operator">/</span>操作<span class="token operator">/</span>参数<span class="token operator">/</span>值<span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
+</code></pre></div>
+<blockquote class="danger"><p>普通模式的URL访问不再支持，但参数可以支持普通方式传值</p></blockquote>
+<p>如果不支持PATHINFO的服务器可以使用兼容模式访问如下：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">http<span class="token punctuation">:</span><span class="token operator">/</span><span class="token operator">/</span>serverName<span class="token operator">/</span>index<span class="token punctuation">.</span>php<span class="token operator">?</span>s<span class="token operator">=</span><span class="token operator">/</span>控制器<span class="token operator">/</span>操作<span class="token operator">/</span><span class="token punctuation">[</span>参数名<span class="token operator">/</span>参数值<span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">]</span>
+</code></pre></div>
+<h2><a id="URL_22"></a>URL重写</h2>
+<p>可以通过URL重写隐藏应用的入口文件<code>index.php</code>（也可以是其它的入口文件，但URL重写通常只能设置一个入口文件）,下面是相关服务器的配置参考：</p>
+<h3><a id="_Apache__26"></a>[ Apache ]</h3>
+<ol><li><code>httpd.conf</code>配置文件中加载了<code>mod_rewrite.so</code>模块</li><li><code>AllowOverride None</code> 将<code>None</code>改为 <code>All</code></li><li>把下面的内容保存为<code>.htaccess</code>文件放到应用入口文件的同级目录下</li></ol>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span>IfModule mod_rewrite<span class="token punctuation">.</span>c<span class="token operator">&gt;</span>
+  Options <span class="token operator">+</span>FollowSymlinks <span class="token operator">-</span>Multiviews
+  RewriteEngine On
+
+  RewriteCond <span class="token operator">%</span><span class="token punctuation">{</span>REQUEST_FILENAME<span class="token punctuation">}</span> <span class="token operator">!</span><span class="token operator">-</span>d
+  RewriteCond <span class="token operator">%</span><span class="token punctuation">{</span>REQUEST_FILENAME<span class="token punctuation">}</span> <span class="token operator">!</span><span class="token operator">-</span>f
+  RewriteRule <span class="token operator">^</span><span class="token punctuation">(</span><span class="token punctuation">.</span><span class="token operator">*</span><span class="token punctuation">)</span>$ index<span class="token punctuation">.</span>php<span class="token operator">/</span>$<span class="token number">1</span> <span class="token punctuation">[</span>QSA<span class="token punctuation">,</span>PT<span class="token punctuation">,</span>L<span class="token punctuation">]</span>
+<span class="token operator">&lt;</span><span class="token operator">/</span>IfModule<span class="token operator">&gt;</span>
+</code></pre></div>
+<h3><a id="_IIS__43"></a>[ IIS ]</h3>
+<p>如果你的服务器环境支持<code>ISAPI_Rewrite</code>的话，可以配置<code>httpd.ini</code>文件，添加下面的内容：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">RewriteRule <span class="token punctuation">(</span><span class="token punctuation">.</span><span class="token operator">*</span><span class="token punctuation">)</span>$ <span class="token operator">/</span>index\<span class="token punctuation">.</span>php\<span class="token operator">?</span>s<span class="token operator">=</span>$<span class="token number">1</span> <span class="token punctuation">[</span>I<span class="token punctuation">]</span>
+</code></pre></div>
+<p>在IIS的高版本下面可以配置<code>web.Config</code>，在中间添加<code>rewrite</code>节点：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span>rewrite<span class="token operator">&gt;</span>
+ <span class="token operator">&lt;</span>rules<span class="token operator">&gt;</span>
+ <span class="token operator">&lt;</span>rule name<span class="token operator">=</span><span class="token string">"OrgPage"</span> stopProcessing<span class="token operator">=</span><span class="token string">"true"</span><span class="token operator">&gt;</span>
+ <span class="token operator">&lt;</span>match url<span class="token operator">=</span><span class="token string">"^(.*)$"</span> <span class="token operator">/</span><span class="token operator">&gt;</span>
+ <span class="token operator">&lt;</span>conditions logicalGrouping<span class="token operator">=</span><span class="token string">"MatchAll"</span><span class="token operator">&gt;</span>
+ <span class="token operator">&lt;</span>add input<span class="token operator">=</span><span class="token string">"{HTTP_HOST}"</span> pattern<span class="token operator">=</span><span class="token string">"^(.*)$"</span> <span class="token operator">/</span><span class="token operator">&gt;</span>
+ <span class="token operator">&lt;</span>add input<span class="token operator">=</span><span class="token string">"{REQUEST_FILENAME}"</span> matchType<span class="token operator">=</span><span class="token string">"IsFile"</span> negate<span class="token operator">=</span><span class="token string">"true"</span> <span class="token operator">/</span><span class="token operator">&gt;</span>
+ <span class="token operator">&lt;</span>add input<span class="token operator">=</span><span class="token string">"{REQUEST_FILENAME}"</span> matchType<span class="token operator">=</span><span class="token string">"IsDirectory"</span> negate<span class="token operator">=</span><span class="token string">"true"</span> <span class="token operator">/</span><span class="token operator">&gt;</span>
+ <span class="token operator">&lt;</span><span class="token operator">/</span>conditions<span class="token operator">&gt;</span>
+ <span class="token operator">&lt;</span>action type<span class="token operator">=</span><span class="token string">"Rewrite"</span> url<span class="token operator">=</span><span class="token string">"index.php/{R:1}"</span> <span class="token operator">/</span><span class="token operator">&gt;</span>
+ <span class="token operator">&lt;</span><span class="token operator">/</span>rule<span class="token operator">&gt;</span>
+ <span class="token operator">&lt;</span><span class="token operator">/</span>rules<span class="token operator">&gt;</span>
+ <span class="token operator">&lt;</span><span class="token operator">/</span>rewrite<span class="token operator">&gt;</span>
+</code></pre></div>
+<h3><a id="_Nginx__69"></a>[ Nginx ]</h3>
+<p>在Nginx低版本中，是不支持PATHINFO的，但是可以通过在<code>Nginx.conf</code>中配置转发规则实现：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">location <span class="token operator">/</span> <span class="token punctuation">{</span> <span class="token comment">// …..省略部分代码</span>
+   <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span><span class="token operator">-</span>e $request_filename<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+   		rewrite  <span class="token operator">^</span><span class="token punctuation">(</span><span class="token punctuation">.</span><span class="token operator">*</span><span class="token punctuation">)</span>$  <span class="token operator">/</span>index<span class="token punctuation">.</span>php<span class="token operator">?</span>s<span class="token operator">=</span><span class="token operator">/</span>$<span class="token number">1</span>  last<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<blockquote class="default"><p>其实内部是转发到了ThinkPHP提供的兼容URL，利用这种方式，可以解决其他不支持PATHINFO的WEB服务器环境。</p></blockquote>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

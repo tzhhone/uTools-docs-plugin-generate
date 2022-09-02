@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>模型事件</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s-1368642434"><h2><a id="_0"></a>模型事件</h2>
+<p>模型事件是指在进行模型的查询和写入操作的时候触发的操作行为。</p>
+<blockquote class="danger"><p>模型事件只在调用模型的方法生效，使用查询构造器操作是无效的</p></blockquote>
+<p>模型支持如下事件：</p>
+<table><thead><tr><th>事件</th><th>描述</th><th>事件方法名</th></tr></thead><tbody><tr><td>after_read</td><td>查询后</td><td>onAfterRead</td></tr><tr><td>before_insert</td><td>新增前</td><td>onBeforeInsert</td></tr><tr><td>after_insert</td><td>新增后</td><td>onAfterInsert</td></tr><tr><td>before_update</td><td>更新前</td><td>onBeforeUpdate</td></tr><tr><td>after_update</td><td>更新后</td><td>onAfterUpdate</td></tr><tr><td>before_write</td><td>写入前</td><td>onBeforeWrite</td></tr><tr><td>after_write</td><td>写入后</td><td>onAfterWrite</td></tr><tr><td>before_delete</td><td>删除前</td><td>onBeforeDelete</td></tr><tr><td>after_delete</td><td>删除后</td><td>onAfterDelete</td></tr><tr><td>before_restore</td><td>恢复前</td><td>onBeforeRestore</td></tr><tr><td>after_restore</td><td>恢复后</td><td>onAfterRestore</td></tr></tbody></table>
+<p>注册的回调方法支持传入一个参数（当前的模型对象实例），但支持依赖注入的方式增加额外参数。</p>
+<blockquote class="info"><p>如果<code>before_write</code>、<code>before_insert</code>、 <code>before_update</code> 、<code>before_delete</code>事件方法中返回<code>false</code>或者抛出<code>think\exception\ModelEventException</code>异常的话，则不会继续执行后续的操作。</p></blockquote>
+<h2><a id="_26"></a>模型事件定义</h2>
+<p>最简单的方式是在模型类里面定义静态方法来定义模型的相关事件响应。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\model<span class="token punctuation">;</span>
+
+use think\Model<span class="token punctuation">;</span>
+use app\model\Profile<span class="token punctuation">;</span>
+
+class <span class="token class-name">User</span> extends <span class="token class-name">Model</span>
+<span class="token punctuation">{</span>
+    public static <span class="token keyword">function</span> <span class="token function">onBeforeUpdate</span><span class="token punctuation">(</span>$user<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+    	<span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token string">'thinkphp'</span> <span class="token operator">==</span> $user<span class="token operator">-</span><span class="token operator">&gt;</span>name<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        	<span class="token keyword">return</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+    
+    public static <span class="token keyword">function</span> <span class="token function">onAfterDelete</span><span class="token punctuation">(</span>$user<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+		Profile<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">destroy</span><span class="token punctuation">(</span>$user<span class="token operator">-</span><span class="token operator">&gt;</span>id<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>参数是当前的模型对象实例，支持使用依赖注入传入更多的参数。</p>
+<h2><a id="_55"></a>写入事件</h2>
+<p><code>onBeforeWrite</code>和<code>onAfterWrite</code>事件会在<code>新增</code>操作和<code>更新</code>操作都会触发.</p>
+<p>具体的触发顺序:</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 执行 onBeforeWrite</span>
+<span class="token comment">// 如果事件没有返回`false`,那么继续执行</span>
+<span class="token comment">// 执行新增或更新操作(onBeforeInsert/onAfterInsert或onBeforeUpdate/onAfterUpdate)</span>
+<span class="token comment">// 新增或更新执行成功</span>
+<span class="token comment">// 执行 onAfterWrite</span>
+</code></pre></div>
+<blockquote class="default"><p>注意:模型的新增或更新是自动判断的.</p></blockquote>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

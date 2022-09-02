@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>验证码</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s1231091090"><h2><a id="_0"></a>安装</h2>
+<p>首先使用<code>Composer</code>安装<code>think-captcha</code>扩展包：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">composer require topthink<span class="token operator">/</span>think<span class="token operator">-</span>captcha
+</code></pre></div>
+<blockquote class="danger"><p>验证码库需要开启Session才能生效。</p></blockquote>
+<h2><a id="_10"></a>使用</h2>
+<p>扩展包内定义了一些常见用法方便使用，可以满足大部分常用场景，以下示例说明。</p>
+<p>在模版内添加验证码的显示代码</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span>div<span class="token operator">&gt;</span><span class="token punctuation">{</span><span class="token punctuation">:</span><span class="token function">captcha_img</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">}</span><span class="token operator">&lt;</span><span class="token operator">/</span>div<span class="token operator">&gt;</span>
+</code></pre></div>
+<p>或者</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span>div<span class="token operator">&gt;</span><span class="token operator">&lt;</span>img src<span class="token operator">=</span><span class="token string">"{:captcha_src()}"</span> alt<span class="token operator">=</span><span class="token string">"captcha"</span> <span class="token operator">/</span><span class="token operator">&gt;</span><span class="token operator">&lt;</span><span class="token operator">/</span>div<span class="token operator">&gt;</span>
+</code></pre></div>
+<blockquote class="default"><p>上面两种的最终效果是一样的，根据需要调用即可。</p></blockquote>
+<p>然后使用框架的内置验证功能（具体可以参考验证章节），添加<code>captcha</code>验证规则即可</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$this<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">validate</span><span class="token punctuation">(</span>$data<span class="token punctuation">,</span><span class="token punctuation">[</span>
+    <span class="token string">'captcha|验证码'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'require|captcha'</span>
+<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>如果没有使用内置验证功能，则可以调研内置的函数手动验证</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token keyword">if</span><span class="token punctuation">(</span><span class="token operator">!</span><span class="token function">captcha_check</span><span class="token punctuation">(</span>$captcha<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+ <span class="token comment">// 验证失败</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>如果是多应用模式下，你需要自己注册一个验证码的路由。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'captcha/[:config]'</span><span class="token punctuation">,</span><span class="token string">'\\think\\captcha\\CaptchaController@index'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h2><a id="_49"></a>配置</h2>
+<p><code>Captcha</code>类带有默认的配置参数，支持自定义配置。这些参数包括：</p>
+<table><thead><tr><th>参数</th><th>描述</th><th>默认</th></tr></thead><tbody><tr><td>codeSet</td><td>验证码字符集合</td><td>略</td></tr><tr><td>expire</td><td>验证码过期时间（s）</td><td>1800</td></tr><tr><td>math</td><td>使用算术验证码</td><td>false</td></tr><tr><td>useZh</td><td>使用中文验证码</td><td>false</td></tr><tr><td>zhSet</td><td>中文验证码字符串</td><td>略</td></tr><tr><td>useImgBg</td><td>使用背景图片</td><td>false</td></tr><tr><td>fontSize</td><td>验证码字体大小(px)</td><td>25</td></tr><tr><td>useCurve</td><td>是否画混淆曲线</td><td>true</td></tr><tr><td>useNoise</td><td>是否添加杂点</td><td>true</td></tr><tr><td>imageH</td><td>验证码图片高度，设置为0为自动计算</td><td>0</td></tr><tr><td>imageW</td><td>验证码图片宽度，设置为0为自动计算</td><td>0</td></tr><tr><td>length</td><td>验证码位数</td><td>5</td></tr><tr><td>fontttf</td><td>验证码字体，不设置是随机获取</td><td>空</td></tr><tr><td>bg</td><td>背景颜色</td><td>[243, 251, 254]</td></tr><tr><td>reset</td><td>验证成功后是否重置</td><td>true</td></tr></tbody></table>
+<p>直接在应用的<code>config</code>目录下面的<code>captcha.php</code>文件中进行设置即可，例如下面的配置参数用于输出4位数字验证码。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token keyword">return</span> <span class="token punctuation">[</span>
+    <span class="token string">'length'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span>  <span class="token number">4</span><span class="token punctuation">,</span>
+    <span class="token string">'codeSet'</span>   <span class="token operator">=</span><span class="token operator">&gt;</span>  <span class="token string">'0123456789'</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h2><a id="_80"></a>自定义验证码</h2>
+<p>如果需要自己独立生成验证码，可以调用<code>Captcha</code>类（<code>think\captcha\facade\Captcha</code>）操作。</p>
+<p>在控制器中使用下面的代码进行验证码生成：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\index\controller<span class="token punctuation">;</span>
+
+use think\captcha\facade\Captcha<span class="token punctuation">;</span>
+
+class <span class="token class-name">Index</span> 
+<span class="token punctuation">{</span>
+	public <span class="token keyword">function</span> <span class="token function">verify</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> Captcha<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">create</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>    
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>然后访问下面的地址就可以显示验证码：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">http<span class="token punctuation">:</span><span class="token operator">/</span><span class="token operator">/</span>serverName<span class="token operator">/</span>index<span class="token operator">/</span>index<span class="token operator">/</span>verify
+</code></pre></div>
+<p>输出效果如图</p>
+<p><img src="https://box.kancloud.cn/dcbf30b119dc2bb7ec6f41d943b5646c_250x62.png" alt=""></p>
+<p>通常可以给验证码地址注册路由</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'verify'</span><span class="token punctuation">,</span><span class="token string">'index/verify'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>在模板中就可以使用下面的代码显示验证码图片</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span>div<span class="token operator">&gt;</span><span class="token operator">&lt;</span>img src<span class="token operator">=</span><span class="token string">"{:url('index/verify')}"</span> alt<span class="token operator">=</span><span class="token string">"captcha"</span> <span class="token operator">/</span><span class="token operator">&gt;</span><span class="token operator">&lt;</span><span class="token operator">/</span>div<span class="token operator">&gt;</span>
+</code></pre></div>
+<p>可以用<code>Captcha</code>类的<code>check</code>方法检测验证码的输入是否正确，</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 检测输入的验证码是否正确，$value为用户输入的验证码字符串</span>
+$captcha <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Captcha</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">if</span><span class="token punctuation">(</span> <span class="token operator">!</span>$captcha<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">check</span><span class="token punctuation">(</span>$value<span class="token punctuation">)</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	<span class="token comment">// 验证失败</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>或者直接调用封装的一个验证码检测的函数<code>captcha_check</code></p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 检测输入的验证码是否正确，$value为用户输入的验证码字符串</span>
+<span class="token keyword">if</span><span class="token punctuation">(</span> <span class="token operator">!</span><span class="token function">captcha_check</span><span class="token punctuation">(</span>$value <span class="token punctuation">)</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	<span class="token comment">// 验证失败</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>如果你需要生成多个不同设置的验证码，可以使用下面的配置方式：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+<span class="token keyword">return</span> <span class="token punctuation">[</span>
+    <span class="token string">'verify'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token punctuation">[</span>
+        <span class="token string">'codeSet'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'1234567890'</span>
+    <span class="token punctuation">]</span>
+<span class="token punctuation">]</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>使用指定的配置生成验证码:</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token keyword">return</span> Captcha<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">create</span><span class="token punctuation">(</span><span class="token string">'verify'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>默认情况下，验证码的字体是随机使用扩展包内 <code>think-captcha/assets/ttfs</code>目录下面的字体文件，我们可以指定验证码的字体，例如：<br>
+修改或新建配置文件如下:</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+<span class="token keyword">return</span> <span class="token punctuation">[</span>
+    <span class="token string">'verify'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token punctuation">[</span>
+        <span class="token string">'fontttf'</span><span class="token operator">=</span><span class="token operator">&gt;</span><span class="token string">'1.ttf'</span>
+    <span class="token punctuation">]</span>
+<span class="token punctuation">]</span><span class="token punctuation">;</span>
+</code></pre></div>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token keyword">return</span> Captcha<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">create</span><span class="token punctuation">(</span><span class="token string">'verify'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<blockquote class="default"><p>默认的验证码字符已经剔除了易混淆的<code>1l0o</code>等字符</p></blockquote>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

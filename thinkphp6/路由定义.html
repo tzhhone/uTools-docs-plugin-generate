@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>路由定义</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s1300661999"><p>要使用<code>Route</code>类注册路由必须首先在路由定义文件开头添加引用（后面不再重复说明）</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">use think\facade\Route<span class="token punctuation">;</span>
+</code></pre></div>
+<h2><a id="_5"></a>注册路由</h2>
+<p>最基础的路由定义方法是：</p>
+<blockquote class="info"><p>Route::rule('路由表达式', '路由地址', '请求类型');</p></blockquote>
+<p>例如注册如下路由规则（假设为单应用模式）：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 注册路由到News控制器的read操作</span>
+Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">rule</span><span class="token punctuation">(</span><span class="token string">'new/:id'</span><span class="token punctuation">,</span><span class="token string">'News/read'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>我们访问：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">http<span class="token punctuation">:</span><span class="token operator">/</span><span class="token operator">/</span>serverName<span class="token operator">/</span><span class="token keyword">new</span><span class="token operator">/</span><span class="token number">5</span>
+</code></pre></div>
+<p>会自动路由到：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">http<span class="token punctuation">:</span><span class="token operator">/</span><span class="token operator">/</span>serverName<span class="token operator">/</span>news<span class="token operator">/</span>read<span class="token operator">/</span>id<span class="token operator">/</span><span class="token number">5</span>
+</code></pre></div>
+<p>并且原来的访问地址会自动失效。</p>
+<p>可以在<code>rule</code>方法中指定请求类型（不指定的话默认为任何请求类型有效），例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">rule</span><span class="token punctuation">(</span><span class="token string">'new/:id'</span><span class="token punctuation">,</span> <span class="token string">'News/update'</span><span class="token punctuation">,</span> <span class="token string">'POST'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<blockquote class="danger"><p>请求类型参数不区分大小写。</p></blockquote>
+<p>表示定义的路由规则在<code>POST</code>请求下才有效。如果要定义<code>GET</code>和<code>POST</code>请求支持的路由规则，可以用：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">rule</span><span class="token punctuation">(</span><span class="token string">'new/:id'</span><span class="token punctuation">,</span><span class="token string">'News/read'</span><span class="token punctuation">,</span><span class="token string">'GET|POST'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>不过通常我们更推荐使用对应请求类型的快捷方法，包括：</p>
+<table><thead><tr><th>类型</th><th>描述</th><th>快捷方法</th></tr></thead><tbody><tr><td>GET</td><td>GET请求</td><td>get</td></tr><tr><td>POST</td><td>POST请求</td><td>post</td></tr><tr><td>PUT</td><td>PUT请求</td><td>put</td></tr><tr><td>DELETE</td><td>DELETE请求</td><td>delete</td></tr><tr><td>PATCH</td><td>PATCH请求</td><td>patch</td></tr><tr><td>HEAD</td><td>HEAD请求</td><td>head （<code>V6.0.13+</code>）</td></tr><tr><td>*</td><td>任何请求类型</td><td>any</td></tr></tbody></table>
+<p>快捷注册方法的用法为：</p>
+<blockquote class="info"><p>Route::快捷方法名('路由表达式', '路由地址');</p></blockquote>
+<p>使用示例如下：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'new/&lt;id&gt;'</span><span class="token punctuation">,</span><span class="token string">'News/read'</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 定义GET请求路由规则</span>
+Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">post</span><span class="token punctuation">(</span><span class="token string">'new/&lt;id&gt;'</span><span class="token punctuation">,</span><span class="token string">'News/update'</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 定义POST请求路由规则</span>
+Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">put</span><span class="token punctuation">(</span><span class="token string">'new/:id'</span><span class="token punctuation">,</span><span class="token string">'News/update'</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 定义PUT请求路由规则</span>
+Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">delete</span><span class="token punctuation">(</span><span class="token string">'new/:id'</span><span class="token punctuation">,</span><span class="token string">'News/delete'</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 定义DELETE请求路由规则</span>
+Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">any</span><span class="token punctuation">(</span><span class="token string">'new/:id'</span><span class="token punctuation">,</span><span class="token string">'News/read'</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 所有请求都支持的路由规则</span>
+</code></pre></div>
+<p>注册多个路由规则后，系统会依次遍历注册过的满足请求类型的路由规则，一旦匹配到正确的路由规则后则开始执行最终的调度方法，后续规则就不再检测。</p>
+<h2><a id="_74"></a>规则表达式</h2>
+<p>规则表达式通常包含静态规则和动态规则，以及两种规则的结合，例如下面都属于有效的规则表达式：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">rule</span><span class="token punctuation">(</span><span class="token string">'/'</span><span class="token punctuation">,</span> <span class="token string">'index'</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 首页访问路由</span>
+Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">rule</span><span class="token punctuation">(</span><span class="token string">'my'</span><span class="token punctuation">,</span> <span class="token string">'Member/myinfo'</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 静态地址路由</span>
+Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">rule</span><span class="token punctuation">(</span><span class="token string">'blog/:id'</span><span class="token punctuation">,</span> <span class="token string">'Blog/read'</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 静态地址和动态地址结合</span>
+Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">rule</span><span class="token punctuation">(</span><span class="token string">'new/:year/:month/:day'</span><span class="token punctuation">,</span> <span class="token string">'News/read'</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 静态地址和动态地址结合</span>
+Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">rule</span><span class="token punctuation">(</span><span class="token string">':user/:blog_id'</span><span class="token punctuation">,</span> <span class="token string">'Blog/read'</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 全动态地址</span>
+</code></pre></div>
+<blockquote class="danger"><p>规则表达式的定义以<code>/</code>为参数分割符（无论你的<code>PATH_INFO</code>分隔符设置是什么，请确保在定义路由规则表达式的时候统一使用<code>/</code>进行URL参数分割，除非是使用组合变量的情况）。</p></blockquote>
+<p>每个参数中可以包括动态变量，例如<code>:变量</code>或者<code>&lt;变量&gt;</code>都表示动态变量（新版推荐使用第二种方式，更利于混合变量定义），并且会自动绑定到操作方法的对应参数。</p>
+<blockquote class="info"><p>你的URL访问<code>PATH_INFO</code>分隔符使用<code>pathinfo_depr</code>配置，但无论如何配置，都不影响路由的规则表达式的路由分隔符定义。</p></blockquote>
+<h2><a id="_92"></a>可选变量</h2>
+<p>支持对路由参数的可选定义，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'blog/:year/[:month]'</span><span class="token punctuation">,</span><span class="token string">'Blog/archive'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// 或者</span>
+Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'blog/&lt;year&gt;/&lt;month?&gt;'</span><span class="token punctuation">,</span><span class="token string">'Blog/archive'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>变量用<code>[ ]</code>包含起来后就表示该变量是路由匹配的可选变量。</p>
+<p>以上定义路由规则后，下面的URL访问地址都可以被正确的路由匹配：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">http<span class="token punctuation">:</span><span class="token operator">/</span><span class="token operator">/</span>serverName<span class="token operator">/</span>index<span class="token punctuation">.</span>php<span class="token operator">/</span>blog<span class="token operator">/</span><span class="token number">2015</span>
+http<span class="token punctuation">:</span><span class="token operator">/</span><span class="token operator">/</span>serverName<span class="token operator">/</span>index<span class="token punctuation">.</span>php<span class="token operator">/</span>blog<span class="token operator">/</span><span class="token number">2015</span><span class="token operator">/</span><span class="token number">12</span>
+</code></pre></div>
+<p>采用可选变量定义后，之前需要定义两个或者多个路由规则才能处理的情况可以合并为一个路由规则。</p>
+<blockquote class="danger"><p>可选参数只能放到路由规则的最后，如果在中间使用了可选参数的话，后面的变量都会变成可选参数。</p></blockquote>
+<h2><a id="_115"></a>完全匹配</h2>
+<p>规则匹配检测的时候默认只是对URL从头开始匹配，只要URL地址开头包含了定义的路由规则就会匹配成功，如果希望URL进行完全匹配，可以在路由表达式最后使用<code>$</code>符号，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'new/:cate$'</span><span class="token punctuation">,</span> <span class="token string">'News/category'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>这样定义后</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">http<span class="token punctuation">:</span><span class="token operator">/</span><span class="token operator">/</span>serverName<span class="token operator">/</span>index<span class="token punctuation">.</span>php<span class="token operator">/</span><span class="token keyword">new</span><span class="token operator">/</span>info
+</code></pre></div>
+<p>会匹配成功,而</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">http<span class="token punctuation">:</span><span class="token operator">/</span><span class="token operator">/</span>serverName<span class="token operator">/</span>index<span class="token punctuation">.</span>php<span class="token operator">/</span><span class="token keyword">new</span><span class="token operator">/</span>info<span class="token operator">/</span><span class="token number">2</span>
+</code></pre></div>
+<p>则不会匹配成功。</p>
+<p>如果是采用</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'new/:cate'</span><span class="token punctuation">,</span> <span class="token string">'News/category'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>方式定义的话，则两种方式的URL访问都可以匹配成功。</p>
+<p>如果需要全局进行URL完全匹配，可以在路由配置文件中设置</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 开启路由完全匹配</span>
+<span class="token string">'route_complete_match'</span>   <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+</code></pre></div>
+<p>开启全局完全匹配后，如果需要对某个路由关闭完全匹配，可以使用</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'new/:cate'</span><span class="token punctuation">,</span> <span class="token string">'News/category'</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">completeMatch</span><span class="token punctuation">(</span><span class="token boolean">false</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h2><a id="_157"></a>额外参数</h2>
+<p>在路由跳转的时候支持额外传入参数对（额外参数指的是不在URL里面的参数，隐式传入需要的操作中，有时候能够起到一定的安全防护作用，后面我们会提到）。例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'blog/:id'</span><span class="token punctuation">,</span><span class="token string">'blog/read'</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">append</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'status'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token string">'app_id'</span> <span class="token operator">=</span><span class="token operator">&gt;</span><span class="token number">5</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>上面的路由规则定义中<code>status</code>和<code>app_id</code>参数都是URL里面不存在的，属于隐式传值。可以针对不同的路由设置不同的额外参数。</p>
+<blockquote class="danger"><p>如果<code>append</code>方法中的变量和路由规则存在冲突的话，append方法传入的优先。</p></blockquote>
+<h2><a id="_170"></a>路由标识</h2>
+<p>如果你需要快速的根据路由生成URL地址，可以在定义路由的时候指定生成标识（但要确保唯一）。</p>
+<p>例如</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 注册路由到News控制器的read操作</span>
+Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">rule</span><span class="token punctuation">(</span><span class="token string">'new/:id'</span><span class="token punctuation">,</span><span class="token string">'News/read'</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">name</span><span class="token punctuation">(</span><span class="token string">'new_read'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>生成路由地址的时候就可以使用</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token function">url</span><span class="token punctuation">(</span><span class="token string">'new_read'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token string">'id'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token number">10</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>如果不定义路由标识的话，系统会默认使用路由地址作为路由标识，例如可以使用下面的方式生成</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token function">url</span><span class="token punctuation">(</span><span class="token string">'News/read'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token string">'id'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token number">10</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h2><a id="_194"></a>强制路由</h2>
+<p>在路由配置文件中设置</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'url_route_must'</span>		<span class="token operator">=</span><span class="token operator">&gt;</span>  <span class="token boolean">true</span><span class="token punctuation">,</span>
+</code></pre></div>
+<p>将开启强制使用路由，这种方式下面必须严格给每一个访问地址定义路由规则（<strong>包括首页</strong>），否则将抛出异常。</p>
+<p>首页的路由规则采用<code>/</code>定义即可，例如下面把网站首页路由输出<code>Hello,world!</code></p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'/'</span><span class="token punctuation">,</span> <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token string">'Hello,world!'</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

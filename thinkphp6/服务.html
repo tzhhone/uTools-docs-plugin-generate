@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>服务</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s-643262271"><h2><a id="_0"></a>系统服务</h2>
+<p>系统服务的概念是指在执行框架的某些组件或者功能的时候需要依赖的一些基础服务，服务类通常可以继承系统的<code>think\Service</code>类，但并不强制（如果继承<code>think\Service</code>的话可以直接调用<code>this-&gt;app</code>获取应用实例）。</p>
+<p>你可以在系统服务中注册一个对象到容器，或者对某些对象进行相关的依赖注入。由于系统服务的执行优先级问题，可以确保相关组件在执行的时候已经完成相关依赖注入。</p>
+<h2><a id="_6"></a>服务定义</h2>
+<p>你可以通过命令行生成一个服务类，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">php think make<span class="token punctuation">:</span>service  FileSystemService
+</code></pre></div>
+<p>默认生成的服务类会继承系统的<code>think\Service</code>，并且自动生成了系统服务类最常用的两个空方法：<code>register</code>和<code>boot</code>方法。</p>
+<h3><a id="_16"></a>注册方法</h3>
+<p><code>register</code>方法通常用于注册系统服务，也就是将服务绑定到容器中，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\service<span class="token punctuation">;</span>
+
+use my\util\FileSystem<span class="token punctuation">;</span>
+
+class <span class="token class-name">FileSystemService</span> extends <span class="token class-name">Service</span>
+<span class="token punctuation">{</span>
+    public <span class="token keyword">function</span> <span class="token function">register</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        $this<span class="token operator">-</span><span class="token operator">&gt;</span>app<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">bind</span><span class="token punctuation">(</span><span class="token string">'file_system'</span><span class="token punctuation">,</span> FileSystem<span class="token punctuation">:</span><span class="token punctuation">:</span>class<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p><code>register</code>方法不需要任何的参数，如果你只是简单的绑定容器对象的话，可以直接使用<code>bind</code>属性。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\service<span class="token punctuation">;</span>
+
+use my\util\FileSystem<span class="token punctuation">;</span>
+
+class <span class="token class-name">FileSystemService</span> extends <span class="token class-name">Service</span>
+<span class="token punctuation">{</span>
+    public $bind <span class="token operator">=</span> <span class="token punctuation">[</span>
+        <span class="token string">'file_system'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span>    FileSystem<span class="token punctuation">:</span><span class="token punctuation">:</span>class<span class="token punctuation">,</span>
+    <span class="token punctuation">]</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<h3><a id="_50"></a>启动方法</h3>
+<p><code>boot</code>方法是在所有的系统服务注册完成之后调用，用于定义启动某个系统服务之前需要做的操作。例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace think\captcha<span class="token punctuation">;</span>
+
+use think\Route<span class="token punctuation">;</span>
+use think\Service<span class="token punctuation">;</span>
+use think\Validate<span class="token punctuation">;</span>
+
+class <span class="token class-name">CaptchaService</span> extends <span class="token class-name">Service</span>
+<span class="token punctuation">{</span>
+    public <span class="token keyword">function</span> <span class="token function">boot</span><span class="token punctuation">(</span>Route $route<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        $route<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'captcha/[:config]'</span><span class="token punctuation">,</span> <span class="token string">"\\think\\captcha\\CaptchaController@index"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        Validate<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">maker</span><span class="token punctuation">(</span><span class="token keyword">function</span> <span class="token punctuation">(</span>$validate<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            $validate<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">extend</span><span class="token punctuation">(</span><span class="token string">'captcha'</span><span class="token punctuation">,</span> <span class="token keyword">function</span> <span class="token punctuation">(</span>$value<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                <span class="token keyword">return</span> <span class="token function">captcha_check</span><span class="token punctuation">(</span>$value<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token string">':attribute错误!'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p><code>boot</code>方法支持依赖注入，你可以直接使用其它的依赖服务。</p>
+<h2><a id="_78"></a>服务注册</h2>
+<p>定义好系统服务后，你还需要注册服务到你的应用实例中。</p>
+<p>可以在应用的全局公共文件<code>service.php</code>中定义需要注册的系统服务，系统会自动完成注册以及启动。例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token keyword">return</span> <span class="token punctuation">[</span>
+    <span class="token string">'\app\service\ConfigService'</span><span class="token punctuation">,</span>
+    <span class="token string">'\app\service\CacheService'</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>如果你需要在你的扩展中注册系统服务，首先在扩展中增加一个服务类，然后在扩展的<code>composer.json</code>文件中增加如下定义：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">"extra"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+    <span class="token string">"think"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+        <span class="token string">"services"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span>
+            <span class="token string">"think\\captcha\\CaptchaService"</span>
+        <span class="token punctuation">]</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">,</span>
+</code></pre></div>
+<p>在安装扩展后会系统会自动执行<code>service:discover</code>指令用于生成服务列表，并在系统初始化过程中自动注册。</p>
+<h2><a id="_103"></a>内置服务</h2>
+<p>为了更好的完成核心组件的单元测试，框架内置了一些系统服务类，主要都是用于核心类的依赖注入，包括<code>ModelService</code>、<code>PaginatorService</code>和<code>ValidateService</code>类。这些服务不需要注册，并且也不能卸载。</p>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

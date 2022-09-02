@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SQL调试</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s-1917465689"><h2><a id="Trace_0"></a>查看页面Trace</h2>
+<p>通过查看页面Trace信息可以看到当前请求所有执行的SQL语句，例如：</p>
+<p><img src="https://box.kancloud.cn/f7ad9ec062a2b06e9fe6bcd740f449a8_1004x208.png" alt=""></p>
+<h2><a id="SQL_6"></a>查看SQL日志</h2>
+<p>如果开启了数据库的日志监听（<code>trigger_sql</code>)的话，可以在日志文件（或者设置的日志输出类型）中看到详细的SQL执行记录。</p>
+<blockquote class="danger"><p>通常我们建议设置把SQL日志级别写入到单独的日志文件中，具体可以参考日志处理部分。</p></blockquote>
+<p>下面是一个典型的SQL日志：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token punctuation">[</span> SQL <span class="token punctuation">]</span> SHOW COLUMNS FROM `think_user` <span class="token punctuation">[</span> RunTime<span class="token punctuation">:</span><span class="token number">0.001339</span>s <span class="token punctuation">]</span>
+<span class="token punctuation">[</span> SQL <span class="token punctuation">]</span> SELECT <span class="token operator">*</span> FROM `think_user` LIMIT <span class="token number">1</span> <span class="token punctuation">[</span> RunTime<span class="token punctuation">:</span><span class="token number">0.000539</span>s <span class="token punctuation">]</span>
+</code></pre></div>
+<p>如果需要增加额外的SQL监听，可以使用</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Db<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">listen</span><span class="token punctuation">(</span><span class="token keyword">function</span><span class="token punctuation">(</span>$sql<span class="token punctuation">,</span> $runtime<span class="token punctuation">,</span> $master<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// 进行监听处理</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>监听方法支持三个参数，依次是执行的SQL语句，运行时间（秒），以及主从标记（如果没有开启分布式的话，该参数为null，否则为布尔值）。</p>
+<h2><a id="SQL_28"></a>调试执行的SQL语句</h2>
+<p>在模型操作中 ，为了更好的查明错误，经常需要查看下最近使用的SQL语句，我们可以用<code>getLastsql</code>方法来输出上次执行的sql语句。例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">User<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+echo User<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">getLastSql</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>输出结果是</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">SELECT <span class="token operator">*</span> FROM <span class="token string">'think_user'</span> WHERE `id` <span class="token operator">=</span> <span class="token number">1</span>
+</code></pre></div>
+<blockquote class="danger"><p><code>getLastSql</code>方法只能获取最后执行的<code>SQL</code>记录。</p></blockquote>
+<p>也可以使用<code>fetchSql</code>方法直接返回当前的查询SQL而不执行，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">echo User<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">fetchSql</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>输出的结果是一样的。</p>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

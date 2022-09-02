@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>存储过程</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s-1891081826"><p>数据访问层支持存储过程调用，调用数据库存储过程使用下面的方法：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$resultSet <span class="token operator">=</span> Db<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">query</span><span class="token punctuation">(</span><span class="token string">'call procedure_name'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+foreach <span class="token punctuation">(</span>$resultSet as $result<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>存储过程返回的是一个数据集，如果你的存储过程不需要返回任何的数据，那么也可以使用execute方法：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Db<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">execute</span><span class="token punctuation">(</span><span class="token string">'call procedure_name'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>存储过程可以支持输入和输出参数，以及进行参数绑定操作。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$resultSet <span class="token operator">=</span> Db<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">query</span><span class="token punctuation">(</span><span class="token string">'call procedure_name(:in_param1,:in_param2,:out_param)'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span>
+    <span class="token string">'in_param1'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> $param1<span class="token punctuation">,</span>
+    <span class="token string">'in_param2'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token punctuation">[</span>$param2<span class="token punctuation">,</span> PDO<span class="token punctuation">:</span><span class="token punctuation">:</span>PARAM_INT<span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token string">'out_param'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token punctuation">[</span>$outParam<span class="token punctuation">,</span> PDO<span class="token punctuation">:</span><span class="token punctuation">:</span>PARAM_STR <span class="token operator">|</span> PDO<span class="token punctuation">:</span><span class="token punctuation">:</span>PARAM_INPUT_OUTPUT<span class="token punctuation">,</span> <span class="token number">4000</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>输出参数的绑定必须额外使用<code>PDO::PARAM_INPUT_OUTPUT</code>，并且可以和输入参数公用一个参数。</p>
+<blockquote class="danger"><p>无论存储过程内部做了什么操作，每次存储过程调用仅仅被当成一次查询。</p></blockquote>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>

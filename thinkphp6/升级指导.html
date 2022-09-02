@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>升级指导</title>
+
+
+</head>
+<body>
+<div class="window-body">
+    <div class="workspace">
+        <div class="article">
+            <div class="kancloud-markdown-body">
+                <div id="s114703634"><p><code>V6.0</code>版本保持兼容升级，但不兼容<code>5.*</code>版本的升级。</p>
+<h1><a id="5160_2"></a><code>5.1</code>升级到<code>6.0</code>版本</h1>
+<blockquote class="danger"><p>不建议老的项目升级到新版，除非你有重构计划，否则就算升级了也只是表面上升级了。</p></blockquote>
+<blockquote class="default"><p>本文主要用于指导开发者从<code>5.1</code>升级到<code>6.0</code>最新（RC）版本，由于<code>6.0</code>不支持<code>5.1</code>的无缝升级，下面的升级步骤和指导仅供学习参考，或有遗漏及考虑不周之处，因此不保证你的所有功能都能正常升级。</p></blockquote>
+<p><code>6.0</code>版本必须使用<code>composer</code>安装，所以你需要首先安装新的<code>6.0</code>版本，然后把原来<code>5.1</code>的文件复制进去，完成升级工作。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">composer create<span class="token operator">-</span>project topthink<span class="token operator">/</span>think<span class="token punctuation">:</span><span class="token number">6.0</span><span class="token number">.0</span> tp
+</code></pre></div>
+<p>安装完成后，把原来<code>application</code>目录下面的文件复制到<code>app</code>目录下面，然后把<code>config</code>和<code>route</code>目录下的文件复制到同名目录下。接下来，按照下面的步骤来升级操作。</p>
+<p>从<code>5.1</code>多模块迁移到<code>6.0</code>的多应用后，应用类库的命名空间原则上可以无需调整，但不再支持跨应用调用（包括路由及模板，每个应用的路由是独立的），这点务必引起重视。如果你的应用根命名空间不是默认的<code>app</code>需要改成<code>app</code>。</p>
+<div class="markdown-toc"><ul><li><a href="#_20">第一步：应用配置</a></li><li><a href="#_47">第二步：配置调整</a></li><li><a href="#_96">第三步：路由和请求调整</a></li><li><a href="#_216">第四步：控制器和视图调整</a></li><li><a href="#_252">第五步：数据库和模型调整</a></li><li><a href="#_451">第六步：行为调整</a></li><li><a href="#_506">第七步：其它调整及注意事项</a></li></ul></div><h2><a id="_20"></a>第一步：应用配置</h2>
+<p>如果原来你使用了多模块开发模式，直接改成新版的多应用模式是最简单的，需要额外安装多应用模式扩展。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">composer require topthink<span class="token operator">/</span>think<span class="token operator">-</span>multi<span class="token operator">-</span>app
+</code></pre></div>
+<p>如果你自定义了访问控制器的名称，需要修改<code>route.php</code>配置文件中的<code>controller_layer</code>值。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 访问控制器层名称</span>
+<span class="token string">'controller_layer'</span>      <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'controller'</span><span class="token punctuation">,</span>
+</code></pre></div>
+<p>如果你开启了控制器类的后缀，需要设置<code>route.php</code>配置文件中的<code>controller_suffix</code>值。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 开启控制器后缀</span>
+<span class="token string">'controller_suffix'</span>     <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+</code></pre></div>
+<p>如果自定义了空控制器的名称，则需要设置<code>route.php</code>配置文件中的<code>empty_controller</code>值。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token comment">// 空控制器名</span>
+<span class="token string">'empty_controller'</span>      <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'Error'</span><span class="token punctuation">,</span>
+</code></pre></div>
+<h2><a id="_47"></a>第二步：配置调整</h2>
+<p>请按照如下顺序检查及调整你的配置文件和相关配置代码。</p>
+<h3><a id="_51"></a>应用的配置文件</h3>
+<p>如果是多应用的话，应用配置文件应当放入应用下的<code>config</code>目录。全局配置文件位置无需调整。</p>
+<h3><a id="_55"></a>配置获取调整</h3>
+<p>原来获取一级配置参数的方式</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Config<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">pull</span><span class="token punctuation">(</span><span class="token string">'app'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>需要改成</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Config<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'app'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>所有的配置读取必须从第一级配置开始，例如，原来的</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Config<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'exception_handle'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>必须改成</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Config<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'app.exception_handle'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h3><a id="_74"></a>废弃动态设置</h3>
+<p>动态更改配置参数的用法已经废弃，下面的用法不再支持。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Config<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">set</span><span class="token punctuation">(</span><span class="token string">'route.default_return_type'</span><span class="token punctuation">,</span> <span class="token string">'json'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>如果你需要把数据库的配置参数读入配置，可以使用</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$config <span class="token operator">=</span> Db<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">name</span><span class="token punctuation">(</span><span class="token string">'config'</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">column</span><span class="token punctuation">(</span><span class="token string">'value'</span><span class="token punctuation">,</span> <span class="token string">'name'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+Config<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">set</span><span class="token punctuation">(</span>$config<span class="token punctuation">,</span> <span class="token string">'route'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h3><a id="Config_88"></a><code>Config</code>类不再支持数组方式读取</h3>
+<p><code>Config</code>类不再使用<code>ArrayAccess</code>接口，因此不再支持数组方式读取。</p>
+<h3><a id="URL_92"></a>路由和URL配置独立</h3>
+<p>路由和URL请求相关的配置参数独立为<code>route.php</code>配置文件，而不再使用<code>app.php</code>配置文件。</p>
+<h2><a id="_96"></a>第三步：路由和请求调整</h2>
+<h3><a id="_98"></a>路由定义文件位置调整</h3>
+<p>单应用模式下，路由定义文件和之前一样就在<code>route</code>目录下面，如果你的项目是采用了多应用模式的话，每个应用的路由定义和匹配都是独立的，也没有模块的概念，路由定义文件的位置应该是在<code>应用/route</code>下面，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">app<span class="token operator">/</span>index<span class="token operator">/</span>route<span class="token operator">/</span>route<span class="token punctuation">.</span>php <span class="token comment">//  index应用的路由定义文件</span>
+app<span class="token operator">/</span>index<span class="token operator">/</span>route<span class="token operator">/</span>web<span class="token punctuation">.</span>php <span class="token comment">//  index应用的第二个路由定义文件</span>
+app<span class="token operator">/</span>admin<span class="token operator">/</span>route<span class="token operator">/</span>route<span class="token punctuation">.</span>php <span class="token comment">// admin应用的路由定义文件</span>
+</code></pre></div>
+<blockquote class="default"><p>应用的路由规则其实是定义的入口文件（或者应用名）后面的URL部分，而不包含应用。</p></blockquote>
+<h3><a id="_110"></a>路由注册方法调整</h3>
+<p>首先如果你的路由定义采用的是返回数组形式，全部改成方法定义。</p>
+<p>例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token keyword">return</span> <span class="token punctuation">[</span>
+    <span class="token string">'hello/:name'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'index/hello'</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>必须改成：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'hello/:name'</span><span class="token punctuation">,</span> <span class="token string">'index/hello'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>如果路由定义方法（包括<code>rule</code>/<code>get</code>/<code>post</code>/<code>put</code>/<code>delete</code>/<code>patch</code>/<code>miss</code>/<code>group</code>等方法）使用了<code>option</code>和<code>pattern</code>参数，全部改成方法调用形式，例如原来的：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'hello/:name'</span><span class="token punctuation">,</span> <span class="token string">'index/hello'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span> <span class="token string">'ext'</span>  <span class="token operator">=</span><span class="token operator">&gt;</span>  <span class="token string">'html'</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token punctuation">[</span> <span class="token string">'name'</span>  <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'\w+'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>需要改成</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'hello/:name'</span><span class="token punctuation">,</span> <span class="token string">'index/hello'</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">ext</span><span class="token punctuation">(</span><span class="token string">'html'</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">pattern</span><span class="token punctuation">(</span><span class="token punctuation">[</span> <span class="token string">'name'</span>  <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'\w+'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h3><a id="_142"></a>路由分组调整</h3>
+<p>如果路由分组定义使用了数组，改成闭包方式定义，例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">group</span><span class="token punctuation">(</span><span class="token string">'blog'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span>
+    <span class="token string">':id'</span>   <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'Blog/read'</span><span class="token punctuation">,</span>
+    <span class="token string">':name'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'Blog/read'</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">ext</span><span class="token punctuation">(</span><span class="token string">'html'</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">pattern</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'id'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'\d+'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>必须改成</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">group</span><span class="token punctuation">(</span><span class="token string">'blog'</span><span class="token punctuation">,</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">':id'</span><span class="token punctuation">,</span> <span class="token string">'Blog/read'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">':name'</span><span class="token punctuation">,</span> <span class="token string">'Blog/read'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">ext</span><span class="token punctuation">(</span><span class="token string">'html'</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">pattern</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'id'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'\d+'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>如果你需要注册一个虚拟的路由分组，可以直接在第一个参数使用闭包</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">group</span><span class="token punctuation">(</span><span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'blog/:id'</span><span class="token punctuation">,</span> <span class="token string">'Blog/read'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'user/:name'</span><span class="token punctuation">,</span> <span class="token string">'User/read'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">ext</span><span class="token punctuation">(</span><span class="token string">'html'</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">pattern</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'id'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'\d+'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h3><a id="url_controller_layer_170"></a>取消了<code>url_controller_layer</code>配置</h3>
+<p>改为在<code>route.php</code>配置文件中使用<code>controller_layer</code>设置。</p>
+<h3><a id="controller_suffix_174"></a>取消<code>controller_suffix</code>配置</h3>
+<p>改为在<code>route.php</code>配置文件中使用<code>controller_suffix</code>设置。</p>
+<p>同时<code>class_suffix</code>配置参数已经无效。</p>
+<h3><a id="mergeExtraVars_180"></a>取消<code>mergeExtraVars</code>方法和对应参数</h3>
+<p>改为在路由规则中明确指定变量规则。</p>
+<h3><a id="allowCrossDomain_184"></a><code>allowCrossDomain</code>方法参数调整</h3>
+<p>取消原来的第一个参数。</p>
+<h3><a id="header_188"></a><code>header</code>方法取消</h3>
+<p>需要单独改变Header信息的直接通过中间件统一处理。</p>
+<h3><a id="Requesthook_192"></a>取消<code>Request</code>类的<code>hook</code>方法</h3>
+<p>该方法已经在最新版本中取消。如果你使用了该功能，在自定义请求对象<code>app\Request</code>中直接增加相应的方法即可。并确保<code>provider.php</code>文件中添加如下绑定：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'think\Request'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> \app\Request<span class="token punctuation">:</span><span class="token punctuation">:</span>class<span class="token punctuation">,</span>
+</code></pre></div>
+<h3><a id="URL_200"></a>取消<code>URL</code>参数模式配置</h3>
+<p>原来的URL参数模式配置参数<code>url_param_type</code>，统一使用参数/值的方式。如果你设置了该配置参数为1，必须改成定义路由的方式。</p>
+<h3><a id="_204"></a>取消别名路由</h3>
+<p>因为使用场景有限和性能开销问题，取消原来的别名路由功能，建议使用资源路由或者单独的路由替代。</p>
+<h3><a id="_208"></a>取消快捷路由</h3>
+<p>因为使用场景有限和不太符合规范，取消了原来的控制器快捷路由功能。</p>
+<h3><a id="_212"></a>取消空操作功能</h3>
+<p>建议使用分组MISS路由功能或者控制器的<code>__call</code>方法替代。</p>
+<h2><a id="_216"></a>第四步：控制器和视图调整</h2>
+<h3><a id="thinkController_218"></a><code>think\Controller</code>类取消</h3>
+<p>系统不再提供基础控制器类<code>think\Controller</code>，原来的<code>success</code>、<code>error</code>、<code>redirect</code>和<code>result</code>方法需要自己在基础控制器类里面实现。</p>
+<p>系统默认在应用目录下面提供了一个<code>app\BaseController</code>基础类，或者你可以直接放入你的应用里面，继承使用。</p>
+<p>你可以安装下面的扩展用于支持旧版本的跳转操作</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">composer require liliuwei<span class="token operator">/</span>thinkphp<span class="token operator">-</span>jump
+</code></pre></div>
+<h3><a id="_229"></a>视图和模板引擎从核心分离</h3>
+<p>模板引擎类不再内置到核心框架，但使用</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">composer create<span class="token operator">-</span>project topthink<span class="token operator">/</span>think 
+</code></pre></div>
+<p>会默认安装该组件（如果不需要使用的话可以自己卸载<code>topthink/think-view</code>）。</p>
+<p>安装后，由于内置的<code>think\Controller</code>类已经取消，如果你的控制器类需要调用<code>fetch</code>/<code>display</code>/<code>assign</code>等视图方法，必须改为调用<code>think\facade\View</code>类，如果是使用<code>view</code>助手函数方式的话，可以无需调整。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">View<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">assign</span><span class="token punctuation">(</span><span class="token string">'name'</span><span class="token punctuation">,</span> $name<span class="token punctuation">)</span><span class="token punctuation">;</span>
+View<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">fetch</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h3><a id="share_245"></a><code>share</code>方法取消</h3>
+<p>原来视图类的<code>share</code>方法取消，可以使用</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">think\facade\View<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">assign</span><span class="token punctuation">(</span>$vars<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h2><a id="_252"></a>第五步：数据库和模型调整</h2>
+<h3><a id="Db_254"></a><code>Db</code>改为使用门面对象</h3>
+<p>新版的<code>Db</code>类不再是静态类，需要使用<code>think\facade\Db</code>门面进行静态代理。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">\think\facade\Db<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">name</span><span class="token punctuation">(</span><span class="token string">'user'</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h3><a id="_262"></a>数据库配置信息调整</h3>
+<p>数据库配置文件或者<code>connect</code>方法取消<code>DSN</code>数据库配置定义方式，全部采用数组方式配置定义。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Db<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">connect</span><span class="token punctuation">(</span><span class="token string">'mysql://root:1234@127.0.0.1:3306/thinkphp#utf8'</span><span class="token punctuation">)</span>
+	<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">table</span><span class="token punctuation">(</span><span class="token string">'user'</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>必须改成</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Db<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">connect</span><span class="token punctuation">(</span><span class="token string">'db_config'</span><span class="token punctuation">)</span>
+	<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">table</span><span class="token punctuation">(</span><span class="token string">'user'</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>并且按照新版的规范在数据库配置文件中增加<code>db_config</code>连接信息。</p>
+<h3><a id="fetchPdo_278"></a>取消<code>fetchPdo</code>方法</h3>
+<p>取消了<code>Query</code>类的<code>fetchPdo</code>方法，需要的时候直接使用<code>getPdo</code>方法替代。</p>
+<h3><a id="Query_282"></a>取消查询方法传入<code>Query</code>对象</h3>
+<p>取消Query类的CURD查询方法传入当前对象，如果需要请使用闭包替代。</p>
+<h3><a id="insertinsertGetIdinsertAllreplace_286"></a><code>insert</code>/<code>insertGetId</code>/<code>insertAll</code>方法取消<code>replace</code>参数</h3>
+<p><code>insert</code>/<code>insertGetId</code>/<code>insertAll</code>方法的第二个<code>replace</code>参数已经取消，改为使用<code>replace</code>方法。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$data <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token string">'foo'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'bar'</span><span class="token punctuation">,</span> <span class="token string">'bar'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'foo'</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+Db<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">name</span><span class="token punctuation">(</span><span class="token string">'user'</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">insert</span><span class="token punctuation">(</span>$data<span class="token punctuation">,</span> <span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>需要改为</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">$data <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token string">'foo'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'bar'</span><span class="token punctuation">,</span> <span class="token string">'bar'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'foo'</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+Db<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">name</span><span class="token punctuation">(</span><span class="token string">'user'</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">replace</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">insert</span><span class="token punctuation">(</span>$data<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h3><a id="dbmodel_300"></a>取消<code>db</code>和<code>model</code>助手函数</h3>
+<p>这两个助手函数<code>5.1</code>版本已经不再建议使用了，<code>6.0</code>版本已经废弃掉这两个助手函数，请直接使用<code>\think\facade\Db</code>类静态方法和实际的模型类调用。</p>
+<h3><a id="setIncsetDec_304"></a>取消<code>setInc</code>/<code>setDec</code>方法</h3>
+<p>取消Query类的<code>setInc</code>/<code>setDec</code>方法，统一使用<code>inc</code>/<code>dec</code>方法替代。例如：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Db<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">name</span><span class="token punctuation">(</span><span class="token string">'user'</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">where</span><span class="token punctuation">(</span><span class="token string">'id'</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">inc</span><span class="token punctuation">(</span><span class="token string">'exp'</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">dec</span><span class="token punctuation">(</span><span class="token string">'score'</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">update</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h3><a id="join_315"></a>取消<code>join</code>方法的批量操作</h3>
+<p><code>join</code>方法不再支持批量操作多个表，如果你使用了<code>join</code>方法批量操作，需要改成每个表单独调用一次<code>join</code>方法。</p>
+<h3><a id="setField_319"></a>取消<code>setField</code>方法</h3>
+<p>取消Query类的<code>setField</code>方法，请直接使用<code>data</code>方法或者<code>update</code>方法。</p>
+<h3><a id="__TABLE_NAME___323"></a>取消<code>__TABLE_NAME__</code>支持</h3>
+<p><code>table</code>方法取消<code>__TABLE_NAME__</code>支持，必须明确调用完整表名或者使用<code>name</code>方法。</p>
+<h3><a id="whereOrQuery_327"></a>取消<code>whereOr</code>等方法传入<code>Query</code>对象</h3>
+<p>因为<code>Query</code>对象查询只能使用一次，除了<code>where</code>方法本身可以传入<code>Query</code>对象外，其它的所有<code>where</code>查询方法（例如<code>whereOr</code>/<code>whereExp</code>等）都不再支持传入<code>Query</code>对象。</p>
+<h3><a id="resultset_type_331"></a>取消<code>resultset_type</code>配置参数</h3>
+<p>数据集查询结果不再受<code>resultset_type</code>配置参数影响，默认情况下，Db查询统一返回数组，模型查询统一返回模型对象和模型数据集对象。如果Db查询的时候也需要返回数据集的话，可以显式调用<code>fetchCollection</code>方法。</p>
+<h3><a id="Queryextend_335"></a>取消<code>Query</code>类的<code>extend</code>方法</h3>
+<p>取消了<code>Query</code>类的<code>extend</code>方法，如果需要扩展查询方法，建议自定义<code>Query</code>类并继承系统的<code>think\db\Query</code>类即可，然后在模型中定义<code>query</code>属性或者配置数据库连接的<code>query</code>参数为你的自定义类。</p>
+<h3><a id="Expression_339"></a><code>Expression</code>对象调整</h3>
+<p>原来的<code>Expression</code>对象已经更改为更适合的<code>Raw</code>对象，但不影响<code>Db::raw()</code>方法的调用。</p>
+<h3><a id="eqneqgtltegtelt_343"></a>取消查询<code>eq/neq/gt/lt/egt/elt</code>表达式</h3>
+<p>由于存在两种用法，并且不够直观，全部统一为更直观的用法。</p>
+<p>下面的用法不再支持</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Db<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">name</span><span class="token punctuation">(</span><span class="token string">'user'</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">where</span><span class="token punctuation">(</span><span class="token string">'id'</span><span class="token punctuation">,</span> <span class="token string">'egt'</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">where</span><span class="token punctuation">(</span><span class="token string">'status'</span><span class="token punctuation">,</span> <span class="token string">'neq'</span> <span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">select</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>统一使用</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Db<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">name</span><span class="token punctuation">(</span><span class="token string">'user'</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">where</span><span class="token punctuation">(</span><span class="token string">'id'</span><span class="token punctuation">,</span> <span class="token string">'&gt;='</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">where</span><span class="token punctuation">(</span><span class="token string">'status'</span><span class="token punctuation">,</span> <span class="token string">'&lt;&gt;'</span> <span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">select</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h3><a id="_363"></a>取消分表功能</h3>
+<p>出于分表的性能问题和复杂性，不再提供分表方法，建议使用数据库的分区功能替代。新版可以使用<code>partition</code>方法指定当前查询的分区。</p>
+<h3><a id="_367"></a>数据库的查询统计合并</h3>
+<p>数据库的查询次数合并到<code>queryTimes</code>，不再区分读写操作，你可以使用下面的方法获取当前请求的数据库查询次数（包括读写）</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">Db<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">getQueryTimes</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h3><a id="_375"></a>模型后缀</h3>
+<p>如果之前开启了类库后缀功能的话，你必须在模型类里面明确指定<code>name</code>属性。</p>
+<h3><a id="getall_379"></a>取消了模型的<code>get</code>/<code>all</code>方法</h3>
+<p>无论使用<code>Db</code>类还是模型类查询，全部统一使用<code>find</code>/<code>select</code>方法，取消了之前模型类额外提供的<code>get</code>/<code>all</code>方法。同时取消的方法还包括<code>getOrFail</code>/<code>allOrFail</code>。</p>
+<h3><a id="base_383"></a>取消全局查询范围<code>base</code>方法</h3>
+<p>取消模型类的全局查询范围<code>base</code>方法，改由使用<code>globalScope</code>属性定义（数组）需要全局查询的查询范围方法。</p>
+<h3><a id="_387"></a>模型事件调整</h3>
+<p>模型事件不再需要使用<code>event</code>方法注册事件，统一在模型类中定义事件方法，例如</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\index\model<span class="token punctuation">;</span>
+
+use think\Model<span class="token punctuation">;</span>
+
+class <span class="token class-name">User</span> extends <span class="token class-name">Model</span>
+<span class="token punctuation">{</span>
+    public <span class="token keyword">function</span> <span class="token function">onAfterRead</span><span class="token punctuation">(</span>$user<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        $user<span class="token operator">-</span><span class="token operator">&gt;</span>extra <span class="token operator">=</span> <span class="token string">'extra'</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    public <span class="token keyword">function</span> <span class="token function">onBeforeWrite</span><span class="token punctuation">(</span>$user<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        $user<span class="token operator">-</span><span class="token operator">&gt;</span>extra <span class="token operator">=</span> <span class="token string">'extra'</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>并且模型增加<code>after_read</code>事件，在查询后创建模型对象实例的时候触发。</p>
+<h3><a id="_413"></a>取消模型自动完成</h3>
+<p>模型的自动完成功能已经取消，请使用模型事件代替。</p>
+<h3><a id="save_417"></a>模型<code>save</code>方法调整</h3>
+<p>模型类的<code>save</code>方法不再支持<code>where</code>参数。</p>
+<h3><a id="_421"></a>关联统计调整</h3>
+<p>如果你的关联统计使用了闭包方式返回关联统计字段，需要调整为如下方式：</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">User<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">withCount</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'cards'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token keyword">function</span><span class="token punctuation">(</span>$query<span class="token punctuation">,</span><span class="token operator">&amp;</span>$name<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    $query<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">where</span><span class="token punctuation">(</span><span class="token string">'status'</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    $name <span class="token operator">=</span> <span class="token string">'card_count'</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">select</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h3><a id="_431"></a>模型和数据集的输出调整</h3>
+<p>取消<code>hidden</code>/<code>visible</code>/<code>append</code>方法的第二个参数，当你调用这几个方法的时候，无论模型是否设置了相关属性，都会直接覆盖之前设置的值。</p>
+<h3><a id="_435"></a>查询缓存调整</h3>
+<p>如果希望在更新和删除之后自动清除之前的查询缓存，必须在<code>cache</code>方法中传入key值而不是<code>true</code>。</p>
+<h3><a id="selfRelation_439"></a>删除关联类<code>selfRelation</code>方法</h3>
+<p>如果你在定义关联的时候使用了<code>selfRelation</code>方法，请直接删除该方法，目前已经不再需要，会自动识别是否为自关联。</p>
+<h3><a id="setEagerlyType_443"></a>删除关联类的<code>setEagerlyType</code>方法</h3>
+<p>一对一关联无需在定义关联的时候指定为<code>JOIN</code>查询，在查询的时候直接使用<code>withJoin</code>方法即可使用<code>JOIN</code>方式进行关联查询。</p>
+<h3><a id="_447"></a>多对多关联</h3>
+<p>多对多关联的<code>pivotDataName</code>方法更名为更简单的<code>name</code>方法。</p>
+<h2><a id="_451"></a>第六步：行为调整</h2>
+<p>行为和<code>Hook</code>已经用新版的事件机制替代，需要把你的行为改成事件响应或者中间件（部分请求拦截的行为可以直接改为中间件）。</p>
+<p>原来的系统内置钩子的行为类</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace app\index\behavior<span class="token punctuation">;</span>
+
+class <span class="token class-name">Hello</span>
+<span class="token punctuation">{</span>
+    public <span class="token keyword">function</span> <span class="token function">run</span><span class="token punctuation">(</span>$params<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token comment">// 行为逻辑</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>可以改成事件监听类</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">namespace app\index\listener<span class="token punctuation">;</span>
+
+class <span class="token class-name">Hello</span>
+<span class="token punctuation">{</span>
+    public <span class="token keyword">function</span> <span class="token function">handle</span><span class="token punctuation">(</span>$event<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token comment">// 事件监听处理</span>
+    <span class="token punctuation">}</span>   
+<span class="token punctuation">}</span>
+</code></pre></div>
+<p>然后在应用目录的<code>event.php</code>文件中配置事件监听。</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token keyword">return</span> <span class="token punctuation">[</span>
+    <span class="token string">'listen'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span>    <span class="token punctuation">[</span>
+        <span class="token string">'AppInit'</span>    <span class="token operator">=</span><span class="token operator">&gt;</span>    <span class="token punctuation">[</span><span class="token string">'\app\index\listener\Hello'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+        <span class="token comment">// 更多事件监听</span>
+    <span class="token punctuation">]</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>修改完成后，你可以删除应用目录下不再使用的<code>tags.php</code>文件。</p>
+<p>内置事件和钩子的对应关系如下：</p>
+<table><thead><tr><th>事件</th><th>对应<code>5.1</code>钩子</th><th>参数</th></tr></thead><tbody><tr><td><code>AppInit</code></td><td><code>app_init</code></td><td>无</td></tr><tr><td><code>AppEnd</code></td><td><code>app_end</code></td><td>当前响应对象实例</td></tr><tr><td><code>LogWrite</code></td><td><code>log_write</code></td><td>当前写入的日志信息</td></tr><tr><td><code>LogLevel</code></td><td><code>log_level</code></td><td>包含日志类型和日志信息的数组</td></tr></tbody></table>
+<blockquote class="danger"><p>原来的<code>app_begin</code>、<code>response_send</code>、<code>response_end</code>、<code>action_begin</code>、<code>module_init</code>和<code>view_filter</code>钩子已经废弃。</p></blockquote>
+<h2><a id="_506"></a>第七步：其它调整及注意事项</h2>
+<h3><a id="Facade_508"></a>系统<code>Facade</code>类库别名取消</h3>
+<p>系统<code>Facade</code>类库的别名已经取消，因此不能再使用</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">use Route<span class="token punctuation">;</span>
+Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">rule</span><span class="token punctuation">(</span><span class="token string">'hello/:name'</span><span class="token punctuation">,</span> <span class="token string">'index/hello'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<p>必须使用</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container">use think\facade\Route<span class="token punctuation">;</span>
+Route<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">rule</span><span class="token punctuation">(</span><span class="token string">'hello/:name'</span><span class="token punctuation">,</span> <span class="token string">'index/hello'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div>
+<h3><a id="Session_521"></a><code>Session</code>调整</h3>
+<p><code>Session</code>新版默认不开启，必须为在全局中间件定义文件中添加</p>
+<div class="ಠcopy-code-container"><pre><code class="ಠhighlight-container"><span class="token string">'think\middleware\SessionInit'</span>
+</code></pre></div>
+<p>原来的<code>Session::get()</code> 可以获取全部的Session数据必须改成 <code>Session::all()</code></p>
+<h3><a id="_530"></a>严格类型检查</h3>
+<p>由于新版框架核心类库全面启用强类型参数，并且使用严格模式，所以在调用系统方法的时候一定要注意参数的类型，或者注意看抛出的异常信息进行修正。</p>
+<blockquote class="success"><p>最后，希望你的<code>6.0</code>升级之旅顺利^_^ ，希望大家在升级和使用<code>6.0</code>的过程中，多反馈和建议，帮助我们尽快完善和发布正式版本。</p></blockquote>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="css/tzhhone.css">
+<link rel="stylesheet" href="css/style.css">
+<style type="text/css" data-react-helmet="true">
+
+    pre {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+    }
+
+    code {
+        background: #f9fafa;
+        border: 1px solid #ded9d9;
+        margin: 0px 5px;
+        padding: 2px 6px;
+    }
+
+    pre code {
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .default {
+        border-left: 5px solid #5bc0de;
+        margin: 8px 0;
+        padding: 8px 16px;
+        background-color: #f4f8fa;
+        color: #5bc0de;
+    }
+
+    strong {
+        background-color: yellow;
+        padding: 2px 5px;
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.1;
+        color: #222223;
+        margin: 10px 0px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    h3 {
+
+        font-size: 24px;
+        font-weight: 400;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+    }
+
+    blockquote p {
+        margin-bottom: 0.46em;
+    }
+
+    p {
+        line-height: 30px;
+        margin-top: 0;
+        margin-bottom: 1.46em;
+        font: 300 17px/1.62 "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+    }
+
+    table {
+        line-height: 30px;
+        font-family: IBM Plex Mono, Space Grotesk, Roboto Slab, Microsoft YaHei, sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+
+    li {
+        line-height: 30px;
+        font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", "SimSun", sans-serif;
+        font-weight: 300;
+        font-size: 17px;
+    }
+</style>
+</html>
